@@ -29,8 +29,7 @@ def _get_bounding_box(lat, lon):
 
 def _base4(i):
     """
-    Turn Base 10 (given StreetSide MetaData ID)
-    into Base 4.
+    Turn Base 10 into Base 4.
 
     To be used with obtaining StreetSide tiles.
     """
@@ -55,7 +54,7 @@ def get_bubble(bounds):
 
     bubble = {                                                                                        
         "bubble_id": bubble_id,
-        "base4_bubble": base4_bubbleid,
+        "base4_bubble": str(base4_bubbleid).zfill(16),
         "lat": json[1]["lo"],
         "lon": json[1]["la"],
         "date": json[1]["cd"]
@@ -67,3 +66,6 @@ def get_bubble(bounds):
 
 # -33.437422 
 # -70.635805
+
+if __name__ == '__main__':
+    print(str(_base4(118031601)).zfill(16))
