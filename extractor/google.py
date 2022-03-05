@@ -12,7 +12,7 @@ def _build_sv_url(panoID, zoom=3, x=0, y=0):
     """
     Builds Google CDN URL that has imagery tile
     """
-    url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={panoID}&x={x}&y={y}&{zoom}=zoom&nbt=1&fover=2"
+    url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={panoID}&x={x}&y={y}&zoom={zoom}&nbt=1&fover=2"
     return url
 
 def _build_photometa_url(lat, lon):
@@ -42,19 +42,18 @@ def get_pano_id(lat, lon) -> list:
 
 def _find_max_zoom(panoID):
     """
-    Finds minimum and maximum available zoom from Google Pano ID
+    Finds minimum and maximum available zoom from given panorama ID.
     """
+    i = []
     for zoom in range(0, 6):
-        available_zooms = []
         url = _build_sv_url(panoID, zoom)
         r = requests.get(url).status_code
         match r:
             case 200:
-                available_zooms.append(zoom)
+                i.append(zoom)
             case _:
                 pass
-        
-    return range(available_zooms[0], available_zooms[-1])
+    return range(i[0], i[-1])
 
 def _find_axis(panoID, zoom):
     x = 0
@@ -125,4 +124,4 @@ def _download(panoID, zoom=4, keep_tiles=False):
         break
 
 if __name__ == "__main__":
-    print(get_pano_id(4.693804134471107, -74.08623748517866))
+    print(_find_max_zoom("aV__KKhm3f7txpSRMB3fVA"))
