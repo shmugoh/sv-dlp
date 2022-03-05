@@ -22,7 +22,7 @@ def _build_photometa_url(lat, lon):
     url = f"https://www.google.com/maps/photometa/si/v1?pb=!1m4!1smaps_sv.tactile!11m2!2m1!1b1!2m4!1m2!3d{lat}!4d{lon}!2d50!3m17!1m2!1m1!1e2!2m2!1ses-419!2sco!9m1!1e2!11m8!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!4m57!1e1!1e2!1e3!1e4!1e5!1e6!1e8!1e12!2m1!1e1!4m1!1i48!5m1!1e1!5m1!1e2!6m1!1e1!6m1!1e2!9m36!1m3!1e2!2b1!3e2!1m3!1e2!2b0!3e3!1m3!1e3!2b1!3e2!1m3!1e3!2b0!3e3!1m3!1e8!2b0!3e3!1m3!1e1!2b0!3e3!1m3!1e4!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e10!2b0!3e3"
     return url
 
-def get_pano_id(lat, lon):
+def get_pano_id(lat, lon) -> list:
     """
     Returns closest Google panorama ID to given parsed coordinates.
     """
@@ -123,3 +123,6 @@ def _download(panoID, zoom=4, keep_tiles=False):
             current_x = 0
             current_y += 1
         break
+
+if __name__ == "__main__":
+    print(get_pano_id(4.693804134471107, -74.08623748517866))
