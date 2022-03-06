@@ -55,7 +55,7 @@ def _find_max_zoom(panoID):
                 pass
     return range(i[0], i[-1])
 
-def _find_axis(panoID, zoom):
+def _find_max_axis(panoID, zoom) -> dict["x", "y"]:
     x = 0
     y = 0
     x_axis = []
@@ -67,9 +67,10 @@ def _find_axis(panoID, zoom):
         r = requests.get(url).status_code
         match r:
             case 200:
-                x_axis.append(zoom)
+                x_axis = x
                 x += 1
             case _:
+                x = 0
                 break
 
     # y axis
@@ -78,14 +79,16 @@ def _find_axis(panoID, zoom):
         r = requests.get(url).status_code
         match r:
             case 200:
-                y_axis.append(zoom)
+                y_axis = y
                 y += 1
             case _:
                 break
     
-    return x_axis, y_axis
-    # not an efficient solution for now, will try to change later
-        
+    max_axis = {
+        "x": x_axis,
+        "y": y_axis
+    }
+    return max_axis        
 
 def download_tile(panoID, x, y, i, zoom):
     """
@@ -124,4 +127,8 @@ def _download(panoID, zoom=4, keep_tiles=False):
         break
 
 if __name__ == "__main__":
-    print(_find_max_zoom("aV__KKhm3f7txpSRMB3fVA"))
+    a = _find_max_zoom("jYxwHUdPuhm8NGfAH6y8IA")
+    half_zoom = a.stop // 2
+    print(_build_sv_url("jYxwHUdPuhm8NGfAH6y8IA", half_zoom))
+    b = _find_max_axis("jYxwHUdPuhm8NGfAH6y8IA", half_zoom)
+    print(b)
