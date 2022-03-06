@@ -133,29 +133,29 @@ def is_trekker(pano_id) -> bool:
     return len(json[1][0][5][0][3][0][0][2]) > 3
 
 # might scrape this
-def _download(panoID, zoom=4, keep_tiles=False): 
+# def _download(panoID, zoom=4, keep_tiles=False): 
     
-    # Downloads the tiles
-    current_tile = 0
-    max_x, current_x = 13, 0
-    max_y, current_y = 5, 0
-    print(max_y, max_x)
-    tile_array=np.full([max_y, max_x], None)
-    # print(tile_array)
+#     Downloads the tiles
+#     current_tile = 0
+#     max_x, current_x = 13, 0
+#     max_y, current_y = 5, 0
+#     print(max_y, max_x)
+#     tile_array=np.full([max_y, max_x], None)
+#     print(tile_array)
 
-    while True:
-        for i in range(current_y, max_y):
-            # print(current_y)
-            for i in range(current_x, max_x):
-                tiles.download_tile(panoID, current_x, current_y, current_tile, zoom)
-                # print(current_x, current_y)
-                tile_array[current_y, current_x] = (f"tile{current_tile}.png")
-                # print(tile_array)
-                current_tile += 1
-                current_x += 1
-            current_x = 0
-            current_y += 1
-        break
+#     while True:
+#         for i in range(current_y, max_y):
+#             print(current_y)
+#             for i in range(current_x, max_x):
+#                 tiles.download_tile(panoID, current_x, current_y, current_tile, zoom)
+#                 print(current_x, current_y)
+#                 tile_array[current_y, current_x] = (f"tile{current_tile}.png")
+#                 print(tile_array)
+#                 current_tile += 1
+#                 current_x += 1
+#             current_x = 0
+#             current_y += 1
+#         break
 
 if __name__ == "__main__":
     pano_id = "_1UQdRzymO0mdbAd8wkGMA"
