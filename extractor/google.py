@@ -7,19 +7,27 @@ from io import BytesIO
 from PIL import Image
 import requests
 import re
+import json as j
 
 def _build_sv_url(panoID, zoom=3, x=0, y=0):
     """
-    Builds Google CDN URL that has imagery tile
+    Builds Google Street View Tile URL
     """
     url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={panoID}&x={x}&y={y}&zoom={zoom}&nbt=1&fover=2"
     return url
 
 def _build_photometa_url(lat, lon):
     """
-    Builds Google URL that includes panorama ID and imagery date
+    Builds Google URL. Includes panorama ID and imagery date
     """
     url = f"https://www.google.com/maps/photometa/si/v1?pb=!1m4!1smaps_sv.tactile!11m2!2m1!1b1!2m4!1m2!3d{lat}!4d{lon}!2d50!3m17!1m2!1m1!1e2!2m2!1ses-419!2sco!9m1!1e2!11m8!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!4m57!1e1!1e2!1e3!1e4!1e5!1e6!1e8!1e12!2m1!1e1!4m1!1i48!5m1!1e1!5m1!1e2!6m1!1e1!6m1!1e2!9m36!1m3!1e2!2b1!3e2!1m3!1e2!2b0!3e3!1m3!1e3!2b1!3e2!1m3!1e3!2b0!3e3!1m3!1e8!2b0!3e3!1m3!1e1!2b0!3e3!1m3!1e4!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e10!2b0!3e3"
+    return url
+
+def _build_geophoto_meta_url(pano_id):
+    """
+    Builds Google Maps API URL. Useful for metadata related stuff.
+    """
+    url = f'https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback=a'
     return url
 
 def get_pano_id(lat, lon) -> list:
@@ -112,6 +120,18 @@ def download_tile(panoID, x, y, i, zoom):
     im = Image.open(BytesIO(r.content))
     im.save(f"tile{i}.png")
 
+def is_trekker(pano_id) -> bool:
+    """
+    Returns if given panorama ID is
+    trekker or not. Might be useful
+    with the planned generator.
+
+    Thank you nur#2584 for guiding me out.
+    """
+    url = _build_geophoto_meta_url(pano_id)
+    json = j.loads(requests.get(url).content[12:-2])
+    return len(json[1][0][5][0][3][0][0][2]) > 3
+
 # might scrape this
 def _download(panoID, zoom=4, keep_tiles=False): 
     
@@ -138,11 +158,12 @@ def _download(panoID, zoom=4, keep_tiles=False):
         break
 
 if __name__ == "__main__":
-    pano_id = "jYxwHUdPuhm8NGfAH6y8IA"
-    max_zoom = _find_max_zoom(pano_id)
-    half_zoom = max_zoom.stop // 2
+    pano_id = "_1UQdRzymO0mdbAd8wkGMA"
+    print(is_trekker(pano_id))
+    # max_zoom = _find_max_zoom(pano_id)
+    # half_zoom = max_zoom.stop // 2
     # print(_build_sv_url("jYxwHUdPuhm8NGfAH6y8IA", half_zoom))
-    max_axis = _find_max_axis(pano_id, half_zoom)
-    tile_arr = _build_tile_arr(pano_id, half_zoom, max_axis)
-    print(tile_arr)
-    print(len(tile_arr))
+    # max_axis = _find_max_axis(pano_id, half_zoom)
+    # tile_arr = _build_tile_arr(pano_id, half_zoom, max_axis)
+    # print(tile_arr)
+    # print(len(tile_arr))
