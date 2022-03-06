@@ -90,6 +90,17 @@ def _find_max_axis(panoID, zoom) -> dict["x", "y"]:
     }
     return max_axis        
 
+def _build_tile_arr(pano_id, zoom, axis_arr):
+    arr = [] 
+    for i in range(zoom):
+        arr.append([])
+
+    for y in range(0, axis_arr['y'] + 1):
+        for x in range(axis_arr['x']):
+            url = _build_sv_url(pano_id, zoom, x, y)
+            arr[y].append(url)
+    return arr
+
 def download_tile(panoID, x, y, i, zoom):
     """
     Downloads one Google Tile
@@ -127,8 +138,11 @@ def _download(panoID, zoom=4, keep_tiles=False):
         break
 
 if __name__ == "__main__":
-    a = _find_max_zoom("jYxwHUdPuhm8NGfAH6y8IA")
-    half_zoom = a.stop // 2
-    print(_build_sv_url("jYxwHUdPuhm8NGfAH6y8IA", half_zoom))
-    b = _find_max_axis("jYxwHUdPuhm8NGfAH6y8IA", half_zoom)
-    print(b)
+    pano_id = "jYxwHUdPuhm8NGfAH6y8IA"
+    max_zoom = _find_max_zoom(pano_id)
+    half_zoom = max_zoom.stop // 2
+    # print(_build_sv_url("jYxwHUdPuhm8NGfAH6y8IA", half_zoom))
+    max_axis = _find_max_axis(pano_id, half_zoom)
+    tile_arr = _build_tile_arr(pano_id, half_zoom, max_axis)
+    print(tile_arr)
+    print(len(tile_arr))
