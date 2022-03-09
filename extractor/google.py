@@ -3,6 +3,7 @@
 # for now, i wanna get an idea on
 # how this would work
 
+from base64 import encode
 from io import BytesIO
 from PIL import Image
 import requests
@@ -28,6 +29,15 @@ def _build_geophoto_meta_url(pano_id):
     Builds Google Maps API URL. Useful for metadata related stuff.
     """
     url = f'https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback=a'
+    return url
+
+def _build_short_url(pano_id) -> str:
+    """
+    Builds API call URL that shorts an encoded URL.
+    Useful for shortening panorama IDs. 
+    """
+    encoded_input = f"https%3A%2F%2Fwww.google.com%2Fmaps%2F%40%3Fapi%3D1%26map_action%3Dpano%26pano%3D{pano_id}" # trynna make it modular
+    url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{encoded_input}'
     return url
 
 def get_pano_id(lat, lon) -> list:
@@ -132,6 +142,16 @@ def is_trekker(pano_id) -> bool:
     json = j.loads(requests.get(url).content[12:-2])
     return len(json[1][0][5][0][3][0][0][2]) > 3
 
+def short_url(pano_id):
+    """
+    Shorts panorama ID by using the 
+    share function found on Google Maps
+    """
+    
+    url = _build_short_url(pano_id)
+    json = j.loads(json = j.loads(requests.get(url).content[5:]))
+    return json[0]
+
 # might scrape this
 # def _download(panoID, zoom=4, keep_tiles=False): 
     
@@ -158,8 +178,8 @@ def is_trekker(pano_id) -> bool:
 #         break
 
 if __name__ == "__main__":
-    pano_id = "_1UQdRzymO0mdbAd8wkGMA"
-    print(is_trekker(pano_id))
+    pano_id = 29.38473178784029, 106.52137775710858
+    print(get_pano_id(29.38473178784029, 106.52137775710858))
     # max_zoom = _find_max_zoom(pano_id)
     # half_zoom = max_zoom.stop // 2
     # print(_build_sv_url("jYxwHUdPuhm8NGfAH6y8IA", half_zoom))
