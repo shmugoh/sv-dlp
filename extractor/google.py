@@ -5,9 +5,12 @@
 
 from base64 import encode
 from io import BytesIO
+from random import randrange
 from PIL import Image
+
 import requests
 import re
+import xmltodict
 import json as j
 
 def _build_sv_url(panoID, zoom=3, x=0, y=0):
@@ -40,6 +43,28 @@ def _build_short_url(pano_id) -> str:
     url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{encoded_input}'
     return url
 
+def _build_cbk_url(pano_id) -> str:
+    '''
+    Builds Google CBK url that returns panorama
+    key data such as image data, coordinates,
+    zoom levels, maximum image size, etc.
+    '''
+    i = randrange(0, 3)
+    url = f'https://cbk{i}.google.com/cbk?output=xml&panoid={pano_id}'
+    return url
+
+def _cbk_to_dict(url: str) -> dict:
+    '''
+    Turns CBK to a Python Dictionary format, as
+    the CBK call is outputed in a XML format.
+
+    Automatically does a GET request, so no need
+    to parse one.
+    '''
+    cbk_xml = requests.get(url).content
+    cbk_dict = xmltodict.parse(cbk_xml)
+    return cbk_dict
+
 def get_pano_id(lat, lon) -> list:
     """
     Returns closest Google panorama ID to given parsed coordinates.
@@ -58,20 +83,13 @@ def get_pano_id(lat, lon) -> list:
     # though keep in mind duplicates should be fixed and removed
     return pan
 
-def _find_max_zoom(panoID):
+def _find_max_zoom(pano_id):
     """
-    Finds minimum and maximum available zoom from given panorama ID.
+    Finds maximum available zoom from given panorama ID.
     """
-    i = []
-    for zoom in range(0, 6):
-        url = _build_sv_url(panoID, zoom)
-        r = requests.get(url).status_code
-        match r:
-            case 200:
-                i.append(zoom)
-            case _:
-                pass
-    return range(i[0], i[-1])
+    url = _build_cbk_url(pano_id)
+    data = _cbk_to_dict(url)
+    return int(data['panorama']['data_properties']['@num_zoom_levels'])
 
 def _find_max_axis(panoID, zoom) -> dict["x", "y"]:
     x = 0
@@ -147,35 +165,10 @@ def short_url(pano_id):
     Shorts panorama ID by using the 
     share function found on Google Maps
     """
-    
+
     url = _build_short_url(pano_id)
     json = j.loads(json = j.loads(requests.get(url).content[5:]))
     return json[0]
-
-# might scrape this
-# def _download(panoID, zoom=4, keep_tiles=False): 
-    
-#     Downloads the tiles
-#     current_tile = 0
-#     max_x, current_x = 13, 0
-#     max_y, current_y = 5, 0
-#     print(max_y, max_x)
-#     tile_array=np.full([max_y, max_x], None)
-#     print(tile_array)
-
-#     while True:
-#         for i in range(current_y, max_y):
-#             print(current_y)
-#             for i in range(current_x, max_x):
-#                 tiles.download_tile(panoID, current_x, current_y, current_tile, zoom)
-#                 print(current_x, current_y)
-#                 tile_array[current_y, current_x] = (f"tile{current_tile}.png")
-#                 print(tile_array)
-#                 current_tile += 1
-#                 current_x += 1
-#             current_x = 0
-#             current_y += 1
-#         break
 
 if __name__ == "__main__":
     pano_id = 29.38473178784029, 106.52137775710858
