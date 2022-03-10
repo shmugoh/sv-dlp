@@ -67,14 +67,14 @@ class google:
         cbk_dict = xmltodict.parse(cbk_xml)
         return cbk_dict
 
-    def get_pano_id(lat, lon) -> list:
+    def get_pano_id(lat, lon) -> dict:
         """
         Returns closest Google panorama ID to given parsed coordinates.
         """
 
         url = urls._build_photometa_url(lat, lon)
         json = requests.get(url).text
-        pans = re.findall(r'\[[0-9]-?,"(.+?)"].+?\[\[null,null,([0-9]+.[0-9]+),(-?[0-9]+.[0-9]+)', json)
+        pans = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
         # formatting should be changed soon
         pan = {                                                                                        
             "pano_id": pans[0][0],
@@ -133,7 +133,7 @@ class google:
         for i in range(zoom):
             arr.append([])
 
-        for y in range(0, axis_arr['y'] + 1):
+        for y in range(0, int(axis_arr['y']) + 1):
             for x in range(axis_arr['x']):
                 url = urls._build_sv_url(pano_id, zoom, x, y)
                 arr[y].append(url)
@@ -173,11 +173,11 @@ class google:
 
 
 if __name__ == "__main__":
-    print(google.get_pano_id(6.238887886647485, -75.59929862989573))
-    # max_zoom = _find_max_zoom(pano_id)
-    # half_zoom = max_zoom.stop // 2
-    # print(_build_sv_url("jYxwHUdPuhm8NGfAH6y8IA", half_zoom))
-    # max_axis = _find_max_axis(pano_id, half_zoom)
-    # tile_arr = _build_tile_arr(pano_id, half_zoom, max_axis)
-    # print(tile_arr)
-    # print(len(tile_arr))
+    pano_id = "jYxwHUdPuhm8NGfAH6y8IA"
+    max_zoom = google._find_max_zoom(pano_id)
+    half_zoom = max_zoom // 2
+    print(urls._build_sv_url(pano_id, half_zoom))
+    max_axis = google._find_max_axis(pano_id, half_zoom)
+    tile_arr = google._build_tile_arr(pano_id, half_zoom, max_axis)
+    print(tile_arr)
+    print(len(tile_arr))
