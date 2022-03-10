@@ -1,6 +1,7 @@
 import requests
 from PIL import Image
 from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
 import os
 
 '''
@@ -9,94 +10,61 @@ i've obtained them from my old code that
 i had saved in my hard drive
 '''
 
-def download(panoID, zoom=4, keep_tiles=False): 
-    # download could obtain the tile url array,
-    # then make io array with the same
-    # length; make threads with the length
-    # of the url array, then download the x axis
-    # depending on the numbered thread.
-    ## while downloading, insert the image
-    ## in the io array 
+def _download_row(row_arr) -> list:
+    buff_arr = [] 
+    for i in range(len(row_arr)): buff_arr.append(None)
+
+    for i in range(len(buff_arr)):
+        url = row_arr[i]
+        img = requests.get(url, stream=True)
+        buff_arr[i] = BytesIO(img.content)
+    return buff_arr
 
 
-    # Downloads the tiles
-    current_tile = 0
-    max_x, current_x = 13, 0
-    max_y, current_y = 5, 0
-    print(max_y, max_x)
-    tile_array=np.full([max_y, max_x], None)
-    # print(tile_array)
+def download_tiles(tile_url_arr):
+    tile_io_array = [] 
+    for i in range(len(tile_url_arr)): tile_io_array.append(None)
 
-    while True:
-        for i in range(current_y, max_y):
-            # print(current_y)
-            for i in range(current_x, max_x):
-                tiles.download_tile(panoID, current_x, current_y, current_tile, zoom)
-                # print(current_x, current_y)
-                tile_array[current_y, current_x] = (f"tile{current_tile}.png")
-                # print(tile_array)
-                current_tile += 1
-                current_x += 1
-            current_x = 0
-            current_y += 1
-        break
+    thread_size = len(tile_url_arr)
+    with ThreadPoolExecutor(max_workers=thread_size) as threads:
+        thread_number = range(thread_size)
+        row_arr = tile_url_arr[thread_number]
+
+        thread = threads.submit(_download_row, row_arr)
+        tile_io_array[thread_number] = thread.result()
     
-    # Merges the tiles
-    tiles._stichTiles(tile_array)
+    return tile_io_array
+
+def _stich_row(row_io_arr):
+    images = [Image.open(x) for x in row_io_arr]
+    widths, heights = zip(*(i.size for i in images))
+    total_width, max_height = sum(widths), max(heights)
+    row_img = Image.new('RGB', (total_width, max_height))
+
+    x = 0
+    for m in images:
+        if m == images[0]:
+            row_img.paste(m, (0, 0))
+        else:
+            row_img.paste(m, (last_image.width*x, 0))
+        last_image = m
+        x += 1
     
-    if keep_tiles is False:
-        for i in range(len(tile_array)):
-            for f in tile_array[i]:
-                os.remove(f)
-    else: pass
+    return row_img
 
-def _stichTiles(tile_array):
-    ## make threads depending on the
-    ## size of the io array, then
-    ## go thru every single one of these and stich them
-    ## return as an io array
-
-    print("pain")
-    print(tile_array)
-    # First phase
-    rows_arr = []
-    for i in range(len(tile_array)):
-        try:
-            images = [Image.open(x) for x in tile_array[i]]
-        except AttributeError: # this is gonna kill the script at some point
-            continue
-        widths, heights = zip(*(i.size for i in images))
-        total_width, max_height = sum(widths), max(heights)  
-        new_im = Image.new('RGB', (total_width, max_height))
-
-        y = 0
-        for m in images:
-            print(m.filename)
-            if m == images[0]:
-                new_im.paste(m, (0, 0))
-            else:
-                new_im.paste(m, (last_image.width*y, 0))
-            last_image = m
-            y += 1
-            new_im.save(f'tilerow{i}.png')
-        rows_arr.append(f'tilerow{i}.png')
-
-def _merge_rows(row_arr):
-    # i think this would work fine
-    # with the io array
-
-    y = 0
-    images = [Image.open(x) for x in row_arr]
+def _merge_rows(rows_io_arr):
+    images = [Image.open(x) for x in rows_io_arr]
     print(len(images))
     height = images[0].height * len(images)
-    merged_im = Image.new('RGB', (images[0].width, height))
+    merged_img = Image.new('RGB', (images[0].width, height))
 
-    for r in images:
-        if r == images[0]:
-            # m.show()
-            merged_im.paste(r, (0, 0))
+    y = 0
+    for tile_row in images:
+        if tile_row == images[0]:
+            merged_img.paste(tile_row, (0, 0))
         else:
-            merged_im.paste(r, (0, last_image.height*y))
-        last_image = r
+            merged_img.paste(tile_row, (0, last_image.height*y))
+        last_image = tile_row
         y += 1
-    merged_im.save("full_pano.png",optimize=True, quality=95)
+    
+    return merged_img
