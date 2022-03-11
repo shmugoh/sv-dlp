@@ -1,24 +1,16 @@
-# will clean up this code later
-# obtained it from my old sv code
-# for now, i wanna get an idea on
-# how this would work
-
-from base64 import encode
-from io import BytesIO
-from random import randrange
-from PIL import Image
-
 import requests
-import re
 import xmltodict
 import json as j
 
+import re
+from random import randrange
+
 class urls:
-    def _build_sv_url(panoID, zoom=3, x=0, y=0):
+    def _build_sv_url(pano_id, zoom=3, x=0, y=0):
         """
         Builds Google Street View Tile URL
         """
-        url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={panoID}&x={x}&y={y}&zoom={zoom}&nbt=1&fover=2"
+        url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={pano_id}&x={x}&y={y}&zoom={zoom}&nbt=1&fover=2"
         return url
 
     def _build_photometa_url(lat, lon):
@@ -93,7 +85,7 @@ class google:
         data = google._cbk_to_dict(url)
         return int(data['panorama']['data_properties']['@num_zoom_levels'])
 
-    def _find_max_axis(panoID, zoom) -> dict["x", "y"]:
+    def _find_max_axis(pano_id, zoom) -> dict["x", "y"]:
         x = 0
         y = 0
         x_axis = []
@@ -101,7 +93,7 @@ class google:
 
         # x axis
         while True:
-            url = urls._build_sv_url(panoID, zoom, x, y)
+            url = urls._build_sv_url(pano_id, zoom, x, y)
             r = requests.get(url).status_code
             match r:
                 case 200:
@@ -113,7 +105,7 @@ class google:
 
         # y axis
         while True:
-            url = urls._build_sv_url(panoID, zoom, x, y)
+            url = urls._build_sv_url(pano_id, zoom, x, y)
             r = requests.get(url).status_code
             match r:
                 case 200:
@@ -139,17 +131,6 @@ class google:
                 arr[y].append(url)
         return arr
 
-    def download_tile(panoID, x, y, i, zoom):
-        """
-        Downloads one Google Tile
-        by given Panorama ID, position and zoom
-        respectfully. 
-        """
-        url = urls._build_sv_url(panoID, zoom, x, y)
-        r = requests.get(url)
-        im = Image.open(BytesIO(r.content))
-        im.save(f"tile{i}.png")
-
     def is_trekker(pano_id) -> bool:
         """
         Returns if given panorama ID is
@@ -173,11 +154,12 @@ class google:
 
 
 if __name__ == "__main__":
-    pano_id = "jYxwHUdPuhm8NGfAH6y8IA"
-    max_zoom = google._find_max_zoom(pano_id)
-    half_zoom = max_zoom // 2
-    print(urls._build_sv_url(pano_id, half_zoom))
-    max_axis = google._find_max_axis(pano_id, half_zoom)
-    tile_arr = google._build_tile_arr(pano_id, half_zoom, max_axis)
-    print(tile_arr)
-    print(len(tile_arr))
+    print(urls._build_photometa_url(50.95475387573242,6.971647262573242))
+    # pano_id = "jYxwHUdPuhm8NGfAH6y8IA"
+    # max_zoom = google._find_max_zoom(pano_id)
+    # half_zoom = max_zoom // 2
+    # print(urls._build_sv_url(pano_id, half_zoom))
+    # max_axis = google._find_max_axis(pano_id, half_zoom)
+    # tile_arr = google._build_tile_arr(pano_id, half_zoom, max_axis)
+    # print(tile_arr)
+    # print(len(tile_arr))
