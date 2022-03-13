@@ -127,7 +127,7 @@ class google:
 
         # print(len(arr))
         for y in range(0, len(arr)):
-            for x in range(axis_arr['x']):
+            for x in range(axis_arr['x'] + 1):
                 url = urls._build_sv_url(pano_id, zoom, x, y)
                 arr[y].append(url)
         return arr
