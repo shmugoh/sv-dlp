@@ -1,3 +1,5 @@
+import sys
+import threading
 import requests
 from PIL import Image
 from io import BytesIO
@@ -25,17 +27,23 @@ def _download_row(row_arr) -> list:
 
 def download_tiles(tile_url_arr):
     tile_io_array = []
-    buff_arr = [] 
+    for i in range(len(tile_url_arr)): tile_io_array.append(None)
+
+    # for i in range(len(tile_url_arr)):
+    #     thread = threading.Thread(target=_download_row, args=(tile_url_arr[i],))
+    #     threads.append(thread)
+    #     thread.start()
+    #     tile_io_array[i] = thread.join()
+
     thread_size = len(tile_url_arr)
     with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
-        tile_io_array = []
+        buff_arr = []
         for row in tile_url_arr:
-            # print(row)
-            buff_arr.append(threads.submit(_download_row, row))
+            buff_arr.insert(tile_url_arr.index(row), threads.submit(_download_row, row))
     
         for thread in concurrent.futures.as_completed(buff_arr):
-            tile_io_array.append(thread.result())
-
+            tile_io_array[buff_arr.index(thread)] = thread.result()
+        
         # tile_io_array[thread_number] = thread.result()
     return tile_io_array
 
@@ -58,7 +66,6 @@ def stich_row(row_io_arr):
 
 def merge_rows(rows_io_arr):
     images = [x for x in rows_io_arr]
-    print(len(images))
     height = images[0].height * len(images)
     merged_img = Image.new('RGB', (images[0].width, height))
 
