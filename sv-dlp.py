@@ -4,7 +4,7 @@ from PIL import Image
 
 from extractor import *
 from postdownload import merge_tiles
-from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 
 app = typer.Typer()
 
@@ -47,12 +47,14 @@ if __name__ == "__main__":
     for i in range(len(tiles_io)): tile_io_array.append(None)
 
     thread_size = len(tiles_io)
-    with ThreadPoolExecutor(max_workers=thread_size) as threads:
-        thread_count = int(threads._thread_name_prefix[-1])
-        row_arr = tile_io_array[thread_count]
-
-        thread = threads.submit(merge_tiles.stich_row, row_arr)
-        tile_io_array[thread_count] = thread.result()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
+        tile_io_array = []
+        buff_arr = []
+        for row in tiles_io:
+            buff_arr.append(threads.submit(merge_tiles.stich_row, row))
+    
+        for thread in concurrent.futures.as_completed(buff_arr):
+            tile_io_array.append(thread.result())
     
     final_image = merge_tiles.merge_rows(tile_io_array)
-    final_image.save("pano.png")
+    final_image.save(f'{pano_id["pano_id"]}.png')

@@ -1,7 +1,7 @@
 import requests
 from PIL import Image
 from io import BytesIO
-from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 import os
 
 '''
@@ -17,25 +17,29 @@ def _download_row(row_arr) -> list:
     for i in range(len(buff_arr)):
         url = row_arr[i]
         img = requests.get(url, stream=True)
-        buff_arr[i] = BytesIO(img.content)
+        img_io = BytesIO(img.content)
+        img_io.seek(0)
+        buff_arr[i] = img_io
     return buff_arr
 
 
 def download_tiles(tile_url_arr):
-    tile_io_array = [] 
-    for i in range(len(tile_url_arr)): tile_io_array.append(None)
-
+    tile_io_array = []
+    buff_arr = [] 
     thread_size = len(tile_url_arr)
-    with ThreadPoolExecutor(max_workers=thread_size) as threads:
-        thread_number = range(thread_size)
-        row_arr = tile_url_arr[thread_number]
-
-        thread = threads.submit(_download_row, row_arr)
-        tile_io_array[thread_number] = thread.result()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
+        tile_io_array = []
+        for row in tile_url_arr:
+            # print(row)
+            buff_arr.append(threads.submit(_download_row, row))
     
+        for thread in concurrent.futures.as_completed(buff_arr):
+            tile_io_array.append(thread.result())
+
+        # tile_io_array[thread_number] = thread.result()
     return tile_io_array
 
-def _stich_row(row_io_arr):
+def stich_row(row_io_arr):
     images = [Image.open(x) for x in row_io_arr]
     widths, heights = zip(*(i.size for i in images))
     total_width, max_height = sum(widths), max(heights)
@@ -52,8 +56,8 @@ def _stich_row(row_io_arr):
     
     return row_img
 
-def _merge_rows(rows_io_arr):
-    images = [Image.open(x) for x in rows_io_arr]
+def merge_rows(rows_io_arr):
+    images = [x for x in rows_io_arr]
     print(len(images))
     height = images[0].height * len(images)
     merged_img = Image.new('RGB', (images[0].width, height))
