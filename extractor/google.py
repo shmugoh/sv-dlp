@@ -122,10 +122,11 @@ class google:
 
     def _build_tile_arr(pano_id, zoom, axis_arr):
         arr = [] 
-        for i in range(zoom):
+        for i in range(int(axis_arr['y']) + 1):
             arr.append([])
 
-        for y in range(0, int(axis_arr['y']) + 1):
+        # print(len(arr))
+        for y in range(0, len(arr)):
             for x in range(axis_arr['x']):
                 url = urls._build_sv_url(pano_id, zoom, x, y)
                 arr[y].append(url)
