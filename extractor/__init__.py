@@ -1,2 +1,2 @@
 import extractor.bing
-from extractor.google import *
+import extractor.google
