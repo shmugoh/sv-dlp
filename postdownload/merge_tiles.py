@@ -62,20 +62,26 @@ def stich_row(row_io_arr):
         last_image = m
         x += 1
     
+    # row_img.show()
     return row_img
 
 def merge_rows(rows_io_arr):
-    images = [x for x in rows_io_arr]
-    height = images[0].height * len(images)
+    images = [img for img in rows_io_arr]
+
+    height = 0
+    height_sum = 0
+    for img in images: height += img.height
     merged_img = Image.new('RGB', (images[0].width, height))
 
     y = 0
-    for tile_row in images:
-        if tile_row == images[0]:
-            merged_img.paste(tile_row, (0, 0))
+    for row in images:
+        if row == images[0]:
+            merged_img.paste(row, (0, 0))
         else:
-            merged_img.paste(tile_row, (0, last_image.height*y))
-        last_image = tile_row
+            height_sum += last_row.height
+            merged_img.paste(row, (0, height_sum))
+        last_row = row
         y += 1
     
+    merged_img.show()
     return merged_img
