@@ -1,4 +1,5 @@
 import os
+import sys
 import typer
 from PIL import Image
 
@@ -34,27 +35,18 @@ def goodbye(
 
 if __name__ == "__main__":
     # services = add_services('extractor')
-    pano_id = google.get_pano_id(-38.737475753012156, -72.59654594112037)
+    pano_id = google.get_pano_id(4.662278433183548, -74.11502894958988)["pano_id"]
     print(pano_id)
-    zoom = google._find_max_zoom(pano_id["pano_id"]) // 2
+    zoom = google._find_max_zoom(pano_id)
 
-    max_axis = google._find_max_axis(pano_id["pano_id"], zoom)
-    tile_arr_url = google._build_tile_arr(pano_id["pano_id"], zoom, max_axis)
-
+    max_axis = google._find_max_axis(pano_id, zoom)
+    tile_arr_url = google._build_tile_arr(pano_id, zoom, max_axis)
     tiles_io = merge_tiles.download_tiles(tile_arr_url)
 
-    tile_io_array = [] 
-    for i in range(len(tiles_io)): tile_io_array.append(None)
+    tile_io_array = []
+    for row in tiles_io:
+        buff = merge_tiles.stich_row(row)
+        tile_io_array.insert(tiles_io.index(row), buff)
 
-    thread_size = len(tiles_io)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
-        tile_io_array = []
-        buff_arr = []
-        for row in tiles_io:
-            buff_arr.append(threads.submit(merge_tiles.stich_row, row))
-    
-        for thread in concurrent.futures.as_completed(buff_arr):
-            tile_io_array.append(thread.result())
-    
     final_image = merge_tiles.merge_rows(tile_io_array)
-    final_image.save(f'{pano_id["pano_id"]}.png')
+    final_image.save(f'{pano_id}.png')
