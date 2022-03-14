@@ -169,9 +169,9 @@ class google:
         share function found on Google Maps
         """
         url = urls._build_short_url(pano_id)
-        json = j.loads(json = j.loads(requests.get(url).content[5:]))
+        json = j.loads(requests.get(url).content[5:])
         return json[0]
 
 
 if __name__ == "__main__":
-    print(google.is_trekker("Ho8umHQ4dGWqNs1glFHYcQ"))
+    print(google.short_url("PofXDllP2dDJ-Cwzl0rwAg"))
