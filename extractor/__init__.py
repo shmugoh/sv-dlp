@@ -1,2 +1,3 @@
 import extractor.bing
-import extractor.google
+from extractor.google import *
+from extractor.baidu import *
