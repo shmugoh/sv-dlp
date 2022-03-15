@@ -13,13 +13,15 @@ i had saved in my hard drive
 '''
 
 def _download_row(row_arr) -> list:
-    buff_arr = [] 
+    buff_arr = []
     for i in range(len(row_arr)): buff_arr.append(None)
 
     for i in range(len(buff_arr)):
         url = row_arr[i]
         img = requests.get(url, stream=True)
         img_io = BytesIO(img.content)
+        # print(img.status_code)
+        # print(img.url)
         img_io.seek(0)
         buff_arr[i] = img_io
     return buff_arr
@@ -40,10 +42,10 @@ def download_tiles(tile_url_arr):
         buff_arr = []
         for row in tile_url_arr:
             buff_arr.insert(tile_url_arr.index(row), threads.submit(_download_row, row))
-    
+
         for thread in concurrent.futures.as_completed(buff_arr):
             tile_io_array[buff_arr.index(thread)] = thread.result()
-        
+
         # tile_io_array[thread_number] = thread.result()
     return tile_io_array
 
@@ -61,7 +63,7 @@ def stich_row(row_io_arr):
             row_img.paste(m, (last_image.width*x, 0))
         last_image = m
         x += 1
-    
+
     # row_img.show()
     return row_img
 
@@ -82,6 +84,6 @@ def merge_rows(rows_io_arr):
             merged_img.paste(row, (0, height_sum))
         last_row = row
         y += 1
-    
+
     merged_img.show()
     return merged_img
