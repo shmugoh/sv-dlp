@@ -85,5 +85,5 @@ def merge_rows(rows_io_arr):
         last_row = row
         y += 1
 
-    merged_img.show()
+    # merged_img.show()
     return merged_img
