@@ -1,5 +1,4 @@
 import requests
-import xmltodict
 import json as j
 
 import re
@@ -18,7 +17,7 @@ class urls:
         Build Google URL containing panorama ID and imagery date
         from coordinates.
         """
-        url = f"https://www.google.com/maps/photometa/si/v1?pb=!1m4!1smaps_sv.tactile!11m2!2m1!1b1!2m4!1m2!3d{lat}!4d{lon}!2d50!3m17!1m2!1m1!1e2!2m2!1ses-419!2sco!9m1!1e2!11m8!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!4m57!1e1!1e2!1e3!1e4!1e5!1e6!1e8!1e12!2m1!1e1!4m1!1i48!5m1!1e1!5m1!1e2!6m1!1e1!6m1!1e2!9m36!1m3!1e2!2b1!3e2!1m3!1e2!2b0!3e3!1m3!1e3!2b1!3e2!1m3!1e3!2b0!3e3!1m3!1e8!2b0!3e3!1m3!1e1!2b0!3e3!1m3!1e4!2b0!3e3!1m3!1e10!2b1!3e2!1m3!1e10!2b0!3e3"
+        url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{lat}!4d{lon}!2d50!3m18!2m2!1sen!2sUS!9m1!1e2!11m12!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!1m3!1e10!2b1!3e2!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback=_xdc_._clm717"
         return url
 
     def _build_metadata_url(pano_id) -> str:
@@ -56,6 +55,7 @@ class google:
 
         url = urls._build_pano_url(lat, lon)
         json = requests.get(url).text
+        # print(json)
         pans = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
         # formatting should be changed soon
         pan = {
@@ -172,6 +172,5 @@ class google:
         json = j.loads(requests.get(url).content[5:])
         return json[0]
 
-
 if __name__ == "__main__":
-    print(google.short_url("PofXDllP2dDJ-Cwzl0rwAg"))
+    print(google.get_pano_id(46.574256133593444, -90.97071889727174))
