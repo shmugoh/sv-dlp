@@ -150,7 +150,6 @@ def is_trekker(pano_id) -> bool:
     """
     url = urls._build_metadata_url(pano_id)
     data = requests.get(url).json()
-    print(data["Data"])
     data["Data"]["scene"] = 0
 
     if int(data["Data"]["scene"]) == 1:
