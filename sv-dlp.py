@@ -14,41 +14,20 @@ parser = argparse.ArgumentParser(
     ''',
 )
 
-'''
-might move these arguments to a separate script lul
-'''
-parser.add_argument(
-    'pano',
-    metavar='pano',
-    nargs="+",
-    help='input to scrape from. can be panorama ID or coordinates'
-)
-parser.add_argument(
-    '-s', '--service',
-    metavar='',
-    nargs=1,
-    default=['google'],
-    help='service to scrape from'
-)
-parser.add_argument(
-    '-z', '--zoom',
-    action='count',
-    default=(-1),
-    # help='an integer for the accumulator'
-)
-parser.add_argument(
-    '-l', '--short-link',
-    action='store_true',
-    default=False,
-    help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.'
-)
-args = parser.parse_args()
-
 def _is_coord(coords):
-    for coord in coords:
-        if float(coord[:-1]):
-            return True
-        else: return False
+    try:
+        for coord in coords:
+            if float(coord[:-1]):
+                return True
+    except ValueError: 
+        return False
+def is_url(url):
+    if url[0][0:5] == 'https':
+        return True
+    else:
+        print("nope")
+        return False
+
 def download_panorama(tile_arr_url, keep_tiles=False):
     print("Downloading Tiles...")
     tiles_io = merge_tiles.download_tiles(tile_arr_url)
@@ -62,36 +41,75 @@ def download_panorama(tile_arr_url, keep_tiles=False):
     img = merge_tiles.merge_rows(tile_io_array)
     return img
 
-if args.pano:
+def main(args=None):
+    parser.add_argument('pano',
+        metavar='', nargs="+",
+        help='input to scrape from. can be panorama ID or coordinates')
+    parser.add_argument('-s', '--service',
+        metavar='', nargs=1, default=['google'],
+        help='service to scrape from')
+    parser.add_argument('-z', '--zoom',
+        default=(-1),
+        # help='an integer for the accumulator'
+    )
+
+    parser.add_argument('-d', '--download',
+        action='store_const', dest='action', const='download',
+        default='download',
+        help='downloads panorama')
+
+    parser.add_argument('-l', '--short-link',
+        action='store_const', dest='action', const='short-link',
+        help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.')
+    
+    parser.add_argument('-p', '--get-pano',
+        action='store_const', dest='action', const='get-pano',
+        help='obtains panorama id from coordinates or url')
+
+    
+    args = parser.parse_args(args=args)
+
+    try:
+        service = getattr(extractor, args.service[0])
+    except AttributeError:
+        print("ERROR: Invalid Service")
+        sys.exit(1)
+    
     pano = args.pano
+    if is_url(pano):
+        pano = service.get_pano_from_short_url(pano[0])[0]
+        pass
     if _is_coord(pano):
         lat = float(pano[0][:-1])
         lng = float(pano[1])
+        pass
 
-try:
-    service = getattr(extractor, args.service[0])
-except AttributeError:
-    print("ERROR: Invalid Service")
-    sys.exit(1)
+    try:
+        if lat and lng:
+            print("Getting Panorama ID...")
+            pano = service.get_pano_id(lat, lng)["pano_id"]
+    except NameError: # lat and lng variables not defined
+        pass
 
-if lat and lng:
-    print("Getting Panorama ID...")
-    pano = service.get_pano_id(lat, lng)["pano_id"]
+    match args.action:
+        case 'download':
+            zoom = args.zoom
+            if zoom == -1:
+                print("Obtaining zoom...")
+                zoom = service.get_max_zoom(pano) // 2
+            print("Obtaining Tile URLs...")
+            max_axis = service._find_max_axis(pano, zoom)
+            tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
 
-if args.short_link:
-    print(service.short_url(pano))
-    sys.exit()
+            img = download_panorama(tile_arr_url)
+            img.save(f"{pano}.png")
+        
+        case 'short-link':
+            print(service.short_url(pano))
+        
 
-if args.zoom == -1:
-    print("Obtaining zoom...")
-    zoom = service.get_max_zoom(pano) // 2
-print("Obtaining Tile URLs...")
-max_axis = service._find_max_axis(pano, zoom)
-tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
-
-
-img = download_panorama(tile_arr_url)
-img.save(f"{pano}.png")
+        case 'get-pano':
+            print(pano)
 
 # # def metadata(
 # #     pano: str,
@@ -124,3 +142,6 @@ img.save(f"{pano}.png")
 # #                         typer.echo(pprint(google.get_metadata(pano)))
 # #                     case "trekker":
 # #                         typer.echo(google.is_trekker(pano))
+
+if __name__ == '__main__':
+    main()
