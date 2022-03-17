@@ -1,11 +1,14 @@
 import argparse
+from datetime import date
 import sys
 from time import sleep
 
+from pprint import pprint
+
 import extractor
 from extractor import * # yikes
-
 from postdownload import merge_tiles
+
 
 parser = argparse.ArgumentParser(
     description='''
@@ -43,13 +46,13 @@ def download_panorama(tile_arr_url, keep_tiles=False):
 
 def main(args=None):
     parser.add_argument('pano',
-        metavar='', nargs="+",
+        metavar='panorama', nargs="+",
         help='input to scrape from. can be panorama ID or coordinates')
     parser.add_argument('-s', '--service',
         metavar='', nargs=1, default=['google'],
         help='service to scrape from')
     parser.add_argument('-z', '--zoom',
-        default=(-1),
+        metavar='', default=(-1),
         # help='an integer for the accumulator'
     )
 
@@ -62,9 +65,21 @@ def main(args=None):
         action='store_const', dest='action', const='short-link',
         help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.')
     
+    parser.add_argument('--get-metadata',
+        action='store_const', dest='action', const='get-metadata',
+        help='obtains metadata')
+    parser.add_argument('--get-date',
+        action='store_const', dest='action', const='get-date',
+        help='obtains date')
+    parser.add_argument('--get-coords',
+        action='store_const', dest='action', const='get-coords',
+        help='obtains coords')
     parser.add_argument('-p', '--get-pano',
         action='store_const', dest='action', const='get-pano',
         help='obtains panorama id from coordinates or url')
+    parser.add_argument('--is-trekker',
+        action='store_const', dest='action', const='is-trekker',
+        help='obtains coords')
 
     
     args = parser.parse_args(args=args)
@@ -91,8 +106,8 @@ def main(args=None):
     except NameError: # lat and lng variables not defined
         pass
 
-    match args.action:
-        case 'download':
+    match args.action:      # might prob divide it in divisions
+        case 'download':    # such as metadata
             zoom = args.zoom
             if zoom == -1:
                 print("Obtaining zoom...")
@@ -107,41 +122,19 @@ def main(args=None):
         case 'short-link':
             print(service.short_url(pano))
         
-
+        case 'get-metadata':
+            data = service.get_metadata(pano)
+            pprint(data)
+        case 'get-date':
+            date = service.get_date(pano)
+            print(date)
         case 'get-pano':
             print(pano)
-
-# # def metadata(
-# #     pano: str,
-# #     get_coords: bool=typer.Option(False, "--get-coords"),
-# #     get_date: bool=typer.Option(False, "--get-date"),
-# #     get_metadata: bool=typer.Option(False, "--get-metadata")):
-
-# #     metadata_flags = {
-# #         "coords": get_coords,
-# #         "date": get_date,
-# #         "metadata": get_metadata
-# #     }
-
-# #     is_coord = _is_coord(pano)
-# #     if is_coord:
-# #         pano = pano.split(',')
-# #         lat, lon = [float(i) for i in pano]
-# #         pano = google.get_pano_id(lat, lon)['pano_id']
-
-# #     if "True" in str(metadata_flags):
-# #         for i in metadata_flags:
-# #             if metadata_flags[i] == True:
-
-# #                 match i:
-# #                     case "coords":
-# #                         typer.echo(google.get_coords(pano))
-# #                     case "date":
-# #                         typer.echo(google.get_image_date(pano))
-# #                     case "metadata":
-# #                         typer.echo(pprint(google.get_metadata(pano)))
-# #                     case "trekker":
-# #                         typer.echo(google.is_trekker(pano))
+        case 'get-coords':
+            coords = service.get_coords(pano)
+            print(coords)
+        case 'is-trekker':
+            print(service.is_trekker(pano))
 
 if __name__ == '__main__':
     main()
