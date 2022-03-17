@@ -25,18 +25,24 @@ parser.add_argument(
 )
 parser.add_argument(
     '-s', '--service',
-    metavar='service',
+    metavar='',
     nargs=1,
     default=['google'],
     help='service to scrape from'
 )
 parser.add_argument(
     '-z', '--zoom',
-    metavar='zoom',
+    metavar='',
     nargs=1,
     type=int,
     default=[0],
     # help='an integer for the accumulator'
+)
+parser.add_argument(
+    '-l', '--short-link',
+    action='store_true',
+    default=False,
+    help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.'
 )
 args = parser.parse_args()
 
@@ -45,7 +51,6 @@ def _is_coord(coords):
         if float(coord[:-1]):
             return True
         else: return False
-
 def download_panorama(tile_arr_url, keep_tiles=False):
     print("Downloading Tiles...")
     tiles_io = merge_tiles.download_tiles(tile_arr_url)
@@ -74,10 +79,14 @@ except AttributeError:
 if lat and lng:
     print("Getting Panorama ID...")
     pano = service.get_pano_id(lat, lng)["pano_id"]
-# print(pano)
-if args.zoom == [0]:
-    zoom = service.get_max_zoom(pano) // 2
 
+if args.short_link:
+    print(service.short_url(pano))
+    sys.exit()
+
+if args.zoom == [0]:
+    print("Obtaining zoom...")
+    zoom = service.get_max_zoom(pano) // 2
 print("Obtaining Tile URLs...")
 max_axis = service._find_max_axis(pano, zoom)
 tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
