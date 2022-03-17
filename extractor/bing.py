@@ -92,7 +92,7 @@ def _find_max_axis(base4_bubble, zoom=2):
 
     return arr
 
-def get_max_zoom(pano_id):
+def get_max_zoom(**kwargs):
     return 3
 
 def _build_tile_arr(bubble, axis_arr):
