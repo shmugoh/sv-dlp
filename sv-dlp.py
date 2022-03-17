@@ -32,10 +32,8 @@ parser.add_argument(
 )
 parser.add_argument(
     '-z', '--zoom',
-    metavar='',
-    nargs=1,
-    type=int,
-    default=[0],
+    action='count',
+    default=(-1),
     # help='an integer for the accumulator'
 )
 parser.add_argument(
@@ -84,7 +82,7 @@ if args.short_link:
     print(service.short_url(pano))
     sys.exit()
 
-if args.zoom == [0]:
+if args.zoom == -1:
     print("Obtaining zoom...")
     zoom = service.get_max_zoom(pano) // 2
 print("Obtaining Tile URLs...")
