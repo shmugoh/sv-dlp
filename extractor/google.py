@@ -47,6 +47,11 @@ class urls:
         url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{encoded_input}'
         return url
 
+def get_pano_from_short_url(url):
+    url = requests.get(url).url
+    pano_id = re.findall(r'1s(.+)!2e', url)
+    return pano_id
+
 def get_pano_id(lat, lon) -> dict:
     """
     Returns closest Google panorama ID to given parsed coordinates.
