@@ -1,9 +1,9 @@
 import argparse
+import sys
 from time import sleep
 
-from extractor.google import google
-from extractor.bing import bing
-from extractor.baidu import baidu
+import extractor
+from extractor import * # yikes
 
 from postdownload import merge_tiles
 
@@ -65,35 +65,23 @@ if args.pano:
         lat = float(pano[0][:-1])
         lng = float(pano[1])
 
-print("Obtaining Tile URLs...")
-match args.service[0]:
-    case 'google':
-        if lat and lng:
-            print("Getting Panorama ID...")
-            pano = google.get_pano_id(lat, lng)["pano_id"]
-        # print(pano)
-        if args.zoom == [0]:
-            zoom = google._find_max_zoom(pano) // 2
+try:
+    service = getattr(extractor, args.service[0])
+except AttributeError:
+    print("ERROR: Invalid Service")
+    sys.exit(1)
 
-        max_axis = google._find_max_axis(pano, zoom)
-        tile_arr_url = google._build_tile_arr(pano, zoom, max_axis)
-    case 'bing':
-        if lat and lng:
-            bounds = bing._get_bounding_box(lat, lng)
-            pano = bing.get_bubble(bounds)['base4_bubble']
-        
-        max_axis = bing._find_axis(pano)
-        tile_arr_url = bing._build_tile_arr(pano, max_axis)
-    case 'baidu':
-        if lat and lng:
-            pano = baidu.get_pano_id(lat, lng)
-        if args.zoom == [0]:
-            zoom = baidu._find_max_zoom(pano) // 2
-        
-        max_axis = baidu._find_max_axis(pano, zoom)
-        tile_arr_url = bing._build_tile_arr(pano, zoom, max_axis)
-    case _:
-        print("Invalid service")
+if lat and lng:
+    print("Getting Panorama ID...")
+    pano = service.get_pano_id(lat, lng)["pano_id"]
+# print(pano)
+if args.zoom == [0]:
+    zoom = service.get_max_zoom(pano) // 2
+
+print("Obtaining Tile URLs...")
+max_axis = service._find_max_axis(pano, zoom)
+tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
+
 
 img = download_panorama(tile_arr_url)
 img.save(f"{pano}.png")
