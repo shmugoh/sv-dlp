@@ -7,6 +7,8 @@ import extractor
 from extractor import * # yikes
 from postdownload import merge_tiles
 
+from PIL import Image
+
 
 parser = argparse.ArgumentParser(
     description='''
@@ -26,14 +28,21 @@ def is_url(url):
     if url[0][0:5] == 'https':
         return True
     else:
-        print("nope")
         return False
 
-def download_panorama(tile_arr_url, keep_tiles=False):
+def download_panorama(tile_arr_url, save_tiles=False):
     print("Downloading Tiles...")
     tiles_io = merge_tiles.download_tiles(tile_arr_url)
 
-    print("Merging tiles...")
+    if save_tiles:
+        print("Saving Tiles...")
+        for row in tiles_io:
+            for tile in row:
+                img = Image.open(tile)
+                i = f'{tiles_io.index(row)}{row.index(tile)}'
+                img.save(f'tile{i}.png')
+
+    print("Merging Tiles...")
     tile_io_array = []
     for row in tiles_io:
         buff = merge_tiles.stich_row(row)
@@ -43,6 +52,7 @@ def download_panorama(tile_arr_url, keep_tiles=False):
     return img
 
 def main(args=None):
+#   --- flags ---
     parser.add_argument('pano',
         metavar='panorama', nargs="+",
         help='input to scrape from. can be panorama ID or coordinates')
@@ -53,16 +63,21 @@ def main(args=None):
         metavar='', default=(-1),
         # help='an integer for the accumulator'
     )
+    parser.add_argument('--save-tiles',
+        action='store_true', default='False',
+        help='sets if tiles should be saved to current folder or not')
 
+#   --- actions ---
     parser.add_argument('-d', '--download',
         action='store_const', dest='action', const='download',
         default='download',
-        help='downloads panorama')
+        help='downloads panorama to current folder')
 
+
+#   --- metadata ---
     parser.add_argument('-l', '--short-link',
         action='store_const', dest='action', const='short-link',
         help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.')
-
     parser.add_argument('--get-metadata',
         action='store_const', dest='action', const='get-metadata',
         help='obtains metadata')
@@ -113,7 +128,7 @@ def main(args=None):
             max_axis = service._find_max_axis(pano, zoom)
             tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
 
-            img = download_panorama(tile_arr_url)
+            img = download_panorama(tile_arr_url, args.save_tiles)
             img.save(f"{pano}.png")
 
         case 'short-link':
