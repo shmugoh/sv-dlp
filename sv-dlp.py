@@ -122,14 +122,13 @@ def main(args=None):
 
     match args.action:      # might prob divide it in divisions
         case 'download':    # such as metadata
-            zoom = args.zoom
+            zoom = int(args.zoom)
             if zoom == -1:
                 print("Obtaining zoom...")
                 zoom = service.get_max_zoom(pano) // 2
             print("Obtaining Tile URLs...")
             max_axis = service._find_max_axis(pano, zoom)
             tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
-            print(tile_arr_url)
 
             img = download_panorama(tile_arr_url, args.save_tiles)
             img.save(f"{pano}.png")
