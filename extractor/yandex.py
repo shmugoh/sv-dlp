@@ -1,13 +1,11 @@
 import requests
-import math
-from io import BytesIO
-from PIL import Image
 
 class urls:
     def _build_tile_url(pano_id, zoom=0, x=0, y=0):
         """
         Build Yandex Tile URL.
         """
+        zoom = 4 - int(zoom)
         url = f"https://pano.maps.yandex.net/{pano_id}/{zoom}.{x}.{y}"
         return url
 
