@@ -1,8 +1,10 @@
 
 from random import randrange
+import re
 
 import requests
 import json as j
+from pprint import pprint
 
 import extractor
 
@@ -11,7 +13,7 @@ class urls:
         """
         Build Baidu Maps Tile URL.
         """
-        url = f"https://mapsv{randrange(0, 2)}.bdimg.com/?qt=pdata&sid={panoID}&pos={y}_{x}&z={zoom}"
+        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=pdata&sid={panoID}&pos={y}_{x}&z={zoom}"
         return url
 
     def _build_pano_url(lat, lon):
@@ -19,7 +21,7 @@ class urls:
         Build Baidu URL containing panorama ID from
         coordinates.
         """
-        url = f"https://mapsv{randrange(0, 2)}.bdimg.com/?qt=qsdata&x={lat}&y={lon}"
+        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=qsdata&x={lat}&y={lon}"
         return url
 
     def _build_metadata_url(panoID):
@@ -27,12 +29,14 @@ class urls:
         Build Baidu URL containing maximum zoom levels
         and older imagery.
         """
-        url = f"https://mapsv{randrange(0, 2)}.bdimg.com/?qt=sdata&sid={panoID}"
+        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=sdata&sid={panoID}"
         return url
 
 class misc:
     def get_pano_from_url(url):
-        raise extractor.ServiceNotSupported
+        new_url = requests.get(url).url
+        pano_id = re.findall('panoid=(.*)&panotype', new_url)
+        return pano_id
 
     def short_url(pano_id):
         raise extractor.ServiceNotSupported
@@ -42,7 +46,9 @@ class metadata:
         raise extractor.ServiceNotSupported
 
     def get_metadata(pano_id) -> str:
-        raise extractor.ServiceNotSupported
+        url = urls._build_metadata_url(pano_id)
+        data = requests.get(url).json()
+        pprint(data)
 
     def get_coords(pano_id) -> float:
         raise extractor.ServiceNotSupported
@@ -51,7 +57,9 @@ def get_pano_id(lat, lon):
     url = urls._build_pano_url(lat, lon)
     json = requests.get(url).json()
     pano_id = json["content"]["id"]
-    return pano_id
+    return {
+        "pano_id": pano_id
+    }
 
 def get_max_zoom(pano_id):
     """
@@ -61,7 +69,7 @@ def get_max_zoom(pano_id):
     json = requests.get(url).json()
     return json["content"][0]["ImgLayer"][-1]["ImgLevel"]
 
-def _find_max_axis(pano_id, zoom) -> dict["x", "y"]:
+def _find_max_axis(pano_id, zoom):
     x = 0
     y = 0
     x_axis = []
@@ -75,9 +83,6 @@ def _find_max_axis(pano_id, zoom) -> dict["x", "y"]:
             case 200:
                 x_axis = x
                 x += 1
-            # case 404:
-            #     x += 1
-            #     continue # temp
             case _:
                 x = 0
                 break
@@ -101,11 +106,12 @@ def _find_max_axis(pano_id, zoom) -> dict["x", "y"]:
 
 def _build_tile_arr(pano_id, zoom, axis_arr):
     arr = []
-    for i in range(zoom):
+    for i in range(zoom - 1):
         arr.append([])
+    print(arr)
 
-    for y in range(0, int(axis_arr['y']) + 1):
-        for x in range(axis_arr['x']):
+    for y in range(0, len(arr)):
+        for x in range(len(axis_arr['x']) + 1):
             url = urls._build_tile_url(pano_id, x, y, zoom)
             arr[y].append(url)
     return arr

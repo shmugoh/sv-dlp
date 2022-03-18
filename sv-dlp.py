@@ -94,7 +94,6 @@ def main(args=None):
     #     help='obtains coords')
 
     args = parser.parse_args(args=args)
-    print(args.save_tiles)
 
     try:
         service = getattr(extractor, args.service[0])
@@ -130,6 +129,7 @@ def main(args=None):
             print("Obtaining Tile URLs...")
             max_axis = service._find_max_axis(pano, zoom)
             tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
+            print(tile_arr_url)
 
             img = download_panorama(tile_arr_url, args.save_tiles)
             img.save(f"{pano}.png")
