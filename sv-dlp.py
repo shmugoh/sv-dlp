@@ -39,7 +39,7 @@ def download_panorama(tile_arr_url, save_tiles=False):
         for row in tiles_io:
             for tile in row:
                 img = Image.open(tile)
-                i = f'{tiles_io.index(row)}{row.index(tile)}'
+                i = f'{tiles_io.index(row)}_{row.index(tile)}'
                 img.save(f'tile{i}.png')
 
     print("Merging Tiles...")
@@ -64,7 +64,7 @@ def main(args=None):
         # help='an integer for the accumulator'
     )
     parser.add_argument('--save-tiles',
-        action='store_true', default='False',
+        action='store_true',
         help='sets if tiles should be saved to current folder or not')
 
 #   --- actions ---
@@ -90,11 +90,12 @@ def main(args=None):
     parser.add_argument('-p', '--get-pano',
         action='store_const', dest='action', const='get-pano',
         help='obtains panorama id from coordinates or url')
-    parser.add_argument('--is-trekker',
-        action='store_const', dest='action', const='is-trekker',
-        help='obtains coords')
+    # parser.add_argument('--is-trekker',
+    #     action='store_const', dest='action', const='is-trekker',
+    #     help='obtains coords')
 
     args = parser.parse_args(args=args)
+    print(args.save_tiles)
 
     try:
         service = getattr(extractor, args.service[0])
@@ -145,8 +146,8 @@ def main(args=None):
         case 'get-coords':
             coords = service.get_coords(pano)
             print(coords)
-        case 'is-trekker':
-            print(service.is_trekker(pano))
+        # case 'is-trekker':
+        #     print(service.is_trekker(pano))
 
 if __name__ == '__main__':
     main()
