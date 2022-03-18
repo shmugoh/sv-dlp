@@ -70,11 +70,12 @@ def _get_bounding_box(lat, lon):
     lat_len = (pi * a * (1 - eSq)) / (180 * math.pow((1 - eSq * math.pow(math.sin(lat_p), 2)), 3 / 2))
     lon_len = (pi * a * math.cos(lon_p)) / (180 * math.sqrt((1 - (eSq * math.pow(math.sin(lon_p), 2)))))
 
+    km_in_dist = 1000
     bounds = {
-        "north": lat + (1000 / lat_len),
-        "south": lat - (1000 / lat_len),
-        "east": lon + (1000 / lon_len),
-        "west": lon - (1000 / lon_len)
+        "north": lat + (km_in_dist / lat_len),
+        "south": lat - (km_in_dist / lat_len),
+        "east": lon + (km_in_dist / lon_len),
+        "west": lon - (km_in_dist / lon_len)
     }
     return bounds
 
@@ -86,6 +87,7 @@ def get_pano_id(lat, lng):
 
     bounds = _get_bounding_box(lat, lng)
     url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
+    print(url)
     json = requests.get(url).json()
     # print(json)
     bubble_id = json[1]["id"]
@@ -101,54 +103,52 @@ def get_pano_id(lat, lng):
     }
     return bubble
 
-def get_max_zoom(**kwargs):
+def get_max_zoom(kwargs):
     return 3
 
 def _find_max_axis(base4_bubble, zoom=2):
-    """
-    Returns available tiles depending on
-    the level of zoom given.
+        """
+        Returns available tile URLs depending on
+        the level of zoom given.
 
-    Returns multiple arguments to be given next to
-    encoded Bubble while building the url
+        Taken from sk-zk/streetlevel with a few changes.
+        Kudos to him.
+        """
 
-    Taken from sk-zk/streetlevel with a few changes.
-    Kudos to him.
-    """
-    if zoom > 3:
-        raise ValueError("Zoom can't be greater than 3")
+        if zoom > 3:
+            raise ValueError("Zoom can't be greater than 3")
 
-    arr = []
-    for i in range(0, 6):
-        arr.append([])
-    # print(arr)
-
-    max_tiles = int(math.pow(4, zoom))
-    for tile_id in range(0, 6):
-        tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
-        for group in range(0, max_tiles):
-            if zoom < 1:
-                subdiv_base4 = ""
-            else:
-                subdiv_base4 = urls._base4(group).zfill(zoom)
-            tile_pos = f"{tile_id_base4}{subdiv_base4}"
-            # print(f"hs{base4_bubble}{tile_pos}", tile_id_base4, group)
-            arr[tile_id].append(tile_pos)
-
-    return arr
-
-def _build_tile_arr(bubble, axis_arr):
         arr = []
-        for i in range(len(axis_arr)): arr.append([])
+        for i in range(0, 6):
+            arr.append([])
         # print(arr)
 
-        for i in axis_arr:
-            count = axis_arr.index(i)
-            for pos in i:
-                # print(pos)
-                arr[count].append(urls._build_tile_url(bubble, pos))
+        max_tiles = int(math.pow(4, zoom))
+        for tile_id in range(0, 6):
+            tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
+            for group in range(0, max_tiles):
+                if zoom < 1:
+                    subdiv_base4 = ""
+                else:
+                    subdiv_base4 = urls._base4(group).zfill(zoom)
+                tile_pos = f"{tile_id_base4}{subdiv_base4}"
+                url = urls._build_tile_url(base4_bubble, tile_pos)
+                # print(f"hs{base4_bubble}{tile_pos}", tile_id_base4, group)
+                arr[tile_id].append(url)
 
         return arr
+
+def _build_tile_arr(base4_bubble, zoom, axis_arr):
+    arr = []
+    for i in range(len(axis_arr)-1):
+        arr.append([])
+
+    # for i in axis_arr:
+    #     print(i)
+    #     print("---------")
+
+    return axis_arr
+    # W.I.P because im so lazy
 
 # def download_tile(bubble, title_pos):
 #     url = urls._build_tile_url(bubble, title_pos)
