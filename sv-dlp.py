@@ -1,7 +1,5 @@
 import argparse
-from datetime import date
 import sys
-from time import sleep
 
 from pprint import pprint
 
@@ -22,7 +20,7 @@ def _is_coord(coords):
         for coord in coords:
             if float(coord[:-1]):
                 return True
-    except ValueError: 
+    except ValueError:
         return False
 def is_url(url):
     if url[0][0:5] == 'https':
@@ -64,7 +62,7 @@ def main(args=None):
     parser.add_argument('-l', '--short-link',
         action='store_const', dest='action', const='short-link',
         help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.')
-    
+
     parser.add_argument('--get-metadata',
         action='store_const', dest='action', const='get-metadata',
         help='obtains metadata')
@@ -81,7 +79,6 @@ def main(args=None):
         action='store_const', dest='action', const='is-trekker',
         help='obtains coords')
 
-    
     args = parser.parse_args(args=args)
 
     try:
@@ -89,10 +86,10 @@ def main(args=None):
     except AttributeError:
         print("ERROR: Invalid Service")
         sys.exit(1)
-    
+
     pano = args.pano
     if is_url(pano):
-        pano = service.get_pano_from_short_url(pano[0])[0]
+        pano = service.get_pano_from_url(pano[0])[0]
         pass
     if _is_coord(pano):
         lat = float(pano[0][:-1])
@@ -118,10 +115,10 @@ def main(args=None):
 
             img = download_panorama(tile_arr_url)
             img.save(f"{pano}.png")
-        
+
         case 'short-link':
             print(service.short_url(pano))
-        
+
         case 'get-metadata':
             data = service.get_metadata(pano)
             pprint(data)

@@ -47,7 +47,7 @@ class urls:
         url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{encoded_input}'
         return url
 
-def get_pano_from_short_url(url):
+def get_pano_from_url(url):
     url = requests.get(url).url
     pano_id = re.findall(r'1s(.+)!2e', url)
     return pano_id
@@ -131,7 +131,7 @@ def _build_tile_arr(pano_id, zoom, axis_arr):
             arr[y].append(url)
     return arr
 
-def get_image_date(pano_id) -> str:
+def get_date(pano_id) -> str:
     '''
     Returns image date from
     CBK URL.
