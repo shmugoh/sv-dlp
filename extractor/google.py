@@ -47,10 +47,61 @@ class urls:
         url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{encoded_input}'
         return url
 
-def get_pano_from_url(url):
-    url = requests.get(url).url
-    pano_id = re.findall(r'1s(.+)!2e', url)
-    return pano_id
+class misc:
+    def get_pano_from_url(url):
+        url = requests.get(url).url
+        pano_id = re.findall(r'1s(.+)!2e', url)
+        return pano_id
+
+    def short_url(pano_id):
+        """
+        Shorts panorama ID by using the
+        share function found on Google Maps
+        """
+        url = urls._build_short_url(pano_id)
+        json = j.loads(requests.get(url).content[5:])
+        return json[0]
+
+class metadata:
+    def get_date(pano_id) -> str:
+        '''
+        Returns image date from
+        CBK URL.
+        '''
+        url = urls._build_metadata_url(pano_id)
+        data = requests.get(url).json()
+        return data["Data"]["image_date"]
+
+    def is_trekker(pano_id) -> bool:
+        """
+        Returns if given panorama ID is
+        trekker or not. Might be useful
+        with the planned generator.
+
+        Thank you nur#2584 for guiding me out.
+        """
+        url = urls._build_metadata_url(pano_id)
+        data = requests.get(url).json()
+        data["Data"]["scene"] = 0
+
+        if int(data["Data"]["scene"]) == 1:
+            return True
+        elif int(data["Data"]["imagery_type"]) == 5 or "level_id" in ["Location"]:
+            return True
+        else: return False
+
+    def get_metadata(pano_id) -> str:
+        '''
+        Returns metadata from CBK url.
+        '''
+        url = urls._build_metadata_url(pano_id)
+        data = requests.get(url).json()
+        return data
+
+    def get_coords(pano_id) -> float: # lul
+        url = urls._build_metadata_url(pano_id)
+        data = requests.get(url).json()
+        return data["Location"]["lat"], data["Location"]["lng"]
 
 def get_pano_id(lat, lon) -> dict:
     """
@@ -70,11 +121,6 @@ def get_pano_id(lat, lon) -> dict:
     # when implementing -F command, it shall return various pano ids with the date
     # though keep in mind duplicates should be fixed and removed
     return pan
-
-def get_coords(pano_id) -> float: # lul
-    url = urls._build_metadata_url(pano_id)
-    data = requests.get(url).json()
-    return data["Location"]["lat"], data["Location"]["lng"]
 
 def get_max_zoom(pano_id):
     """
@@ -131,49 +177,5 @@ def _build_tile_arr(pano_id, zoom, axis_arr):
             arr[y].append(url)
     return arr
 
-def get_date(pano_id) -> str:
-    '''
-    Returns image date from
-    CBK URL.
-    '''
-    url = urls._build_metadata_url(pano_id)
-    data = requests.get(url).json()
-    return data["Data"]["image_date"]
-
-def is_trekker(pano_id) -> bool:
-    """
-    Returns if given panorama ID is
-    trekker or not. Might be useful
-    with the planned generator.
-
-    Thank you nur#2584 for guiding me out.
-    """
-    url = urls._build_metadata_url(pano_id)
-    data = requests.get(url).json()
-    data["Data"]["scene"] = 0
-
-    if int(data["Data"]["scene"]) == 1:
-        return True
-    elif int(data["Data"]["imagery_type"]) == 5 or "level_id" in ["Location"]:
-        return True
-    else: return False
-
-def get_metadata(pano_id) -> str:
-    '''
-    Returns metadata from CBK url.
-    '''
-    url = urls._build_metadata_url(pano_id)
-    data = requests.get(url).json()
-    return data
-
-def short_url(pano_id):
-    """
-    Shorts panorama ID by using the
-    share function found on Google Maps
-    """
-    url = urls._build_short_url(pano_id)
-    json = j.loads(requests.get(url).content[5:])
-    return json[0]
-
-if __name__ == "__main__":
-    print(google.get_pano_id(46.574256133593444, -90.97071889727174))
+# if __name__ == "__main__":
+#     print(google.get_pano_id(46.574256133593444, -90.97071889727174))

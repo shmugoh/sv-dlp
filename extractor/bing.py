@@ -5,6 +5,8 @@ import math
 from io import BytesIO
 from PIL import Image
 
+import extractor
+
 class urls:
     def _build_tile_url(bubble, tile_pos):
         """
@@ -33,6 +35,23 @@ class urls:
         buff = "".join(str(i) for i in buff)
         return buff
 
+class misc:
+    def get_pano_from_url(url):
+        raise extractor.ServiceNotSupported
+
+    def short_url(pano_id):
+        raise extractor.ServiceNotSupported
+
+class metadata:
+    def get_date(pano_id) -> str:
+        raise extractor.ServiceNotSupported
+
+    def get_metadata(pano_id) -> str:
+        raise extractor.ServiceNotSupported
+
+    def get_coords(pano_id) -> float:
+        raise extractor.ServiceNotSupported
+
 def _get_bounding_box(lat, lon):
     '''
     Obtain bounding box of coordinates to
@@ -58,6 +77,32 @@ def _get_bounding_box(lat, lon):
         "west": lon - (1000 / lon_len)
     }
     return bounds
+
+def get_pano_id(lat, lng):
+    """
+    Returns closest bubble ID and its metadata
+    with parsed coordinate bounds.
+    """
+
+    bounds = _get_bounding_box(lat, lng)
+    url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
+    json = requests.get(url).json()
+    # print(json)
+    bubble_id = json[1]["id"]
+    base4_bubbleid = urls._base4(bubble_id)
+    # print(bubble_id)
+
+    bubble = {
+        "bubble_id": bubble_id,
+        "pano_id": str(base4_bubbleid).zfill(16),
+        "lat": json[1]["lo"],
+        "lon": json[1]["la"],
+        "date": json[1]["cd"]
+    }
+    return bubble
+
+def get_max_zoom(**kwargs):
+    return 3
 
 def _find_max_axis(base4_bubble, zoom=2):
     """
@@ -92,9 +137,6 @@ def _find_max_axis(base4_bubble, zoom=2):
 
     return arr
 
-def get_max_zoom(**kwargs):
-    return 3
-
 def _build_tile_arr(bubble, axis_arr):
         arr = []
         for i in range(len(axis_arr)): arr.append([])
@@ -107,29 +149,6 @@ def _build_tile_arr(bubble, axis_arr):
                 arr[count].append(urls._build_tile_url(bubble, pos))
 
         return arr
-
-def get_pano_id(lat, lng):
-    """
-    Returns closest bubble ID and its metadata
-    with parsed coordinate bounds.
-    """
-
-    bounds = _get_bounding_box(lat, lng)
-    url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
-    json = requests.get(url).json()
-    # print(json)
-    bubble_id = json[1]["id"]
-    base4_bubbleid = urls._base4(bubble_id)
-    # print(bubble_id)
-
-    bubble = {
-        "bubble_id": bubble_id,
-        "pano_id": str(base4_bubbleid).zfill(16),
-        "lat": json[1]["lo"],
-        "lon": json[1]["la"],
-        "date": json[1]["cd"]
-    }
-    return bubble
 
 # def download_tile(bubble, title_pos):
 #     url = urls._build_tile_url(bubble, title_pos)

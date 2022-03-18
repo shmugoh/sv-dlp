@@ -1,5 +1,7 @@
 import requests
 
+import extractor
+
 class urls:
     def _build_tile_url(pano_id, zoom=0, x=0, y=0):
         """
@@ -16,6 +18,23 @@ class urls:
         url = f"https://api-maps.yandex.ru/services/panoramas/1.x/?l=stv&lang=en_RU&ll={lng}%2C{lat}&origin=userAction&provider=streetview"
         return url
 
+class misc:
+    def get_pano_from_url(url):
+        raise extractor.ServiceNotSupported
+
+    def short_url(pano_id):
+        raise extractor.ServiceNotSupported
+
+class metadata:
+    def get_date(pano_id) -> str:
+        raise extractor.ServiceNotSupported
+
+    def get_metadata(pano_id) -> str:
+        raise extractor.ServiceNotSupported
+
+    def get_coords(pano_id) -> float:
+        raise extractor.ServiceNotSupported
+
 def get_pano_id(lat, lon):
     url = urls._build_pano_url(lat, lon)
     data = requests.get(url).json()
@@ -23,6 +42,17 @@ def get_pano_id(lat, lon):
     return {
         "pano_id": pano
     }
+
+def get_max_zoom(pano):
+    i = 0
+    while True:
+        url = urls._build_tile_url(pano, i)
+        resp = requests.get(url)
+        if resp.status_code != 200:
+            return i
+        else:
+            i += 1
+            continue
 
 def _find_max_axis(pano_id, zoom=2):
     x = 0
@@ -58,17 +88,6 @@ def _find_max_axis(pano_id, zoom=2):
         "y": y_axis
     }
     return max_axis
-
-def get_max_zoom(pano):
-    i = 0
-    while True:
-        url = urls._build_tile_url(pano, i)
-        resp = requests.get(url)
-        if resp.status_code != 200:
-            return i
-        else:
-            i += 1
-            continue
 
 def _build_tile_arr(pano_id, zoom, axis_arr):
     arr = []

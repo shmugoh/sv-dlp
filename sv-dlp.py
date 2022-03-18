@@ -9,7 +9,6 @@ from postdownload import merge_tiles
 
 from PIL import Image
 
-
 parser = argparse.ArgumentParser(
     description='''
     Download Street View panoramas from various services,
@@ -105,8 +104,11 @@ def main(args=None):
 
     pano = args.pano
     if is_url(pano):
-        pano = service.get_pano_from_url(pano[0])[0]
-        pass
+        try:
+            pano = service.misc.get_pano_from_url(pano[0])[0]
+        except ServiceNotSupported as error:
+            print(error.message)
+
     if _is_coord(pano):
         lat = float(pano[0][:-1])
         lng = float(pano[1])
@@ -133,19 +135,31 @@ def main(args=None):
             img.save(f"{pano}.png")
 
         case 'short-link':
-            print(service.short_url(pano))
+            try:
+                print(service.misc.short_url(pano))
+            except ServiceNotSupported as error:
+                print(error.message)
 
         case 'get-metadata':
-            data = service.get_metadata(pano)
-            pprint(data)
+            try:
+                data = service.metadata.get_metadata(pano)
+                pprint(data)
+            except ServiceNotSupported as error:
+                print(error.message)
         case 'get-date':
-            date = service.get_date(pano)
-            print(date)
+            try:
+                date = service.metadata.get_date(pano)
+                print(date)
+            except ServiceNotSupported as error:
+                print(error.message)
         case 'get-pano':
-            print(pano)
+            print(pano) # lol
         case 'get-coords':
-            coords = service.get_coords(pano)
-            print(coords)
+            try:
+                coords = service.metadata.get_coords(pano)
+                print(coords)
+            except ServiceNotSupported as error:
+                print(error.message)
         # case 'is-trekker':
         #     print(service.is_trekker(pano))
 

@@ -4,6 +4,8 @@ from random import randrange
 import requests
 import json as j
 
+import extractor
+
 class urls:
     def _build_tile_url(panoID, x, y, zoom=4):
         """
@@ -27,6 +29,23 @@ class urls:
         """
         url = f"https://mapsv{randrange(0, 2)}.bdimg.com/?qt=sdata&sid={panoID}"
         return url
+
+class misc:
+    def get_pano_from_url(url):
+        raise extractor.ServiceNotSupported
+
+    def short_url(pano_id):
+        raise extractor.ServiceNotSupported
+
+class metadata:
+    def get_date(pano_id) -> str:
+        raise extractor.ServiceNotSupported
+
+    def get_metadata(pano_id) -> str:
+        raise extractor.ServiceNotSupported
+
+    def get_coords(pano_id) -> float:
+        raise extractor.ServiceNotSupported
 
 def get_pano_id(lat, lon):
     url = urls._build_pano_url(lat, lon)
@@ -91,9 +110,9 @@ def _build_tile_arr(pano_id, zoom, axis_arr):
             arr[y].append(url)
     return arr
 
-if __name__ == "__main__":
-   pano_id = get_pano_id(39.900139527145846, 116.3958936511099)
-   zoom = _get_max_zoom(pano_id)
-   axis = _find_max_axis(pano_id, zoom)
-   tile_arr = _build_tile_arr(pano_id, zoom, axis)
-   print(tile_arr)
+# if __name__ == "__main__":
+#    pano_id = get_pano_id(39.900139527145846, 116.3958936511099)
+#    zoom = _get_max_zoom(pano_id)
+#    axis = _find_max_axis(pano_id, zoom)
+#    tile_arr = _build_tile_arr(pano_id, zoom, axis)
+#    print(tile_arr)
