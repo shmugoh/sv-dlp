@@ -2,3 +2,4 @@
 /env
 /extractor/google_t
 */__pycache__
+*.png
