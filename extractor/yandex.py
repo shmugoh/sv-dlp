@@ -54,7 +54,7 @@ def get_max_zoom(pano):
             i += 1
             continue
 
-def _find_max_axis(pano_id, zoom=2):
+def _build_tile_arr(pano_id, zoom=2):
     x = 0
     y = 0
     x_axis = []
@@ -83,20 +83,13 @@ def _find_max_axis(pano_id, zoom=2):
             case _:
                 break
 
-    max_axis = {
-        "x": x_axis,
-        "y": y_axis
-    }
-    return max_axis
-
-def _build_tile_arr(pano_id, zoom, axis_arr):
     arr = []
-    for i in range(int(axis_arr['y']) + 1):
+    for i in range(int(y_axis + 1)):
         arr.append([])
 
     # print(len(arr))
     for y in range(0, len(arr)):
-        for x in range(axis_arr['x'] + 1):
+        for x in range(x_axis + 1):
             url = urls._build_tile_url(pano_id, zoom, x, y)
             arr[y].append(url)
     return arr

@@ -106,7 +106,7 @@ def get_pano_id(lat, lng):
 def get_max_zoom(kwargs):
     return 3
 
-def _find_max_axis(base4_bubble, zoom=2):
+def _build_tile_arr(base4_bubble, zoom=2):
         """
         Returns available tile URLs depending on
         the level of zoom given.
@@ -135,20 +135,7 @@ def _find_max_axis(base4_bubble, zoom=2):
                 url = urls._build_tile_url(base4_bubble, tile_pos)
                 # print(f"hs{base4_bubble}{tile_pos}", tile_id_base4, group)
                 arr[tile_id].append(url)
-
-        return arr
-
-def _build_tile_arr(base4_bubble, zoom, axis_arr):
-    arr = []
-    for i in range(len(axis_arr)-1):
-        arr.append([])
-
-    # for i in axis_arr:
-    #     print(i)
-    #     print("---------")
-
-    return axis_arr
-    # W.I.P because im so lazy
+        return url
 
 # def download_tile(bubble, title_pos):
 #     url = urls._build_tile_url(bubble, title_pos)
