@@ -1,16 +1,14 @@
 import argparse
+import json
 import sys
 
 from pprint import pprint
 
 import extractor
 from extractor import * # yikes
-from postdownload import tiles
+from postdownload import download
 
 from PIL import Image
-import concurrent.futures
-
-from tqdm import tqdm
 
 parser = argparse.ArgumentParser(
     description='''
@@ -26,41 +24,11 @@ def _is_coord(coords):
                 return True
     except ValueError:
         return False
-def is_url(url):
+def _is_url(url):
     if url[0][0:5] == 'https':
         return True
     else:
         return False
-
-def download_panorama(pano, zoom, service, save_tiles=False, folder=None):
-    if zoom == 'max':
-        zoom = service.get_max_zoom(pano)
-    elif int(zoom) == -1:
-        zoom = service.get_max_zoom(pano) // 2
-
-    tile_arr_url = service._build_tile_arr(pano, zoom)
-
-    tiles_io = tiles.download_tiles(tile_arr_url)
-
-    if save_tiles:
-        for row in tiles_io:
-            for tile in row:
-                img = Image.open(tile)
-                i = f'{tiles_io.index(row)}_{row.index(tile)}'
-                img.save('tile{i}.png')
-                # f"./{args.folder}/
-
-    tile_io_array = []
-    for row in tiles_io:
-        buff = tiles.stich(row)
-        tile_io_array.insert(tiles_io.index(row), buff)
-
-    img = tiles.merge(tile_io_array)
-
-    if folder != None: # auto-save with a horrible name
-        img.save(f"./{folder}/{pano}.png")
-    else:
-        return img
 
 def main(args=None):
 #   --- flags ---
@@ -73,7 +41,7 @@ def main(args=None):
     parser.add_argument('-z', '--zoom',
         metavar='', default=(-1))
     parser.add_argument('-f', '--folder',
-        default='.\\')
+        metavar='', default='.\\')
     parser.add_argument('--save-tiles',
         action='store_true',
         help='sets if tiles should be saved to current folder or not')
@@ -85,7 +53,12 @@ def main(args=None):
         help='downloads panorama to current folder')
     parser.add_argument('--download-csv',
         action='store_const', dest='action', const='download-csv',
-        help='downloads panorama to current folder')
+        help='''downloads each pano/coordinate from csv made by the generator.
+        recommended to store panoramas instead, as coordinates tend
+        to not download if distance is very close''')
+    parser.add_argument('--download-json',
+        action='store_const', dest='action', const='download-json',
+        help='downloads each panorama from json made by the generator')
     parser.add_argument('-l', '--short-link',
         action='store_const', dest='action', const='short-link',
         help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.')
@@ -116,13 +89,12 @@ def main(args=None):
         sys.exit(1)
 
     pano = args.pano[0]
-    if is_url(pano):
+    if _is_url(pano):
         try:
             pano = service.misc.get_pano_from_url(pano)[0]
         except extractor.ServiceNotSupported as error:
             print(error.message)
-
-    if _is_coord(pano):
+    elif _is_coord(pano):
         lat = float(pano[0][:-1])
         lng = float(pano[1])
         pass
@@ -136,27 +108,22 @@ def main(args=None):
 
     match args.action:      # might prob divide it in divisions
         case 'download':    # such as metadata
-            img = download_panorama(pano, args.zoom, service, args.save_tiles)
+            img = download.panorama(pano, args.zoom, service, args.save_tiles, None, True)
             img.save(f"./{args.folder}/{pano}.png")
 
         case 'download-csv':
             csv = open(pano).read()
             pano_arr = csv.split('\n')
+            pano_arr = [x for x in pano_arr if x != '']
 
-            print("Downloading...")
-            with tqdm(total=len(pano_arr)) as pbar:
-                with concurrent.futures.ThreadPoolExecutor(max_workers=35) as threads:
-                    finished_threds = []
-                    threads_arr = []
-                    for pano in pano_arr:
-                        threads_arr.append(threads.submit(download_panorama, pano, args.zoom, service, args.save_tiles, args.folder))
-                    for thread in concurrent.futures.as_completed(threads_arr):
-                        th_num = threads_arr.index(thread)
-                        if th_num in finished_threds:
-                            pass
-                        else:
-                            finished_threds.append(th_num)
-                            pbar.update(1)
+            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.folder)
+
+        case 'download-json':
+            file = open(pano).read()
+            data = json.loads(file)
+            pano_arr = [x['panoId'] for x in data[next(iter(data))]]
+
+            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.folder)
 
         case 'short-link':
             try:
