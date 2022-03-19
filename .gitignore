@@ -1,5 +1,5 @@
-/.git
 /env
-/extractor/google_t
+/japan_gen_1
 */__pycache__
 *.png
+*.csv
