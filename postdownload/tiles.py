@@ -49,7 +49,7 @@ def download_tiles(tile_url_arr):
         # tile_io_array[thread_number] = thread.result()
     return tile_io_array
 
-def stich_row(row_io_arr):
+def stich(row_io_arr):
     images = [Image.open(x) for x in row_io_arr]
     widths, heights = zip(*(i.size for i in images))
     total_width, max_height = sum(widths), max(heights)
@@ -67,7 +67,7 @@ def stich_row(row_io_arr):
     # row_img.show()
     return row_img
 
-def merge_rows(rows_io_arr):
+def merge(rows_io_arr):
     images = [img for img in rows_io_arr]
 
     height = 0

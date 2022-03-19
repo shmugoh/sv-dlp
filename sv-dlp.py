@@ -5,7 +5,7 @@ from pprint import pprint
 
 import extractor
 from extractor import * # yikes
-from postdownload import merge_tiles
+from postdownload import tiles
 
 from PIL import Image
 import concurrent.futures
@@ -34,20 +34,15 @@ def is_url(url):
 
 def download_panorama(pano, zoom, service, save_tiles=False, folder=None):
     if zoom == 'max':
-        # print("Obtaining maximum zoom...")
         zoom = service.get_max_zoom(pano)
     elif int(zoom) == -1:
-        # print("Obtaining zoom...")
         zoom = service.get_max_zoom(pano) // 2
 
-    # print("Getting Axis...")
     tile_arr_url = service._build_tile_arr(pano, zoom)
 
-    # print("Downloading Tiles...")
-    tiles_io = merge_tiles.download_tiles(tile_arr_url)
+    tiles_io = tiles.download_tiles(tile_arr_url)
 
     if save_tiles:
-        # print("Saving Tiles...")
         for row in tiles_io:
             for tile in row:
                 img = Image.open(tile)
@@ -55,15 +50,14 @@ def download_panorama(pano, zoom, service, save_tiles=False, folder=None):
                 img.save('tile{i}.png')
                 # f"./{args.folder}/
 
-    # print("Merging...")
     tile_io_array = []
     for row in tiles_io:
-        buff = merge_tiles.stich_row(row)
+        buff = tiles.stich(row)
         tile_io_array.insert(tiles_io.index(row), buff)
 
-    img = merge_tiles.merge_rows(tile_io_array)
+    img = tiles.merge(tile_io_array)
 
-    if folder != None: # auto-save with a horrible name twist
+    if folder != None: # auto-save with a horrible name
         img.save(f"./{folder}/{pano}.png")
     else:
         return img
@@ -125,7 +119,7 @@ def main(args=None):
     if is_url(pano):
         try:
             pano = service.misc.get_pano_from_url(pano)[0]
-        except ServiceNotSupported as error:
+        except extractor.ServiceNotSupported as error:
             print(error.message)
 
     if _is_coord(pano):
@@ -167,20 +161,20 @@ def main(args=None):
         case 'short-link':
             try:
                 print(service.misc.short_url(pano))
-            except ServiceNotSupported as error:
+            except extractor.ServiceNotSupported as error:
                 print(error.message)
 
         case 'get-metadata':
             try:
                 data = service.metadata.get_metadata(pano)
                 pprint(data)
-            except ServiceNotSupported as error:
+            except extractor.ServiceNotSupported as error:
                 print(error.message)
         case 'get-date':
             try:
                 date = service.metadata.get_date(pano)
                 print(date)
-            except ServiceNotSupported as error:
+            except extractor.ServiceNotSupported as error:
                 print(error.message)
         case 'get-pano':
             print(pano) # lol
@@ -188,7 +182,7 @@ def main(args=None):
             try:
                 coords = service.metadata.get_coords(pano)
                 print(coords)
-            except ServiceNotSupported as error:
+            except extractor.ServiceNotSupported as error:
                 print(error.message)
         # case 'is-trekker':
         #     print(service.is_trekker(pano))
