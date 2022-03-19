@@ -8,6 +8,9 @@ from extractor import * # yikes
 from postdownload import merge_tiles
 
 from PIL import Image
+import concurrent.futures
+
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser(
     description='''
@@ -29,26 +32,41 @@ def is_url(url):
     else:
         return False
 
-def download_panorama(tile_arr_url, save_tiles=False):
-    print("Downloading Tiles...")
+def download_panorama(pano, zoom, service, save_tiles=False, folder=None):
+    if zoom == 'max':
+        # print("Obtaining maximum zoom...")
+        zoom = service.get_max_zoom(pano)
+    elif int(zoom) == -1:
+        # print("Obtaining zoom...")
+        zoom = service.get_max_zoom(pano) // 2
+
+    # print("Getting Axis...")
+    tile_arr_url = service._build_tile_arr(pano, zoom)
+
+    # print("Downloading Tiles...")
     tiles_io = merge_tiles.download_tiles(tile_arr_url)
 
     if save_tiles:
-        print("Saving Tiles...")
+        # print("Saving Tiles...")
         for row in tiles_io:
             for tile in row:
                 img = Image.open(tile)
                 i = f'{tiles_io.index(row)}_{row.index(tile)}'
-                img.save(f'tile{i}.png')
+                img.save('tile{i}.png')
+                # f"./{args.folder}/
 
-    print("Merging Tiles...")
+    # print("Merging...")
     tile_io_array = []
     for row in tiles_io:
         buff = merge_tiles.stich_row(row)
         tile_io_array.insert(tiles_io.index(row), buff)
 
     img = merge_tiles.merge_rows(tile_io_array)
-    return img
+
+    if folder != None: # auto-save with a horrible name twist
+        img.save(f"./{folder}/{pano}.png")
+    else:
+        return img
 
 def main(args=None):
 #   --- flags ---
@@ -59,9 +77,9 @@ def main(args=None):
         metavar='', nargs=1, default=['google'],
         help='service to scrape from')
     parser.add_argument('-z', '--zoom',
-        metavar='', default=(-1),
-        # help='an integer for the accumulator'
-    )
+        metavar='', default=(-1))
+    parser.add_argument('-f', '--folder',
+        default='.\\')
     parser.add_argument('--save-tiles',
         action='store_true',
         help='sets if tiles should be saved to current folder or not')
@@ -71,12 +89,14 @@ def main(args=None):
         action='store_const', dest='action', const='download',
         default='download',
         help='downloads panorama to current folder')
-
-
-#   --- metadata ---
+    parser.add_argument('--download-csv',
+        action='store_const', dest='action', const='download-csv',
+        help='downloads panorama to current folder')
     parser.add_argument('-l', '--short-link',
         action='store_const', dest='action', const='short-link',
         help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.')
+
+#   --- metadata ---
     parser.add_argument('--get-metadata',
         action='store_const', dest='action', const='get-metadata',
         help='obtains metadata')
@@ -101,10 +121,10 @@ def main(args=None):
         print("ERROR: Invalid Service")
         sys.exit(1)
 
-    pano = args.pano
+    pano = args.pano[0]
     if is_url(pano):
         try:
-            pano = service.misc.get_pano_from_url(pano[0])[0]
+            pano = service.misc.get_pano_from_url(pano)[0]
         except ServiceNotSupported as error:
             print(error.message)
 
@@ -122,16 +142,27 @@ def main(args=None):
 
     match args.action:      # might prob divide it in divisions
         case 'download':    # such as metadata
-            zoom = int(args.zoom)
-            if zoom == -1:
-                print("Obtaining zoom...")
-                zoom = service.get_max_zoom(pano) // 2
-            print("Obtaining Tile URLs...")
-            max_axis = service._find_max_axis(pano, zoom)
-            tile_arr_url = service._build_tile_arr(pano, zoom, max_axis)
+            img = download_panorama(pano, args.zoom, service, args.save_tiles)
+            img.save(f"./{args.folder}/{pano}.png")
 
-            img = download_panorama(tile_arr_url, args.save_tiles)
-            img.save(f"{pano}.png")
+        case 'download-csv':
+            csv = open(pano).read()
+            pano_arr = csv.split('\n')
+
+            print("Downloading...")
+            with tqdm(total=len(pano_arr)) as pbar:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=35) as threads:
+                    finished_threds = []
+                    threads_arr = []
+                    for pano in pano_arr:
+                        threads_arr.append(threads.submit(download_panorama, pano, args.zoom, service, args.save_tiles, args.folder))
+                    for thread in concurrent.futures.as_completed(threads_arr):
+                        th_num = threads_arr.index(thread)
+                        if th_num in finished_threds:
+                            pass
+                        else:
+                            finished_threds.append(th_num)
+                            pbar.update(1)
 
         case 'short-link':
             try:
