@@ -42,9 +42,13 @@ def main(args=None):
         metavar='', default=(-1))
     parser.add_argument('-f', '--folder',
         metavar='', default='.\\')
+
     parser.add_argument('--save-tiles',
         action='store_true',
         help='sets if tiles should be saved to current folder or not')
+    parser.add_argument('--no-crop',
+        action='store_true',
+        help='do not crop blank bar and leave panorama as it is')
 
 #   --- actions ---
     parser.add_argument('-d', '--download',
@@ -76,6 +80,9 @@ def main(args=None):
     parser.add_argument('-p', '--get-pano',
         action='store_const', dest='action', const='get-pano',
         help='obtains panorama id from coordinates or url')
+    parser.add_argument('--get-gen',
+        action='store_const', dest='action', const='get-gen',
+        help='obtains gen from input')
     # parser.add_argument('--is-trekker',
     #     action='store_const', dest='action', const='is-trekker',
     #     help='obtains coords')
@@ -89,40 +96,36 @@ def main(args=None):
         print("ERROR: Invalid Service")
         sys.exit(1)
 
-    pano = args.pano
-    if _is_url(pano):
+    if _is_url(args.pano):
         try:
-            pano = service.misc.get_pano_from_url(pano)[0]
+            pano = service.misc.get_pano_from_url(pano[0])[0]
         except extractor.ServiceNotSupported as error:
             print(error.message)
-    elif _is_coord(pano):
+    elif _is_coord(args.pano):
+        print("Getting Panorama ID...")
         lat = float(pano[0][:-1])
         lng = float(pano[1])
+        pano = service.get_pano_id(lat, lng)["pano_id"]
         pass
-
-    try:
-        if lat and lng:
-            print("Getting Panorama ID...")
-            pano = service.get_pano_id(lat, lng)["pano_id"]
-    except NameError: # lat and lng variables not defined
-        pass
+    else: # panorama id
+        pano = args.pano[0]
 
     match args.action:      # might prob divide it in divisions
         case 'download':    # such as metadata
-            img = download.panorama(pano, args.zoom, service, args.save_tiles, None, True)
+            img = download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, None, True) # yikes
             img.save(f"./{args.folder}/{pano}.png")
         case 'download-csv':
             csv = open(pano).read()
             pano_arr = csv.split('\n')
             pano_arr = [x for x in pano_arr if x != '']
 
-            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.folder)
+            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.no_crop, args.folder)
         case 'download-json':
             file = open(pano).read()
             data = json.loads(file)
             pano_arr = [x['panoId'] for x in data[next(iter(data))]]
 
-            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.folder)
+            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.no_crop, args.folder)
 
         case 'short-link':
             try:
@@ -148,6 +151,12 @@ def main(args=None):
             try:
                 coords = service.metadata.get_coords(pano)
                 print(coords)
+            except extractor.ServiceNotSupported as error:
+                print(error.message)
+        case 'get-gen':
+            try:
+                gen = service.metadata.get_gen(pano)
+                print(f"Gen {gen}")
             except extractor.ServiceNotSupported as error:
                 print(error.message)
         # case 'is-trekker':
