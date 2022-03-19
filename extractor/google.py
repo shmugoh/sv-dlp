@@ -103,6 +103,19 @@ class metadata:
         data = requests.get(url).json()
         return data["Location"]["lat"], data["Location"]["lng"]
 
+    def get_gen(pano_id):
+        url = urls._build_metadata_url(pano_id)
+        data = requests.get(url).json()
+        width, height =  data["Data"]["image_width"], data["Data"]["image_height"]
+
+        match width, height:
+            case "3328", "1664":
+                return "1"
+            case "13312", "6656":
+                return "2/3"
+            case "16384", "8192":
+                return "4"
+
 def get_pano_id(lat, lon) -> dict:
     """
     Returns closest Google panorama ID to given parsed coordinates.
@@ -170,4 +183,5 @@ def _build_tile_arr(pano_id, zoom) -> dict["x", "y"]:
     return arr
 
 # if __name__ == "__main__":
-#     print(google.get_pano_id(46.574256133593444, -90.97071889727174))
+#     pano = 'fzJzOcJLZPq-_QPBJzl5Dg'
+#     get

@@ -1,6 +1,7 @@
 import requests
 from io import BytesIO
 import concurrent.futures
+import extractor
 
 import postdownload.tiles as tiles
 import postdownload.panoramic as panoramic
@@ -60,7 +61,11 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, 
     is_coord = _is_coord(pano)
     if is_coord != False:
         pano = service.get_pano_id(is_coord[0], is_coord[1])["pano_id"]
-    gen = service.metadata.get_gen(pano)
+
+    try:
+        gen = service.metadata.get_gen(pano)
+    except extractor.ServiceNotSupported:
+        no_crop = True
 
     if pbar:
         pbar = tqdm(total=3)

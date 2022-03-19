@@ -7,7 +7,6 @@ class urls:
         """
         Build Yandex Tile URL.
         """
-        zoom = 4 - int(zoom)
         url = f"https://pano.maps.yandex.net/{pano_id}/{zoom}.{x}.{y}"
         return url
 
@@ -35,6 +34,9 @@ class metadata:
     def get_coords(pano_id) -> float:
         raise extractor.ServiceNotSupported
 
+    def get_gen(pano_id):
+        raise extractor.ServiceNotSupported
+
 def get_pano_id(lat, lon):
     url = urls._build_pano_url(lat, lon)
     data = requests.get(url).json()
@@ -48,7 +50,7 @@ def get_max_zoom(pano):
     while True:
         url = urls._build_tile_url(pano, i)
         resp = requests.get(url)
-        if resp.status_code != 200:
+        if resp.status_code == 200:
             return i
         else:
             i += 1
@@ -59,6 +61,9 @@ def _build_tile_arr(pano_id, zoom=2):
     y = 0
     x_axis = []
     y_axis = []
+
+    max_zoom = get_max_zoom(pano_id)
+    zoom = max_zoom - zoom
 
     # x axis
     while True:

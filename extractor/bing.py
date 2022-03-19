@@ -52,6 +52,9 @@ class metadata:
     def get_coords(pano_id) -> float:
         raise extractor.ServiceNotSupported
 
+    def get_gen(pano_id):
+        raise extractor.ServiceNotSupported
+
 def _get_bounding_box(lat, lon):
     '''
     Obtain bounding box of coordinates to
