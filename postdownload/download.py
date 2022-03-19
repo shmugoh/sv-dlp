@@ -56,10 +56,11 @@ def _download_tiles(tile_url_arr):
         # tile_io_array[thread_number] = thread.result()
     return tile_io_array
 
-def panorama(pano, zoom, service, save_tiles=False, folder=None, pbar=False):
+def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, pbar=False):
     is_coord = _is_coord(pano)
     if is_coord != False:
         pano = service.get_pano_id(is_coord[0], is_coord[1])["pano_id"]
+    gen = service.metadata.get_gen(pano)
 
     if pbar:
         pbar = tqdm(total=3)
@@ -90,7 +91,8 @@ def panorama(pano, zoom, service, save_tiles=False, folder=None, pbar=False):
     img = tiles.merge(tile_io_array)
     if pbar: pbar.update(1)
 
-    panoramic.crop(img)
+    if no_crop != True:
+        img = panoramic.crop(img, service.__name__, gen)
     if pbar: pbar.update(1)
 
     if folder != None: # auto-save with a horrible name
@@ -98,14 +100,14 @@ def panorama(pano, zoom, service, save_tiles=False, folder=None, pbar=False):
     else:
         return img
 
-def from_file(arr, zoom, service, save_tiles, folder):
+def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder=None):
     print("Downloading...")
     pbar = tqdm(total=(len(arr)), leave=False)
     with concurrent.futures.ThreadPoolExecutor(max_workers=35) as threads:
         finished_threds = []
         threads_arr = []
         for pano in arr:
-            threads_arr.append(threads.submit(panorama, pano, zoom, service, save_tiles, folder))
+            threads_arr.append(threads.submit(panorama, pano, zoom, service, no_crop, save_tiles, folder))
         for thread in concurrent.futures.as_completed(threads_arr):
             th_num = threads_arr.index(thread)
             if th_num in finished_threds:

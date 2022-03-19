@@ -1,13 +1,30 @@
 from PIL import Image
 
-def crop(img):
-    match img.size:
-        case (1024, 512):
-            print(1)
-            img = img.crop((0, 0, 1023, 415))
-        case (3584, 2048):
-            img = img.crop((0, 0, 3583, 1663))
-    return img
+def crop(img, service, gen):
+    if service == 'extractor.google':
+        match img.size:
+            case (512, 512): # zoom 0
+                if gen == '1' or '2/3':
+                    img = img.crop((0, 0, 512, 208))
+                elif gen == '4':
+                    img = img.crop((0, 0, 512, 256))
+
+            case (1024, 512): # zoom 1
+                if gen == '1' or '2/3':
+                    img = img.crop((0,0, 1024, 416))
+
+            case (2048, 1024): # zoom 2
+                if gen == '1' or '2/3':
+                    img = img.crop((0,0, 2048, 832))
+
+            case (3584, 2048): # zoom 3
+                if gen == '1' or '2/3':
+                    img = img.crop((0, 0, 3584, 1664))
+
+            case (6656, 3584): # zoom 4
+                if gen == '2/3':
+                    img = img.crop((0, 0, 6656, 3328))
+        return img
 
 if __name__ == '__main__':
     img = Image.open('FqtoFE5WkWaiAF_Ei_jMow.png')
