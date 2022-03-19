@@ -83,12 +83,13 @@ def main(args=None):
     args = parser.parse_args(args=args)
 
     try:
+        service_str = args.service[0]
         service = getattr(extractor, args.service[0])
     except AttributeError:
         print("ERROR: Invalid Service")
         sys.exit(1)
 
-    pano = args.pano[0]
+    pano = args.pano
     if _is_url(pano):
         try:
             pano = service.misc.get_pano_from_url(pano)[0]
@@ -110,14 +111,12 @@ def main(args=None):
         case 'download':    # such as metadata
             img = download.panorama(pano, args.zoom, service, args.save_tiles, None, True)
             img.save(f"./{args.folder}/{pano}.png")
-
         case 'download-csv':
             csv = open(pano).read()
             pano_arr = csv.split('\n')
             pano_arr = [x for x in pano_arr if x != '']
 
             download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.folder)
-
         case 'download-json':
             file = open(pano).read()
             data = json.loads(file)
