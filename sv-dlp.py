@@ -103,8 +103,8 @@ def main(args=None):
             print(error.message)
     elif _is_coord(args.pano):
         print("Getting Panorama ID...")
-        lat = float(pano[0][:-1])
-        lng = float(pano[1])
+        lat = float(args.pano[0][:-1])
+        lng = float(args.pano[1])
         pano = service.get_pano_id(lat, lng)["pano_id"]
         pass
     else: # panorama id
