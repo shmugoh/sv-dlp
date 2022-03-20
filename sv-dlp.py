@@ -98,7 +98,7 @@ def main(args=None):
 
     if _is_url(args.pano):
         try:
-            pano = service.misc.get_pano_from_url(pano[0])[0]
+            pano = service.misc.get_pano_from_url(args.pano[0])[0]
         except extractor.ServiceNotSupported as error:
             print(error.message)
     elif _is_coord(args.pano):
