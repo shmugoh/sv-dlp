@@ -72,7 +72,7 @@ class metadata:
         data = requests.get(url).json()
         return data["Data"]["image_date"]
 
-    def is_trekker(pano_id) -> bool:
+    def _is_trekker(pano_id) -> bool:
         """
         Returns if given panorama ID is
         trekker or not. Might be useful
