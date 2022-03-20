@@ -57,44 +57,28 @@ def get_max_zoom(pano):
             continue
 
 def _build_tile_arr(pano_id, zoom=2):
-    x = 0
-    y = 0
-    x_axis = []
-    y_axis = []
-
-    max_zoom = get_max_zoom(pano_id)
-    zoom = max_zoom - zoom
-
-    # x axis
-    while True:
-        url = urls._build_tile_url(pano_id, zoom, x, y)
-        r = requests.get(url).status_code
-        match r:
-            case 200:
-                x_axis = x
-                x += 1
-            case _:
-                x = 0
-                break
-
-    # y axis
-    while True:
-        url = urls._build_tile_url(pano_id, zoom, x, y)
-        r = requests.get(url).status_code
-        match r:
-            case 200:
-                y_axis = y
-                y += 1
-            case _:
-                break
-
     arr = []
-    for i in range(int(y_axis + 1)):
-        arr.append([])
+    x_y = [0, 0]
+    i = 0
 
-    # print(len(arr))
-    for y in range(0, len(arr)):
-        for x in range(x_axis + 1):
+    while True:
+        if i >= 2:
+            break
+
+        if i == 0: url = urls._build_tile_url(pano_id, zoom, x_y[0], 0)
+        else: url = urls._build_tile_url(pano_id, zoom, 0, x_y[1])
+
+        r = requests.get(url).status_code
+        match r:
+            case 200:
+                x_y[i] += 1
+            case _:
+                i += 1
+                continue
+
+    for y in range(int(x_y[1])):
+        arr.append([])
+        for x in range(x_y[0]):
             url = urls._build_tile_url(pano_id, zoom, x, y)
-            arr[y].append(url)
+            arr[y].insert(x, url)
     return arr
