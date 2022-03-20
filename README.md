@@ -7,7 +7,7 @@
 sv-dlp is a panorama scraper for various street view platforms.
 
 
-This project has been made for educational purposes and all content downloaded
+This project has been made for educational purposes and all content scraped from
 is owned by their respective authors.
 
 ## **Features**
@@ -38,7 +38,7 @@ Baidu  |33%   |**Is in own branch**; metadata and misc features partially implem
 
 ## **FAQ**
 ## **Is this in a pre-release state?**
-For now, yes. Until all services reach a 95% state (except Baidu due to its own branch) and the CLI is considered good by my standards, sv-dlp will stay as a pre-release.
+For now, yes. Until all services reach a 95% state (except Baidu due to its own branch) and the UX is considered good by my standards, sv-dlp will stay as a pre-release.
 ## **Why aren't all my coordinates from .csv downloading?**
 Depending on how close the given coordinates are, it'll download the same panorama ID no matter the difference. It's recommended to use .json or .csv with panorama IDs instead.
 ## **Can X Service be added?**
