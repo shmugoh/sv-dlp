@@ -105,15 +105,18 @@ def main(args=None):
         print("Getting Panorama ID...")
         lat = float(args.pano[0][:-1])
         lng = float(args.pano[1])
-        pano = service.get_pano_id(lat, lng)["pano_id"]
-        pass
+
+        match service_str:
+            case 'yandex':
+                pano = service.get_pano_id(lat, lng)
+            case _:
+                pano = service.get_pano_id(lat, lng)["pano_id"]
     else: # panorama id
         pano = args.pano[0]
 
     match args.action:      # might prob divide it in divisions
         case 'download':    # such as metadata
-            img = download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, None, True) # yikes
-            img.save(f"./{args.folder}/{pano}.png")
+            download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, './', False) # yikes
         case 'download-csv':
             csv = open(pano).read()
             pano_arr = csv.split('\n')

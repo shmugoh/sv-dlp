@@ -58,6 +58,8 @@ def _download_tiles(tile_url_arr):
     return tile_io_array
 
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, pbar=False):
+    # i'm so sorry
+
     is_coord = _is_coord(pano)
     if is_coord != False:
         pano = service.get_pano_id(is_coord[0], is_coord[1])["pano_id"]
@@ -65,6 +67,8 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, 
     try:
         gen = service.metadata.get_gen(pano)
     except extractor.ServiceNotSupported:
+        no_crop = True
+    except  extractor.ServiceFuncNotSupported:
         no_crop = True
 
     if pbar:
@@ -80,6 +84,10 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, 
     if pbar: pbar.update(1)
     tiles_io = _download_tiles(tile_arr_url)
     if pbar: pbar.update(1)
+
+    match service.__name__:
+        case 'extractor.yandex':
+            pano = pano['pano_id']
 
     if save_tiles:
         for row in tiles_io:
