@@ -12,7 +12,7 @@ from tqdm import tqdm
 def _is_coord(coords):
     try:
         coords = str(coords).split(',')
-        if coords[-1] == '': coords.pop(-1)
+        if len(coords[-1]) == 0: coords.pop(-1)
         for coord in coords:
             if type(coord) == float:
                 lat = float(coords[0][:-1])
@@ -61,7 +61,8 @@ def _download_tiles(tile_url_arr):
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, pbar=False):
     # i'm so sorry
 
-    is_coord = _is_coord(pano)
+    is_coord = _is_coord(pano) # used for .csv
+
     if is_coord != False:
         pano = service.get_pano_id(is_coord[0], is_coord[1])["pano_id"]
 

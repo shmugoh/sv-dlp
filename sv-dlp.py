@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
 def _is_coord(coords):
     try:
         for coord in coords:
-            if type(coord[:-1]) == float:
+            if '.' in coord and int(coord[0]): # IDK
                 return True
     except ValueError:
         return False
