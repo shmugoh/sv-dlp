@@ -14,12 +14,13 @@ def _is_coord(coords):
         coords = str(coords).split(',')
         if coords[-1] == '': coords.pop(-1)
         for coord in coords:
-            if float(coord):
+            if type(coord) == float:
                 lat = float(coords[0][:-1])
                 lng = float(coords[1])
                 return lat, lng
     except ValueError:
         return False
+    return False
 
 def _download_row(row_arr) -> list:
     buff_arr = []
@@ -78,6 +79,8 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, 
         zoom = service.get_max_zoom(pano)
     elif int(zoom) == -1:
         zoom = service.get_max_zoom(pano) // 2
+    else:
+        zoom = int(zoom)
     if pbar: pbar.update(1)
 
     tile_arr_url = service._build_tile_arr(pano, zoom)
@@ -87,7 +90,10 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, 
 
     match service.__name__:
         case 'extractor.yandex':
-            pano = pano['pano_id']
+            try:
+                pano = pano['pano_id']
+            except TypeError: # pano id already parsed
+                pass
 
     if save_tiles:
         for row in tiles_io:
