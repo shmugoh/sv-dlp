@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
 def _is_coord(coords):
     try:
         for coord in coords:
-            if float(coord[:-1]):
+            if type(coord[:-1]) == float:
                 return True
     except ValueError:
         return False
@@ -98,14 +98,14 @@ def main(args=None):
 
     if _is_url(args.pano):
         try:
-            pano = service.misc.get_pano_from_url(args.pano[0])[0]
+            pano = service.misc.get_pano_from_url(args.pano[0])
         except extractor.ServiceNotSupported as error:
             print(error.message)
     elif _is_coord(args.pano):
-        print("Getting Panorama ID...")
         lat = float(args.pano[0][:-1])
         lng = float(args.pano[1])
 
+        print("Getting Panorama ID...")
         match service_str:
             case 'yandex':
                 pano = service.get_pano_id(lat, lng)

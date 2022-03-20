@@ -31,13 +31,16 @@ class misc:
     def get_pano_from_url(url):
         url = requests.get(url).url
         try:
-            express = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)&panorama', url)[0]
+            pano = re.findall(r'5Bid%5D=(.+)&panorama%5Bpoint', url)[0]
         except IndexError:
-            raise extractor.ServiceShortURLFound
+            try:
+                express = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)&panorama', url)[0]
+                lat, lng = express[1], express[0]
+                pano = get_pano_id(lat, lng)
+            except IndexError:
+                raise extractor.ServiceShortURLFound
 
-        lat, lng = express[1], express[0]
-        pano_id = get_pano_id(lat, lng)
-        return pano_id
+        return pano
 
     def short_url(pano_id):
         raise extractor.ServiceNotSupported
@@ -52,7 +55,11 @@ class metadata:
 
 
     def get_metadata(pano_id) -> str:
-        pano_id = pano_id['oid']
+        try:
+            pano_id = pano_id['oid']
+        except TypeError: # pano id already parsed
+            pass
+
         url = urls._build_pano_url(pano_id, 0, 'oid')
         data = requests.get(url).json()
         return data
@@ -61,7 +68,7 @@ class metadata:
         data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
         for i in data:
             if i['Connection']['oid'] == pano_id['oid']:
-                coords = i['Connection']['oid']['coordinates']
+                coords = i['Connection']['Point']['coordinates']
                 lat = coords[1]
                 lng = coords[0]
                 return lat, lng
@@ -70,8 +77,8 @@ class metadata:
     def get_gen(pano_id):
         raise extractor.ServiceFuncNotSupported
 
-def get_pano_id(lat, lon):
-    url = urls._build_pano_url(lat, lon)
+def get_pano_id(lat, lon, mode='ll'):
+    url = urls._build_pano_url(lat, lon, mode)
     data = requests.get(url).json()
     return {
         "pano_id": data['data']['Data']['Images']['imageId'],
@@ -87,7 +94,10 @@ def _build_tile_arr(pano_id, zoom=2):
     max_zoom = get_max_zoom(pano_id)
     zoom = max_zoom - zoom
 
-    pano_id = pano_id["pano_id"]
+    try:
+        pano_id = pano_id['pano_id']
+    except TypeError: # pano id already parsed
+        pano_id = get_pano_id(pano_id, 0, 'oid')['pano_id']
 
     arr = []
     x_y = [0, 0]
