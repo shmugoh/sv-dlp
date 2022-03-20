@@ -26,7 +26,7 @@ A built-in generator is also planned for intensive tasks that the web browser ve
 Service|Status|Notes
 :------|:-----|:----
 Google |100%  |Highest zoom only obtains a portion of the face, but that might be Google's problem.
-Yandex |91%   |Image has blank space left
+Yandex |91%   |Misc features semi-implemented
 Bing   |50%   |Metadata and misc feaures not implemented; [stiching tiles is borked](https://cdn.discordapp.com/attachments/757702072614518905/954514968064196628/0301001312233013.png)
 Baidu  |33%   |**Is in own branch**; metadata and misc features partially implemented; does not get all zooms and faces correctly
 
