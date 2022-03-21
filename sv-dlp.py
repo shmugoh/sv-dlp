@@ -1,5 +1,6 @@
 import argparse
 import json
+import numbers
 import sys
 
 from pprint import pprint
@@ -7,6 +8,8 @@ from pprint import pprint
 import extractor
 from extractor import * # yikes
 from postdownload import download
+
+import string
 
 from PIL import Image
 
@@ -20,9 +23,20 @@ parser = argparse.ArgumentParser(
 )
 
 def _is_coord(coords):
+    strings = (string.punctuation + string.ascii_letters)
+    false_positives = ['.', ',', '-']
+
+    for c in false_positives:
+        strings = strings.replace(c, '')
+
     try:
         for coord in coords:
-            if '.' in coord and int(coord[0]): # IDK
+            for s in strings:
+                if s not in coord:
+                    continue
+                else: return False
+
+            if isinstance(coord, numbers.Integral) is False:
                 return True
     except ValueError:
         return False
@@ -81,8 +95,8 @@ def main(args=None):
     parser.add_argument('--get-coords',
         action='store_const', dest='action', const='get-coords',
         help='obtains coords')
-    parser.add_argument('-p', '--get-pano',
-        action='store_const', dest='action', const='get-pano',
+    parser.add_argument('-p', '--get-pano-id',
+        action='store_const', dest='action', const='get-pano-id',
         help='obtains panorama id from coordinates or url')
     parser.add_argument('--get-gen',
         action='store_const', dest='action', const='get-gen',
@@ -94,28 +108,38 @@ def main(args=None):
     args = parser.parse_args(args=args)
 
     try:
-        service_str = args.service[0]
         service = getattr(extractor, args.service[0])
     except AttributeError:
         print("ERROR: Invalid Service")
         sys.exit(1)
 
     if _is_url(args.pano):
+        print("Getting Panorama ID...")
         try:
             pano = service.misc.get_pano_from_url(args.pano[0])
+            match service.__name__:
+                case 'extractor.yandex':
+                    pass
+                case _:
+                    pano = pano[0]
         except extractor.ServiceNotSupported as error:
             print(error.message)
     elif _is_coord(args.pano):
-        lat = float(args.pano[0][:-1])
-        lng = float(args.pano[1])
+
+        try:
+            lat = float(args.pano[0][:-1])
+            lng = float(args.pano[1])
+        except IndexError:
+            pano = args.pano[0]
 
         print("Getting Panorama ID...")
-        match service_str:
-            case 'yandex':
+        match service.__name__:
+            case 'extractor.yandex':
                 pano = service.get_pano_id(lat, lng)
             case _:
                 pano = service.get_pano_id(lat, lng)["pano_id"]
-    else: # panorama id
+
+    else: # panorama id already parsed
         pano = args.pano[0]
 
     match args.action:      # might prob divide it in divisions
@@ -152,7 +176,7 @@ def main(args=None):
                 print(date)
             except extractor.ServiceNotSupported as error:
                 print(error.message)
-        case 'get-pano':
+        case 'get-pano-id':
             print(pano) # lol
         case 'get-coords':
             try:

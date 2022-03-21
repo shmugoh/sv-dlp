@@ -64,8 +64,8 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, 
         case 'extractor.yandex':
             pass
         case _:
-            pano = pano[0]
-
+            if type(pano) == list:
+                pano = pano[0]
 
     is_coord = _is_coord(pano) # used for .csv
     if is_coord != False:
