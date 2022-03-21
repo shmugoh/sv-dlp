@@ -1,3 +1,4 @@
+from os import listdir
 import requests
 from io import BytesIO
 import concurrent.futures
@@ -58,7 +59,7 @@ def _download_tiles(tile_url_arr):
         # tile_io_array[thread_number] = thread.result()
     return tile_io_array
 
-def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, pbar=False):
+def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', pbar=False):
     # i'm so sorry
     match service.__name__:
         case 'extractor.yandex':
@@ -120,19 +121,17 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, 
         img = panoramic.crop(img, service.__name__, gen)
     if pbar: pbar.update(1)
 
-    if folder != None: # auto-save with a horrible name
-        img.save(f"./{folder}/{pano}.png")
-    else:
-        return img
+    img.save(f"./{folder}/{pano}.png")
+    return pano
 
-def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder=None):
+def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     print("Downloading...")
     pbar = tqdm(total=(len(arr)), leave=False)
     with concurrent.futures.ThreadPoolExecutor(max_workers=35) as threads:
         finished_threds = []
         threads_arr = []
         for pano in arr:
-            threads_arr.append(threads.submit(panorama, pano, zoom, service, no_crop, save_tiles, folder))
+            threads_arr.append(threads.submit(panorama, pano, zoom, service, save_tiles, no_crop, folder))
         for thread in concurrent.futures.as_completed(threads_arr):
             th_num = threads_arr.index(thread)
             if th_num in finished_threds:

@@ -1,9 +1,12 @@
 import argparse
 import json
 import numbers
-import sys
+from os import listdir
 
 from pprint import pprint
+from unittest import skip
+
+from tqdm import tqdm
 
 import extractor
 from extractor import * # yikes
@@ -144,7 +147,7 @@ def main(args=None):
 
     match args.action:      # might prob divide it in divisions
         case 'download':    # such as metadata
-            download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, './', False) # yikes
+            download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, args.folder, False) # yikes
         case 'download-csv':
             csv = open(pano).read()
             pano_arr = csv.split('\n')
@@ -154,9 +157,25 @@ def main(args=None):
         case 'download-json':
             file = open(pano).read()
             data = json.loads(file)
-            pano_arr = [x['panoId'] for x in data[next(iter(data))]]
+            try:
+                pano_arr = [x['panoId'] for x in data[next(iter(data))]]
+            except TypeError: # if obtaind from maps-links
+                pano_arr = []
+                for pano in data:
+                    pano_arr.append(pano)
 
             download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.no_crop, args.folder)
+
+            skipped_panos = []
+            for pano in pano_arr:
+                dir = listdir(args.folder)
+                if f"{pano}.png" not in dir:
+                    skipped_panos.append(pano)
+            print("Downloading skipped panos...")
+            with tqdm(total=len(skipped_panos), leave=False) as pbar:
+                for pano in skipped_panos:
+                    download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, args.folder)
+                    pbar.update(1)
 
         case 'short-link':
             try:
