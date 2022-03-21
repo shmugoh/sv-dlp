@@ -60,9 +60,14 @@ def _download_tiles(tile_url_arr):
 
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder=None, pbar=False):
     # i'm so sorry
+    match service.__name__:
+        case 'extractor.yandex':
+            pass
+        case _:
+            pano = pano[0]
+
 
     is_coord = _is_coord(pano) # used for .csv
-
     if is_coord != False:
         pano = service.get_pano_id(is_coord[0], is_coord[1])["pano_id"]
 
