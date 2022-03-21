@@ -32,6 +32,7 @@ class misc:
         url = requests.get(url).url
         try:
             pano = re.findall(r'5Bid%5D=(.+)&panorama%5Bpoint', url)[0]
+            pano = get_pano_id(pano, '', 'oid')
         except IndexError:
             try:
                 express = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)&panorama', url)[0]
@@ -48,8 +49,13 @@ class misc:
 class metadata:
     def get_date(pano_id) -> str:
         data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
+        try:
+            pano_id = pano_id['oid']
+        except TypeError: # pano id already parsed
+            pass
+
         for i in data:
-            if i['Connection']['oid'] == pano_id['oid']:
+            if i['Connection']['oid'] == pano_id:
                 return int(i['Connection']['name'])
         return None
 
@@ -66,8 +72,13 @@ class metadata:
 
     def get_coords(pano_id) -> float:
         data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
+        try:
+            pano_id = pano_id['oid']
+        except TypeError: # pano id already parsed
+            pass
+
         for i in data:
-            if i['Connection']['oid'] == pano_id['oid']:
+            if i['Connection']['oid'] == pano_id:
                 coords = i['Connection']['Point']['coordinates']
                 lat = coords[1]
                 lng = coords[0]
