@@ -15,6 +15,8 @@ parser = argparse.ArgumentParser(
     Download Street View panoramas from various services,
     obtain metadata and short links.
     ''',
+    usage='''sv-dlp.py COORDS/PANO ID/URL [FLAGS]
+    '''
 )
 
 def _is_coord(coords):
@@ -31,25 +33,6 @@ def _is_url(url):
         return False
 
 def main(args=None):
-#   --- flags ---
-    parser.add_argument('pano',
-        metavar='panorama', nargs="+",
-        help='input to scrape from. can be panorama ID or coordinates')
-    parser.add_argument('-s', '--service',
-        metavar='', nargs=1, default=['google'],
-        help='service to scrape from')
-    parser.add_argument('-z', '--zoom',
-        metavar='', default=(-1))
-    parser.add_argument('-f', '--folder',
-        metavar='', default='.\\')
-
-    parser.add_argument('--save-tiles',
-        action='store_true',
-        help='sets if tiles should be saved to current folder or not')
-    parser.add_argument('--no-crop',
-        action='store_true',
-        help='do not crop blank bar and leave panorama as it is')
-
 #   --- actions ---
     parser.add_argument('-d', '--download',
         action='store_const', dest='action', const='download',
@@ -58,14 +41,35 @@ def main(args=None):
     parser.add_argument('--download-csv',
         action='store_const', dest='action', const='download-csv',
         help='''downloads each pano/coordinate from csv made by the generator.
-        recommended to store panoramas instead, as coordinates tend
+        recommended to use with pano ids instead, as coordinates tend
         to not download if distance is very close''')
     parser.add_argument('--download-json',
         action='store_const', dest='action', const='download-json',
         help='downloads each panorama from json made by the generator')
     parser.add_argument('-l', '--short-link',
         action='store_const', dest='action', const='short-link',
-        help='only for google. short panorama to URL. coordinates are automatically converted to panorama id.')
+        help='short panorama to URL')
+
+#   --- flags ---
+    parser.add_argument('pano',
+        metavar='coords/pano id/link', nargs="+",
+        help='input to scrape from. can be panorama ID, coordinates or link. parse filename instead if using --download-csv/json')
+    parser.add_argument('-s', '--service',
+        metavar='', nargs=1, default=['google'],
+        help='service to scrape from')
+    parser.add_argument('-z', '--zoom',
+        metavar='', default=(-1),
+        help='sets zoom level. if not parsed, it\'ll automatically obtain half of available zoom')
+    parser.add_argument('-f', '--folder',
+        metavar='', default='.\\',
+        help='sets folder to save panorama to')
+
+    parser.add_argument('--save-tiles',
+        action='store_true',
+        help='sets if tiles should be saved to current folder or not')
+    parser.add_argument('--no-crop',
+        action='store_true',
+        help='do not crop blank bar and leave panorama as it is')
 
 #   --- metadata ---
     parser.add_argument('--get-metadata',
@@ -82,7 +86,7 @@ def main(args=None):
         help='obtains panorama id from coordinates or url')
     parser.add_argument('--get-gen',
         action='store_const', dest='action', const='get-gen',
-        help='obtains gen from input')
+        help='obtains gen from input. only appliable for google')
     # parser.add_argument('--is-trekker',
     #     action='store_const', dest='action', const='is-trekker',
     #     help='obtains coords')
