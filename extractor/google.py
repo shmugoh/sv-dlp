@@ -52,6 +52,9 @@ class misc:
     def get_pano_from_url(url):
         url = requests.get(url).url
         pano_id = re.findall(r'1s(.+)!2e', url)
+        if pano_id == []:
+            # https://www.google.com/maps/@?api=1&map_action=pano&pano=p1yAMqbHsH7sgAGIJWwBpw&shorturl=1
+            pano_id = re.findall(r'pano=(.+)&shorturl=1', url)
         return pano_id
 
     def short_url(pano_id):
