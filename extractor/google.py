@@ -145,7 +145,11 @@ def get_max_zoom(pano_id):
     """
     url = urls._build_metadata_url(pano_id)
     data = requests.get(url).json()
-    return int(data['Location']['zoomLevels'])
+    max_zoom = int(data['Location']['zoomLevels'])
+    if max_zoom == 5:
+        max_zoom -= 1
+
+    return max_zoom
 
 def _build_tile_arr(pano_id, zoom=2):
     arr = []
