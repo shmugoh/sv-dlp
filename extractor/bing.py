@@ -90,7 +90,6 @@ def get_pano_id(lat, lng):
 
     bounds = _get_bounding_box(lat, lng)
     url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
-    print(url)
     json = requests.get(url).json()
     # print(json)
     bubble_id = json[1]["id"]
@@ -138,7 +137,7 @@ def _build_tile_arr(base4_bubble, zoom=2):
                 url = urls._build_tile_url(base4_bubble, tile_pos)
                 # print(f"hs{base4_bubble}{tile_pos}", tile_id_base4, group)
                 arr[tile_id].append(url)
-        return url
+        return arr
 
 # def download_tile(bubble, title_pos):
 #     url = urls._build_tile_url(bubble, title_pos)
