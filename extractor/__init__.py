@@ -1,9 +1,8 @@
-from os import listdir
-
-# try:
-__all__  = [x[:-3] for x in listdir('extractor') if x[-3:] == '.py' and x[0:2] != '__']
-# except FileNotFoundError:
-#     __all__  = [x[:-3] for x in listdir() if x[-3:] == '.py' and x[0:2] != '__']
+import extractor.bing
+import extractor.google
+import extractor.yandex
+# i don't know why i picked this. i literally can't call extractor.[service]
+# unless if i import them here, and __all__ causes pyinstaller to act very weirdly. too bad!
 
 class ServiceNotSupported(Exception):
     message = "ERROR: Service does not support this function"
