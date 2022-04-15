@@ -86,7 +86,7 @@ class metadata:
         return None
 
     def get_gen(pano_id):
-        raise extractor.ServiceFuncNotSupported
+        raise extractor.ServiceNotSupported
 
 def get_pano_id(lat, lon, mode='ll'):
     url = urls._build_pano_url(lat, lon, mode)
