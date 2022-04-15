@@ -57,7 +57,7 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', 
         gen = service.metadata.get_gen(pano)
     except extractor.ServiceNotSupported:
         no_crop = True
-    except  extractor.ServiceFuncNotSupported:
+    except  extractor.ServiceNotSupported:
         no_crop = True
 
     if zoom == 'max':
