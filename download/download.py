@@ -30,21 +30,16 @@ def _download_row(urls_arr) -> list:
         i = urls_arr.index(url)
         urls_arr[i] = img_io
     return urls_arr
-
-def _download_tiles(tile_url_arr):
-    tile_io_array = []
-    for i in range(len(tile_url_arr)): tile_io_array.append(None)
-
-    thread_size = len(tile_url_arr)
+def _download_tiles(tiles_arr):
+    thread_size = len(tiles_arr)
     with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
-        buff_arr = []
-        for row in tile_url_arr:
-            buff_arr.insert(tile_url_arr.index(row), threads.submit(_download_row, row))
-
-        for thread in concurrent.futures.as_completed(buff_arr):
-            tile_io_array[buff_arr.index(thread)] = thread.result()
-    return tile_io_array
-
+        for row in tiles_arr:
+            i = tiles_arr.index(row)
+            tiles_arr[i] = threads.submit(_download_row, row)
+        for thread in concurrent.futures.as_completed(tiles_arr):
+            i = tiles_arr.index(thread)
+            tiles_arr[i] = thread.result()
+    return tiles_arr
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', pbar=False):
     # i'm so sorry
     match service.__name__:
