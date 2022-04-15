@@ -66,7 +66,6 @@ def main(args=None):
     parser.add_argument('-l', '--short-link',
         action='store_const', dest='action', const='short-link',
         help='short panorama to URL')
-
 #   --- flags ---
     parser.add_argument('pano',
         metavar='PANO ID', nargs="+",
@@ -87,7 +86,6 @@ def main(args=None):
     parser.add_argument('--no-crop',
         action='store_true',
         help='do not crop blank bar and leave panorama as it is')
-
 #   --- metadata ---
     parser.add_argument('--get-metadata',
         action='store_const', dest='action', const='get-metadata',
@@ -108,13 +106,11 @@ def main(args=None):
     #     action='store_const', dest='action', const='is-trekker',
     #     help='obtains coords')
     args = parser.parse_args(args=args)
-
     try:
         service = getattr(extractor, args.service[0])
     except AttributeError:
         print("ERROR: Invalid Service")
         sys.exit(1)
-
     if _is_url(args.pano):
         print("Getting Panorama ID...")
         try:
@@ -127,7 +123,6 @@ def main(args=None):
         except extractor.ServiceNotSupported as error:
             print(error.message)
     elif _is_coord(args.pano):
-
         try:
             lat = float(args.pano[0][:-1])
             lng = float(args.pano[1])
@@ -144,10 +139,10 @@ def main(args=None):
     else: # panorama id already parsed
         pano = args.pano[0]
 
-    match args.action:      # might prob divide it in divisions
-        case 'download':    # such as metadata
-            download.panorama
-            (
+    match args.action:
+#   --- actions ---
+        case 'download':
+            download.panorama(
                 pano, args.zoom, service,
                 args.save_tiles, args.no_crop, args.folder, False
             ) # yikes
@@ -155,8 +150,7 @@ def main(args=None):
             csv = open(pano).read()
             pano_arr = csv.split('\n')
             pano_arr = [x for x in pano_arr if x != '']
-            download.from_file
-            (
+            download.from_file(
                 pano_arr, args.zoom, service,
                 args.save_tiles, args.no_crop, args.folder
             )
@@ -168,42 +162,37 @@ def main(args=None):
                 pano_arr = []
                 for pano in data:
                     pano_arr.append(pano)
-            download.from_file
-            (
+            download.from_file(
                 pano_arr, args.zoom, service,
                 args.save_tiles, args.no_crop, args.folder
             )
-
         case 'short-link':
             try:
                 print(service.misc.short_url(pano))
             except extractor.ServiceNotSupported as error:
                 print(error.message)
 
+#   --- metadata ---
         case 'get-metadata':
             try:
                 data = service.metadata.get_metadata(pano)
                 pprint(data)
             except extractor.ServiceNotSupported as error:
                 print(error.message)
-
         case 'get-date':
             try:
                 date = service.metadata.get_date(pano)
                 print(date)
             except extractor.ServiceNotSupported as error:
                 print(error.message)
-
         case 'get-pano-id':
             print(pano) # lol
-
         case 'get-coords':
             try:
                 coords = service.metadata.get_coords(pano)
                 print(coords)
             except extractor.ServiceNotSupported as error:
                 print(error.message)
-
         case 'get-gen':
             try:
                 gen = service.metadata.get_gen(pano)
