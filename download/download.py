@@ -4,8 +4,8 @@ from io import BytesIO
 import concurrent.futures
 import extractor
 
-import postdownload.tiles as tiles
-import postdownload.panoramic as panoramic
+import download.tiles
+import download.panorama
 from PIL import Image
 
 from tqdm import tqdm
@@ -111,14 +111,14 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', 
 
     tile_io_array = []
     for row in tiles_io:
-        buff = tiles.stich(row)
+        buff = download.tiles.stich(row)
         tile_io_array.insert(tiles_io.index(row), buff)
     if pbar: pbar.update(1)
-    img = tiles.merge(tile_io_array)
+    img = download.tiles.merge(tile_io_array)
     if pbar: pbar.update(1)
 
     if no_crop != True:
-        img = panoramic.crop(img, service.__name__, gen)
+        img = download.panorama.crop(img, service.__name__, gen)
     if pbar: pbar.update(1)
 
     img.save(f"./{folder}/{pano}.png")
