@@ -4,6 +4,7 @@ import numbers
 from os import listdir
 
 from pprint import pprint
+import sys
 
 from tqdm import tqdm
 
@@ -20,7 +21,7 @@ parser = argparse.ArgumentParser(
     Download Street View panoramas from various services,
     obtain metadata and short links.
     ''',
-    usage='''sv-dlp.py COORDS/PANO ID/URL [FLAGS]
+    usage='''sv-dlp.py PANO-ID [FLAGS]
     '''
 )
 
@@ -43,7 +44,7 @@ def _is_coord(coords):
     except ValueError:
         return False
 def _is_url(url):
-    if url[0][0:5] == 'https':
+    if url[0][0:4] == 'http':
         return True
     else:
         return False
@@ -68,7 +69,7 @@ def main(args=None):
 
 #   --- flags ---
     parser.add_argument('pano',
-        metavar='coords/pano id/link', nargs="+",
+        metavar='PANO ID', nargs="+",
         help='input to scrape from. can be panorama ID, coordinates or link. parse filename instead if using --download-csv/json')
     parser.add_argument('-s', '--service',
         metavar='', nargs=1, default=['google'],
@@ -106,7 +107,6 @@ def main(args=None):
     # parser.add_argument('--is-trekker',
     #     action='store_const', dest='action', const='is-trekker',
     #     help='obtains coords')
-
     args = parser.parse_args(args=args)
 
     try:
@@ -146,35 +146,33 @@ def main(args=None):
 
     match args.action:      # might prob divide it in divisions
         case 'download':    # such as metadata
-            download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, args.folder, False) # yikes
+            download.panorama
+            (
+                pano, args.zoom, service,
+                args.save_tiles, args.no_crop, args.folder, False
+            ) # yikes
         case 'download-csv':
             csv = open(pano).read()
             pano_arr = csv.split('\n')
             pano_arr = [x for x in pano_arr if x != '']
-
-            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.no_crop, args.folder)
+            download.from_file
+            (
+                pano_arr, args.zoom, service,
+                args.save_tiles, args.no_crop, args.folder
+            )
         case 'download-json':
-            file = open(pano).read()
-            data = json.loads(file)
+            data = json.loads(open(pano).read())
             try:
                 pano_arr = [x['panoId'] for x in data[next(iter(data))]]
             except TypeError: # if obtaind from maps-links
                 pano_arr = []
                 for pano in data:
                     pano_arr.append(pano)
-
-            download.from_file(pano_arr, args.zoom, service, args.save_tiles, args.no_crop, args.folder)
-
-            skipped_panos = []
-            for pano in pano_arr:
-                dir = listdir(args.folder)
-                if f"{pano}.png" not in dir:
-                    skipped_panos.append(pano)
-            print("Downloading skipped panos...")
-            with tqdm(total=len(skipped_panos), leave=False) as pbar:
-                for pano in skipped_panos:
-                    download.panorama(pano, args.zoom, service, args.save_tiles, args.no_crop, args.folder)
-                    pbar.update(1)
+            download.from_file
+            (
+                pano_arr, args.zoom, service,
+                args.save_tiles, args.no_crop, args.folder
+            )
 
         case 'short-link':
             try:
@@ -188,26 +186,31 @@ def main(args=None):
                 pprint(data)
             except extractor.ServiceNotSupported as error:
                 print(error.message)
+
         case 'get-date':
             try:
                 date = service.metadata.get_date(pano)
                 print(date)
             except extractor.ServiceNotSupported as error:
                 print(error.message)
+
         case 'get-pano-id':
             print(pano) # lol
+
         case 'get-coords':
             try:
                 coords = service.metadata.get_coords(pano)
                 print(coords)
             except extractor.ServiceNotSupported as error:
                 print(error.message)
+
         case 'get-gen':
             try:
                 gen = service.metadata.get_gen(pano)
                 print(f"Gen {gen}")
             except extractor.ServiceNotSupported as error:
                 print(error.message)
+
         # case 'is-trekker':
         #     print(service.is_trekker(pano))
 
