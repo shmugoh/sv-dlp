@@ -40,32 +40,29 @@ def _download_tiles(tiles_arr):
             i = tiles_arr.index(thread)
             tiles_arr[i] = thread.result()
     return tiles_arr
-def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', pbar=False):
+def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     # i'm so sorry
     match service.__name__:
         case 'extractor.yandex':
             pass
+        case 'extractor.google':
+            gen = service.get_gen(pano)
         case _:
+            gen = None
             if type(pano) == list:
                 pano = pano[0]
 
     is_coord = _is_coord(pano) # used for .csv
-    if is_coord != False:
+    if is_coord:
         pano = service.get_pano_id(is_coord[0], is_coord[1])["pano_id"]
 
-    try:
-        gen = service.metadata.get_gen(pano)
-    except extractor.ServiceNotSupported:
-        no_crop = True
-    except  extractor.ServiceNotSupported:
-        no_crop = True
-
-    if zoom == 'max':
-        zoom = service.get_max_zoom(pano)
-    elif int(zoom) == -1:
-        zoom = service.get_max_zoom(pano) // 2
-    else:
-        zoom = int(zoom)
+    match zoom:
+        case 'max':
+            zoom = service.get_max_zoom(pano)
+        case -1:
+            zoom = service.get_max_zoom(pano) // 2
+        case _:
+            zoom = int(zoom)
 
     tile_arr_url = service._build_tile_arr(pano, zoom)
     tiles_io = _download_tiles(tile_arr_url)
@@ -96,24 +93,11 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', 
     return pano
 
 def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
-    print("Downloading...")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=35) as threads:
-        finished_threds = []
-        threads_arr = []
-        for pano in arr:
-            threads_arr.append(threads.submit(panorama, pano, zoom, service, save_tiles, no_crop, folder))
-        for thread in concurrent.futures.as_completed(threads_arr):
-            th_num = threads_arr.index(thread)
-            if th_num in finished_threds:
-                pass
-            else:
-                finished_threds.append(th_num)
-
-    skipped_panos = []
-    for pano in arr:
-        dir = listdir(folder)
-        if f"{pano}.png" not in dir:
-            skipped_panos.append(pano)
-    print("Downloading skipped panos...")
-    for pano in skipped_panos:
-        download.panorama(pano, zoom, service, save_tiles, no_crop, folder)
+    i = 0
+    for pano_id in arr:
+        print(f"Downloading {i}/{len(arr) - 1}")
+        panorama(
+            pano_id, zoom, service,
+            save_tiles, no_crop, folder
+        )
+        i += 1

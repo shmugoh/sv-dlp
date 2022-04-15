@@ -144,7 +144,7 @@ def main(args=None):
         case 'download':
             download.panorama(
                 pano, args.zoom, service,
-                args.save_tiles, args.no_crop, args.folder, False
+                args.save_tiles, args.no_crop, args.folder
             ) # yikes
         case 'download-csv':
             csv = open(pano).read()
