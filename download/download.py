@@ -41,55 +41,48 @@ def _download_tiles(tiles_arr):
             tiles_arr[i] = thread.result()
     return tiles_arr
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
-    # i'm so sorry
-    match service.__name__:
-        case 'extractor.yandex':
-            pass
-        case 'extractor.google':
-            gen = service.get_gen(pano)
-        case _:
-            gen = None
-            if type(pano) == list:
-                pano = pano[0]
-
+    print("Downloading...")
     is_coord = _is_coord(pano) # used for .csv
     if is_coord:
-        pano = service.get_pano_id(is_coord[0], is_coord[1])["pano_id"]
+        match service.__name__:
+            case 'extractor.yandex':
+                pano = service.get_pano_id(is_coord[0], is_coord[1])
+            case _:
+                pano = service.get_pano_id(is_coord[0], is_coord[1])['pano_id']
 
+    match service.__name__:
+        case 'extractor.google':
+            pano_name = pano
+            gen = service.metadata.get_gen(pano)
+        case 'extractor.yandex':
+            pano_name = pano['oid']
+            gen = None
+        case _:
+            pano_name = pano
+            gen = None
     match zoom:
         case 'max':
             zoom = service.get_max_zoom(pano)
         case -1:
             zoom = service.get_max_zoom(pano) // 2
-        case _:
-            zoom = int(zoom)
 
-    tile_arr_url = service._build_tile_arr(pano, zoom)
-    tiles_io = _download_tiles(tile_arr_url)
-
-    match service.__name__:
-        case 'extractor.yandex':
-            try:
-                pano = pano['pano_id']
-            except TypeError: # pano id already parsed
-                pass
-
+    tiles_urls = service._build_tile_arr(pano, zoom)
+    img_io = _download_tiles(tiles_urls)
     if save_tiles:
-        for row in tiles_io:
+        for row in img_io:
             for tile in row:
                 img = Image.open(tile)
-                i = f'{tiles_io.index(row)}_{row.index(tile)}'
+                i = f'{img_io.index(row)}_{row.index(tile)}'
                 img.save(f"./{folder}/{pano}_{i}.png")
 
-    tile_io_array = []
-    for row in tiles_io:
-        buff = download.tiles.stich(row)
-        tile_io_array.insert(tiles_io.index(row), buff)
-    img = download.tiles.merge(tile_io_array)
+    for row in img_io:
+        i = img_io.index(row)
+        img_io[i] = download.tiles.stich(row)
+    img = download.tiles.merge(img_io)
     if no_crop != True:
         img = download.panorama.crop(img, service.__name__, gen)
 
-    img.save(f"./{folder}/{pano}.png")
+    img.save(f"./{folder}/{pano_name}.png")
     return pano
 
 def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
