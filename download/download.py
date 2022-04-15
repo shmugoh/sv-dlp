@@ -8,8 +8,6 @@ import download.tiles
 import download.panorama
 from PIL import Image
 
-from tqdm import tqdm
-
 def _is_coord(coords):
     try:
         coords = str(coords).split(',')
@@ -23,29 +21,19 @@ def _is_coord(coords):
         return False
     return False
 
-def _download_row(row_arr) -> list:
-    buff_arr = []
-    for i in range(len(row_arr)): buff_arr.append(None)
-
-    for i in range(len(buff_arr)):
-        url = row_arr[i]
+def _download_row(urls_arr) -> list:
+    for url in urls_arr:
         img = requests.get(url, stream=True)
         img_io = BytesIO(img.content)
-        # print(img.status_code)
-        # print(img.url)
         img_io.seek(0)
-        buff_arr[i] = img_io
-    return buff_arr
+
+        i = urls_arr.index(url)
+        urls_arr[i] = img_io
+    return urls_arr
 
 def _download_tiles(tile_url_arr):
     tile_io_array = []
     for i in range(len(tile_url_arr)): tile_io_array.append(None)
-
-    # for i in range(len(tile_url_arr)):
-    #     thread = threading.Thread(target=_download_row, args=(tile_url_arr[i],))
-    #     threads.append(thread)
-    #     thread.start()
-    #     tile_io_array[i] = thread.join()
 
     thread_size = len(tile_url_arr)
     with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
@@ -55,8 +43,6 @@ def _download_tiles(tile_url_arr):
 
         for thread in concurrent.futures.as_completed(buff_arr):
             tile_io_array[buff_arr.index(thread)] = thread.result()
-
-        # tile_io_array[thread_number] = thread.result()
     return tile_io_array
 
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', pbar=False):
@@ -79,21 +65,15 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', 
     except  extractor.ServiceFuncNotSupported:
         no_crop = True
 
-    if pbar:
-        pbar = tqdm(total=3)
-
     if zoom == 'max':
         zoom = service.get_max_zoom(pano)
     elif int(zoom) == -1:
         zoom = service.get_max_zoom(pano) // 2
     else:
         zoom = int(zoom)
-    if pbar: pbar.update(1)
 
     tile_arr_url = service._build_tile_arr(pano, zoom)
-    if pbar: pbar.update(1)
     tiles_io = _download_tiles(tile_arr_url)
-    if pbar: pbar.update(1)
 
     match service.__name__:
         case 'extractor.yandex':
@@ -113,20 +93,15 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./', 
     for row in tiles_io:
         buff = download.tiles.stich(row)
         tile_io_array.insert(tiles_io.index(row), buff)
-    if pbar: pbar.update(1)
     img = download.tiles.merge(tile_io_array)
-    if pbar: pbar.update(1)
-
     if no_crop != True:
         img = download.panorama.crop(img, service.__name__, gen)
-    if pbar: pbar.update(1)
 
     img.save(f"./{folder}/{pano}.png")
     return pano
 
 def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     print("Downloading...")
-    pbar = tqdm(total=(len(arr)), leave=False)
     with concurrent.futures.ThreadPoolExecutor(max_workers=35) as threads:
         finished_threds = []
         threads_arr = []
@@ -138,4 +113,12 @@ def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
                 pass
             else:
                 finished_threds.append(th_num)
-                pbar.update(1)
+
+    skipped_panos = []
+    for pano in arr:
+        dir = listdir(folder)
+        if f"{pano}.png" not in dir:
+            skipped_panos.append(pano)
+    print("Downloading skipped panos...")
+    for pano in skipped_panos:
+        download.panorama(pano, zoom, service, save_tiles, no_crop, folder)
