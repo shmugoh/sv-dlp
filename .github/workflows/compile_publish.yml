@@ -23,7 +23,7 @@ jobs:
 
     - name: Generate Version
       id: ver
-      run: echo "::set-output name=ver::$(date +'%Y.%m.%d')"
+      run: echo "::set-output name=ver::$(sed -e 's#.*=\(\)#\1#;' version.py | sed -e "s/'//g")"
 
     - name: Get Changelog
       run: sed '/## '$DATE_BUILD'/d;/'---'/Q' CHANGELOG.md >> changelog_body
