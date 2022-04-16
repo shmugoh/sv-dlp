@@ -44,6 +44,11 @@ jobs:
       needs: publish-release
 
       steps:
+      - name: Switch Branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'master'
+
       - name: Set up Python 3.10.2
         uses: actions/setup-python@v2
         with:
@@ -73,6 +78,11 @@ jobs:
       needs: publish-release
 
       steps:
+      - name: Switch Branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'master'
+
       - name: Set up Python 3.10.2
         uses: actions/setup-python@v2
         with:
@@ -102,6 +112,11 @@ jobs:
       needs: publish-release
 
       steps:
+      - name: Switch Branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'master'
+
       - name: Set up Python 3.10.2
         uses: actions/setup-python@v2
         with:
@@ -131,6 +146,11 @@ jobs:
       needs: publish-release
 
       steps:
+      - name: Switch Branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'master'
+
       - name: Set up Python 3.10.2
         uses: actions/setup-python@v2
         with:
@@ -160,6 +180,11 @@ jobs:
       needs: publish-release
 
       steps:
+      - name: Switch Branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'master'
+
       - name: Set up Python 3.10.2
         uses: actions/setup-python@v2
         with:
