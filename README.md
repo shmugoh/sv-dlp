@@ -12,13 +12,14 @@ is owned by their respective authors.
 
 ## **Features**
 - Download Panoramas
-    - A panorama ID, a coordinate or a short URL can be parsed.
-    - Is multithreaded, meaning that every row is being downloaded at the same time enhancing speed.
-    - Saves individual tiles if `--save-tiles` is parsed.
+    - A panorama ID, a coordinate or a short URL can be parsed
+    - Is multithreaded, meaning that every row is being downloaded at the same time enhancing speed
+    - Saves individual tiles if `--save-tiles` is parsed
     - Download from .csv/.json input obtained from [Nur's Map Generator](https://map-generator-flax.vercel.app/)
 - Fully print metadata
-    - Date and coords can also be printed too separately.
+    - Date and coords can also be printed too separately
 - Coordinates and short URLs are automatically turned to panorama IDs
+- Short links with a panorama ID (or coordinates aswell) 
 
 A built-in generator is also planned for intensive tasks that the web browser version cannot perform well due to JavaScript's inefficiency.
 
