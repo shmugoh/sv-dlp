@@ -14,3 +14,6 @@ def main():
 
     print(f"Building sv-dlp for platform {SYS_OS} with architecture {SYS_ARCH[0]}")
     PyInstaller.__main__.run(opts)
+
+if __name__ == '__main__':
+    main()
