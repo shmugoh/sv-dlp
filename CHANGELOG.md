@@ -9,3 +9,4 @@ Initial sv-dlp pre-release
 - **[extrator]** Implemented Google, Yandex and Bing; last two doesn't have misc and metadata features yet
 - **[download]** Panorama is automatically cropped depending on service and resolution
 - **[download]** Implement multithreading during download of various panoramic rows
+---

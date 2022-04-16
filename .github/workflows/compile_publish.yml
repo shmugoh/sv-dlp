@@ -1,4 +1,4 @@
-name: Compile & Ship
+name: Build & Ship
 
 on:
   workflow_dispatch:
@@ -26,8 +26,7 @@ jobs:
       run: echo "::set-output name=ver::$(date +'%Y.%m.%d')"
 
     - name: Get Changelog
-      id: release_changelog
-      run: sed '1,/## '$ver'/d;/'---'/Q' CHANGELOG.md
+      run: sed '/## '$DATE_BUILD'/d;/'---'/Q' CHANGELOG.md >> changelog_body
 
     - name: Create Release
       id: release
@@ -37,7 +36,7 @@ jobs:
       with:
         tag_name: ${{ steps.ver.outputs.ver }}
         release_name: ${{ steps.ver.outputs.ver }}
-        body: ${{ steps.release_changelog.outputs.release_changelog }}
+        body_path: ./changelog_body
         draft: false
         prerelease: ${{ github.event.inputs.pre_release }}
 
