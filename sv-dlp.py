@@ -1,20 +1,16 @@
 import argparse
 import json
 import numbers
-from os import listdir
+
+import update
+from version import __version__
 
 from pprint import pprint
 import sys
 
-from tqdm import tqdm
-
 import extractor
 from extractor import * # yikes
 from download import download
-
-import string
-
-from PIL import Image
 
 parser = argparse.ArgumentParser(
     description='''
@@ -26,6 +22,7 @@ parser = argparse.ArgumentParser(
 )
 
 def _is_coord(coords):
+    import string
     strings = (string.punctuation + string.ascii_letters)
     false_positives = ['.', ',', '-']
 
@@ -66,9 +63,16 @@ def main(args=None):
     parser.add_argument('-l', '--short-link',
         action='store_const', dest='action', const='short-link',
         help='short panorama to URL')
+
+    parser.add_argument('-u', '--update',
+        action='store_const', dest='binary', const='update',
+        help='update sv-dlp')
+    parser.add_argument('-v', '--version',
+        action='store_const', dest='binary', const='version',
+        help='get current version')
 #   --- flags ---
     parser.add_argument('pano',
-        metavar='PANO ID', nargs="+",
+        metavar='PANO ID', nargs="?",
         help='input to scrape from. can be panorama ID, coordinates or link. parse filename instead if using --download-csv/json')
     parser.add_argument('-s', '--service',
         metavar='', nargs=1, default=['google'],
@@ -106,11 +110,24 @@ def main(args=None):
     #     action='store_const', dest='action', const='is-trekker',
     #     help='obtains coords')
     args = parser.parse_args(args=args)
+    if args.binary:
+        match args.binary:
+            case 'update':
+                __lastver__ = update.get_lastver()
+                print(f"Latest Version: {__lastver__}; Current Version: {__version__}")
+                if __lastver__ != __version__:
+                    print(f"Updating to {__lastver__}...")
+                    update.update_program()
+            case 'version':
+                print(f"Current Version: {__version__}")
+        sys.exit(0)
+
+    if args.pano == None:
+        parser.error(f"You must parse an input such as a pano ID")
     try:
         service = getattr(extractor, args.service[0])
     except AttributeError:
-        print("ERROR: Invalid Service")
-        sys.exit(1)
+        parser.error("Invalid Service")
     if _is_url(args.pano):
         print("Getting Panorama ID...")
         try:
@@ -121,7 +138,7 @@ def main(args=None):
                 case _:
                     pano = pano[0]
         except extractor.ServiceNotSupported as error:
-            print(error.message)
+            parser.error(error.message)
     elif _is_coord(args.pano):
         try:
             lat = float(args.pano[0][:-1])
@@ -135,7 +152,6 @@ def main(args=None):
                 pano = service.get_pano_id(lat, lng)
             case _:
                 pano = service.get_pano_id(lat, lng)["pano_id"]
-
     else: # panorama id already parsed
         pano = args.pano[0]
 
@@ -170,7 +186,7 @@ def main(args=None):
             try:
                 print(service.misc.short_url(pano))
             except extractor.ServiceNotSupported as error:
-                print(error.message)
+                parser.error(error.message)
 
 #   --- metadata ---
         case 'get-metadata':
@@ -178,13 +194,13 @@ def main(args=None):
                 data = service.metadata.get_metadata(pano)
                 pprint(data)
             except extractor.ServiceNotSupported as error:
-                print(error.message)
+                parser.error(error.message)
         case 'get-date':
             try:
                 date = service.metadata.get_date(pano)
                 print(date)
             except extractor.ServiceNotSupported as error:
-                print(error.message)
+                parser.error(error.message)
         case 'get-pano-id':
             print(pano) # lol
         case 'get-coords':
@@ -192,13 +208,13 @@ def main(args=None):
                 coords = service.metadata.get_coords(pano)
                 print(coords)
             except extractor.ServiceNotSupported as error:
-                print(error.message)
+                parser.error(error.message)
         case 'get-gen':
             try:
                 gen = service.metadata.get_gen(pano)
                 print(f"Gen {gen}")
             except extractor.ServiceNotSupported as error:
-                print(error.message)
+                parser.error(error.message)
 
         # case 'is-trekker':
         #     print(service.is_trekker(pano))

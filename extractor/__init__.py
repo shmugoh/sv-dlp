@@ -5,13 +5,13 @@ import extractor.yandex
 # unless if i import them here, and __all__ causes pyinstaller to act very weirdly. too bad!
 
 class ServiceNotSupported(Exception):
-    message = "ERROR: Service does not support this function"
+    message = "Service does not support this function"
     pass
 
 class ServiceNotFound(Exception):
-    message = "ERORR: Service not found"
+    message = "Service not found"
     pass
 
 class ServiceShortURLFound(Exception):
-    message = "ERORR: Short URL used. Avoid using them as they don't work with this service"
+    message = "Short URL used. Avoid using them as they don't work with this service"
     pass
