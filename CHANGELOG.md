@@ -1,3 +1,9 @@
+## 2022.04.16-2
+### Changelog
+- **[CLI]** Implement Update System
+- **[CLI]** Add Versioning System
+- **[CLI]** Update Error System
+---
 ## 2022.04.16
 Initial sv-dlp pre-release
 ### Changelog
