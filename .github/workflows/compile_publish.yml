@@ -3,9 +3,6 @@ name: Compile & Ship
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version'
-        required: true
       pre_release:
         type: boolean
         description: Nightly Build
@@ -15,16 +12,23 @@ jobs:
   publish-release:
     name: "Create Release"
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump_version.outputs.ytdlp_version }}
+      upload_url: ${{ steps.release.outputs.upload_url }}
+
     steps:
     - name: Switch Branch
       uses: actions/checkout@v2
       with:
         ref: 'master'
 
+    - name: Generate Version
+      id: ver
+      run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+
     - name: Get Changelog
-      env:
-        DATE_BUILD: ${{ github.event.inputs.version }}
-      run: sed '1,/## '$DATE_BUILD'/d;/'---'/Q' CHANGELOG.md >> release_changelog
+      id: release_changelog
+      run: sed '1,/## '$ver'/d;/'---'/Q' CHANGELOG.md
 
     - name: Create Release
       id: release
@@ -32,9 +36,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.event.inputs.version }}
-        release_name: ${{ github.event.inputs.version }}
-        body_path: ./release_changelog
+        tag_name: ${{ steps.ver.outputs.ver }}
+        release_name: ${{ steps.ver.outputs.ver }}
+        body_path: ${{ steps.release_changelog.outputs.release_changelog }}
         draft: false
         prerelease: ${{ github.event.inputs.pre_release }}
 
@@ -70,40 +74,6 @@ jobs:
           upload_url: ${{ needs.publish-release.release.outputs.upload_url }}
           asset_path: ./dist/sv-dlp
           asset_name: sv-dlp
-          asset_content_type: application/tar+gzip
-
-  compile-linux_x86:
-      name: "Compile Linux x86"
-      runs-on: ubuntu-latest
-      needs: publish-release
-
-      steps:
-      - name: Switch Branch
-        uses: actions/checkout@v2
-        with:
-          ref: 'master'
-
-      - name: Set up Python 3.10.2
-        uses: actions/setup-python@v2
-        with:
-            python-version: '3.10.2'
-            architecture: 'x86'
-
-      - name: Install Required Modules
-        run: python -m pip install -r requirements.txt
-
-      - name: Build - Linux x86 Binary
-        run: python build.py
-
-      - name: Upload - Linux x86 Binary
-        id: upload-linux_x86
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.publish-release.release.outputs.upload_url }}
-          asset_path: ./dist/sv-dlp_x86
-          asset_name: sv-dlp_x86
           asset_content_type: application/tar+gzip
 
   compile-win_64:
