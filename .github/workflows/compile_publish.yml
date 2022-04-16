@@ -24,7 +24,7 @@ jobs:
 
     - name: Generate Version
       id: ver
-      run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+      run: echo "::set-output name=ver::$(date +'%Y.%m.%d')"
 
     - name: Get Changelog
       id: release_changelog
