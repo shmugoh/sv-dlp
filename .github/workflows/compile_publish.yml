@@ -24,7 +24,7 @@ jobs:
     - name: Get Changelog
       env:
         DATE_BUILD: ${{ github.event.inputs.version }}
-      run: sed '1,/## '$DATE_BUILD'/d;/'---'/Q' CHANGELOG >> release_changelog
+      run: sed '1,/## '$DATE_BUILD'/d;/'---'/Q' CHANGELOG.md >> release_changelog
 
     - name: Create Release
       id: release
