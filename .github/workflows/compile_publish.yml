@@ -13,7 +13,6 @@ jobs:
     name: "Create Release"
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.bump_version.outputs.ytdlp_version }}
       upload_url: ${{ steps.release.outputs.upload_url }}
 
     steps:
