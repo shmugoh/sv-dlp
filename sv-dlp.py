@@ -72,7 +72,7 @@ def main(args=None):
         help='get current version')
 #   --- flags ---
     parser.add_argument('pano',
-        metavar='PANO ID', nargs="?",
+        metavar='PANO ID', nargs="*", default=None,
         help='input to scrape from. can be panorama ID, coordinates or link. parse filename instead if using --download-csv/json')
     parser.add_argument('-s', '--service',
         metavar='', nargs=1, default=['google'],
@@ -122,7 +122,7 @@ def main(args=None):
                 print(f"Current Version: {__version__}")
         sys.exit(0)
 
-    if args.pano == None:
+    if args.pano == []:
         parser.error(f"You must parse an input such as a pano ID")
     try:
         service = getattr(extractor, args.service[0])
@@ -143,7 +143,12 @@ def main(args=None):
         try:
             lat = float(args.pano[0][:-1])
             lng = float(args.pano[1])
+        except ValueError:
+            # if coords are parsed in quotes
+            lat, lng = args.pano[0].split(",")
+            lat, lng = float(lat), float(lng.strip())
         except IndexError:
+            # what was this for again
             pano = args.pano[0]
 
         print("Getting Panorama ID...")
@@ -152,7 +157,8 @@ def main(args=None):
                 pano = service.get_pano_id(lat, lng)
             case _:
                 pano = service.get_pano_id(lat, lng)["pano_id"]
-    else: # panorama id already parsed
+    else:
+        # if panorama id is already parsed
         pano = args.pano[0]
 
     match args.action:
