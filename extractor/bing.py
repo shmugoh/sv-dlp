@@ -99,7 +99,7 @@ def get_pano_id(lat, lng):
 def get_max_zoom(kwargs):
     return 3
 
-def _build_tile_arr(base4_bubble, zoom=2):
+def _build_tile_arr(base4_bubble, zoom):
         """
         Returns available tile URLs depending on
         the level of zoom given.
@@ -107,28 +107,21 @@ def _build_tile_arr(base4_bubble, zoom=2):
         Taken from sk-zk/streetlevel with a few changes.
         Kudos to him.
         """
+        zoom = int(zoom)
+        max_tiles = pow(4, zoom)
+        tiles_urls = [ [] for x in range(max_tiles) ]
 
-        if zoom > 3:
-            raise ValueError("Zoom can't be greater than 3")
-
-        arr = []
-        for i in range(0, 6):
-            arr.append([])
-        # print(arr)
-
-        max_tiles = int(math.pow(4, zoom))
         for tile_id in range(0, 6):
             tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
-            for group in range(0, max_tiles):
+            for tile in range(max_tiles):
                 if zoom < 1:
                     subdiv_base4 = ""
                 else:
-                    subdiv_base4 = urls._base4(group).zfill(zoom)
+                    subdiv_base4 = urls._base4(tile).zfill(zoom)
                 tile_pos = f"{tile_id_base4}{subdiv_base4}"
                 url = urls._build_tile_url(base4_bubble, tile_pos)
-                # print(f"hs{base4_bubble}{tile_pos}", tile_id_base4, group)
-                arr[tile_id].append(url)
-        return arr
+                tiles_urls[tile].append(url)
+        return tiles_urls
 
 # def download_tile(bubble, title_pos):
 #     url = urls._build_tile_url(bubble, title_pos)
