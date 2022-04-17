@@ -7,7 +7,7 @@ suffix = f"{'_macos' if SYS_OS == 'Darwin' else ''}{'_x86' if SYS_ARCH == '32' e
 
 def main():
     opts = [
-        'sv-dlp.py',
+        'sv-dlp/sv-dlp.py',
         '--onefile',
         f'--name=sv-dlp{suffix}'
     ]
