@@ -19,15 +19,15 @@ is owned by their respective authors.
 - Fully print metadata
     - Date and coords can also be printed too separately
 - Coordinates and short URLs are automatically turned to panorama IDs
-- Short links with a panorama ID (or coordinates aswell) 
+- Short links with a panorama ID (or coordinates aswell)
 
 A built-in generator is also planned for intensive tasks that the web browser version cannot perform well due to JavaScript's inefficiency.
 
 ## **Services**
 Service|Status|Notes
 :------|:-----|:----
-Google |100%  |Highest zoom only obtains a portion of the face, but that might be Google's problem.
-Yandex |91%   |Misc features semi-implemented
+Google |100%  |Zoom 5 only obtains a portion of the face, but that might be Google's problem.
+Yandex |99%   |Short Link function does not use the `shortenPath` API call. Only crops panorama for one specific resolution.
 Bing   |50%   |Metadata and misc feaures not implemented; [stiching tiles is borked](https://cdn.discordapp.com/attachments/757702072614518905/954514968064196628/0301001312233013.png)
 Baidu  |33%   |**Is in own branch**; metadata and misc features partially implemented; does not get all zooms and faces correctly
 
@@ -48,8 +48,9 @@ Depending on how accesible it is scraping-wise, yes.
 ## **I'm a develper and I want to add X service or improve the code. Can I?**
 Sure! You're welcome to submit in a pull request as long as its to improve
 this program, such as improving performance, fixing a bug, adding a service, etc.
-
 For those who want to add a service, check out [the documentation for it](https://github.com/juanpisuribe13/sv-dlp/blob/master/extractor/README.md).
+## **What does sv-dlp stand for?**
+~~IDK i copied it from yt-dlp since I got inspiration from it~~ Street View Download Plus; sv-dlp is more than a downloader if you look at its features.
 
 ## **License**
 [MIT](https://raw.githubusercontent.com/juanpisuribe13/sv-dlp/master/LICENSE)

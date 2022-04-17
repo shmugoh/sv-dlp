@@ -27,6 +27,14 @@ class urls:
                 url = f"https://api-maps.yandex.ru/services/panoramas/1.x/?l=stv&lang=en_RU&{mode}={lat}&origin=userAction&provider=streetview"
         return url
 
+    def _build_short_url(pano) -> str:
+        """
+        Build URL that shorts panorama
+        from given OID.
+        """
+        url = f'https://yandex.com/maps/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}'
+        return url
+
 class misc:
     def get_pano_from_url(url):
         url = requests.get(url).url
@@ -35,7 +43,7 @@ class misc:
             pano = get_pano_id(pano, '', 'oid')
         except IndexError:
             try:
-                express = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)&panorama', url)[0]
+                express = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)', url)[0]
                 lat, lng = express[1], express[0]
                 pano = get_pano_id(lat, lng)
             except IndexError:
@@ -44,7 +52,14 @@ class misc:
         return pano
 
     def short_url(pano_id):
-        raise extractor.ServiceNotSupported
+        try:
+            pano_id = pano_id['oid']
+        except TypeError:
+            # if pano id already parsed
+            pass
+        url = urls._build_short_url(pano_id)
+        return url
+
 
 class metadata:
     def get_date(pano_id) -> str:
