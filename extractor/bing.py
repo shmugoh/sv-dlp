@@ -1,6 +1,5 @@
-from multiprocessing.sharedctypes import Value
 import requests
-import webbrowser
+import pyproj
 import math
 from io import BytesIO
 from PIL import Image
@@ -55,30 +54,24 @@ class metadata:
     def get_gen(pano_id):
         raise extractor.ServiceNotSupported
 
-def _get_bounding_box(lat, lon):
-    '''
-    Obtain bounding box of coordinates to
-    parse coordinate to Bing's API.
+def _get_bounding_box(lat, lon, radius=25):
+    """
+    Returns length of latitude and longitude
+    within a square.
 
-    For more info, see https://en.wikipedia.org/wiki/Latitude#Length_of_a_degree_of_latitude
+    Taken from sk-zk/streetlevel with a few changes.
+    Kudos to him for saving me.
+    """
+    geod = pyproj.Geod(ellps="WGS84")
+    dist_to_corner = math.sqrt(2 * pow(2*radius, 2)) / 2
+    top_left = geod.fwd(lon, lat, 315, dist_to_corner)
+    bottom_right = geod.fwd(lon, lat, 135, dist_to_corner)
 
-    Also see https://stackoverflow.com/questions/62719999/how-can-i-convert-latitude-longitude-into-north-south-east-west-if-its-possib
-    '''
-    pi = math.pi
-    eSq = 0.00669437999014 # eccentricity squared
-    a = 6378137.0 # equatorial radius
-    lat_p = lat * pi / 180
-    lon_p = lon * pi / 180
-
-    lat_len = (pi * a * (1 - eSq)) / (180 * math.pow((1 - eSq * math.pow(math.sin(lat_p), 2)), 3 / 2))
-    lon_len = (pi * a * math.cos(lon_p)) / (180 * math.sqrt((1 - (eSq * math.pow(math.sin(lon_p), 2)))))
-
-    km_in_dist = 1000
     bounds = {
-        "north": lat + (km_in_dist / lat_len),
-        "south": lat - (km_in_dist / lat_len),
-        "east": lon + (km_in_dist / lon_len),
-        "west": lon - (km_in_dist / lon_len)
+        "north": top_left[1],
+        "south": bottom_right[1],
+        "east":  bottom_right[0],
+        "west": top_left[0]
     }
     return bounds
 
@@ -91,10 +84,8 @@ def get_pano_id(lat, lng):
     bounds = _get_bounding_box(lat, lng)
     url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
     json = requests.get(url).json()
-    # print(json)
     bubble_id = json[1]["id"]
     base4_bubbleid = urls._base4(bubble_id)
-    # print(bubble_id)
 
     bubble = {
         "bubble_id": bubble_id,
@@ -152,10 +143,7 @@ def _build_tile_arr(base4_bubble, zoom=2):
 # -70.635805
 
 # if __name__ == '__main__':
-#     lat = -33.590928
-#     lng = -70.715060
+#     lat, lng = 37.59940968040427, -121.3449550497444
 #     bounds = _get_bounding_box(lat, lng)
-#     bubble_id = get_bubble(bounds)['base4_bubble']
-#     axis = _find_axis(bubble_id)
-#     print(_build_tile_arr(bubble_id, axis))
-#     # bubble_id = get_bubble(bounds)
+#     print(bounds)
+#     print(get_pano_id(lat, lng))
