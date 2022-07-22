@@ -1,6 +1,6 @@
 /env
 /japan_gen_1
-*/__pycache__
 *.png
 *.csv
-/__pycache__
+__pycache__/
+*.py[cod]
