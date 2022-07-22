@@ -1,3 +1,4 @@
+from datetime import date
 from pprint import pprint
 import requests
 import json as j
@@ -15,27 +16,19 @@ class urls:
 
     def _build_pano_url(lat, lon, radius=500):
         """
-        Build Google URL containing panorama ID and imagery date
-        from coordinates.
+        Build GeoPhotoService call URL from
+        coordinates containing panorama ID and imagery date
         """
         url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{lat}!4d{lon}!2d{radius}!3m20!1m1!3b1!2m2!1sen!2sUS!9m1!1e2!11m12!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!1m3!1e10!2b1!3e2!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback=_xdc_._3vxzu4"
         return url
 
-    def _build_metadata_url(pano_id) -> str:
+    def _build_metadata_url(pano_id):
         '''
-        Build Google CBK URL containing panorama
-        key data such as image data, coordinates,
-        zoom levels, maximum image size, etc.
+        Build GeoPhotoService call URL from
+        Pano ID that contains panorama key data 
+        such as image size, location, coordinates,
+        date and previous panoramas.
         '''
-        i = randrange(0, 3)
-        url = f'https://cbk{i}.google.com/cbk?output=json&panoid={pano_id}'
-        return url
-
-    def _build_geophoto_meta_url(pano_id):
-        """
-        Build Google Maps API URL.
-        Useful for metadata related stuff.
-        """
         url = f'https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback=a'
         return url
 
@@ -67,14 +60,35 @@ class misc:
         return json[0]
 
 class metadata:
+    def get_metadata(pano_id) -> dict:
+        '''
+        Returns panorama ID metadata.
+        '''
+        url = urls._build_metadata_url(pano_id)
+        data = str(requests.get(url).content[12:-2])
+
+        coords = re.search('\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?', data)
+        image_size = re.search('\[[0-9],[0-9],\[(.+?),.+?\]', data).group(1)
+        image_date = re.search('\[*(......)\]\],\["https:', data).group(1)
+        # pans = re.search('\[[0-9]+,"(.+?)"\],\[[0-9],[0-9],\[.+?,(.+?)\],.+?\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?\[*(......)\]\],\["https:', data).group(5)
+        metadata = {
+            "panoid": pano_id,
+            "lat": float(coords.group(1)),
+            "lng": float(coords.group(2)),
+            "image_date": str(image_date).replace(',', '/'),
+            "image_size": image_size
+            }
+
+        del url, data, coords, image_size, image_date
+        return metadata
+
     def get_date(pano_id) -> str:
         '''
         Returns image date from
-        CBK URL.
+        get_metadata()
         '''
-        url = urls._build_metadata_url(pano_id)
-        data = requests.get(url).json()
-        return data["Data"]["image_date"]
+        metadata = metadata.get_metadata(pano_id)
+        return metadata["image_date"]
 
     def _is_trekker(pano_id) -> bool:
         """
@@ -85,40 +99,21 @@ class metadata:
         Thank you nur#2584 for guiding me out.
         """
         url = urls._build_metadata_url(pano_id)
-        data = requests.get(url).json()
-        data["Data"]["scene"] = 0
-
-        if int(data["Data"]["scene"]) == 1:
-            return True
-        elif int(data["Data"]["imagery_type"]) == 5 or "level_id" in ["Location"]:
-            return True
-        else: return False
-
-    def get_metadata(pano_id) -> str:
-        '''
-        Returns metadata from CBK url.
-        '''
-        url = urls._build_metadata_url(pano_id)
-        data = requests.get(url).json()
-        return data
+        json = j.loads(requests.get(url).content[12:-2])
+        return len(json[1][0][5][0][3][0][0][2]) > 3
 
     def get_coords(pano_id) -> float: # lul
-        url = urls._build_metadata_url(pano_id)
-        data = requests.get(url).json()
-        return data["Location"]["lat"], data["Location"]["lng"]
+        metadata = metadata.get_metadata(pano_id)
+        return metadata["lat"], metadata["lng"]
 
     def get_gen(pano_id):
-        url = urls._build_metadata_url(pano_id)
-        data = requests.get(url).json()
-        width, height =  data["Data"]["image_width"], data["Data"]["image_height"]
+        metadata = metadata.get_metadata(pano_id)
+        size = metadata["image_size"]
 
-        match width, height:
-            case "3328", "1664":
-                return "1"
-            case "13312", "6656":
-                return "2/3"
-            case "16384", "8192":
-                return "4"
+        match size:
+            case "1664": return "1"
+            case "6656": return "2/3"
+            case "8192": return "4"
 
 def get_pano_id(lat, lon) -> dict:
     """
@@ -143,13 +138,14 @@ def get_max_zoom(pano_id):
     """
     Finds maximum available zoom from given panorama ID.
     """
-    url = urls._build_metadata_url(pano_id)
-    data = requests.get(url).json()
-    max_zoom = int(data['Location']['zoomLevels'])
-    if max_zoom == 5:
-        max_zoom -= 1
-
-    return max_zoom
+    for zoom in range(0, 6):
+        url = urls._build_tile_url(pano_id, zoom)
+        r = requests.get(url).status_code
+        match r:
+            case _:
+                break
+    if zoom == 5: zoom -= 1
+    return zoom
 
 def _build_tile_arr(pano_id, zoom=2):
     arr = []
