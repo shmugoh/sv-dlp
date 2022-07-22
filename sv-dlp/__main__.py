@@ -180,10 +180,16 @@ def main(args=None):
             data = json.loads(open(pano).read())
             try:
                 pano_arr = [x['panoId'] for x in data[next(iter(data))]]
-            except TypeError: # if obtaind from maps-links
-                pano_arr = []
-                for pano in data:
-                    pano_arr.append(pano)
+            except TypeError:
+                try:
+                    pano_arr = [x['panoId'] for x in data['customCoordinates']]
+                    if None in pano_arr: pano_arr.remove(None)
+                except TypeError: # if obtaind from maps-links
+                    pano_arr = []
+                    for pano in data:
+                        pano_arr.append(pano)
+                # whoops
+            
             download.from_file(
                 pano_arr, args.zoom, service,
                 args.save_tiles, args.no_crop, args.folder
