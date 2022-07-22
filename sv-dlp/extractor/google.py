@@ -87,8 +87,8 @@ class metadata:
         Returns image date from
         get_metadata()
         '''
-        metadata = metadata.get_metadata(pano_id)
-        return metadata["image_date"]
+        md = metadata.get_metadata(pano_id)
+        return md["image_date"]
 
     def _is_trekker(pano_id) -> bool:
         """
@@ -103,12 +103,12 @@ class metadata:
         return len(json[1][0][5][0][3][0][0][2]) > 3
 
     def get_coords(pano_id) -> float: # lul
-        metadata = metadata.get_metadata(pano_id)
-        return metadata["lat"], metadata["lng"]
+        md = metadata.get_metadata(pano_id)
+        return md["lat"], metadata["lng"]
 
     def get_gen(pano_id):
-        metadata = metadata.get_metadata(pano_id)
-        size = metadata["image_size"]
+        md = metadata.get_metadata(pano_id)
+        size = md["image_size"]
 
         match size:
             case "1664": return "1"
@@ -142,6 +142,8 @@ def get_max_zoom(pano_id):
         url = urls._build_tile_url(pano_id, zoom)
         r = requests.get(url).status_code
         match r:
+            case 200:
+                pass
             case _:
                 break
     if zoom == 5: zoom -= 1
@@ -155,10 +157,8 @@ def _build_tile_arr(pano_id, zoom=2):
     while True:
         if i >= 2:
             break
-
         if i == 0: url = urls._build_tile_url(pano_id, zoom, x_y[0], 0)
         else: url = urls._build_tile_url(pano_id, zoom, 0, x_y[1])
-
         r = requests.get(url).status_code
         match r:
             case 200:
@@ -166,7 +166,6 @@ def _build_tile_arr(pano_id, zoom=2):
             case _:
                 i += 1
                 continue
-
     for y in range(int(x_y[1])):
         arr.append([])
         for x in range(x_y[0]):
