@@ -1,5 +1,5 @@
 ## 2022.07.23
-### ChangeloG
+### Changelog
 - **[GOOGLE]** #3 - Fix CBK API not working 
     - Replaced with GeoPhotoService.GetMetadata
     - Reverted on using the old maximum zoom technique
