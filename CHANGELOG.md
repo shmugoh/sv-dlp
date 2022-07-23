@@ -4,7 +4,7 @@
     - Replaced with GeoPhotoService.GetMetadata
     - Reverted on using the old maximum zoom technique
 - **[download]** Added new Download-JSON format
-
+---
 ## 2022.04.16-2
 ### Changelog
 - Coordinates can now be parsed with quotes
