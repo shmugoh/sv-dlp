@@ -1,3 +1,10 @@
+## 2022.07.23
+### ChangeloG
+- **[GOOGLE]** #3 - Fix CBK API not working 
+    - Replaced with GeoPhotoService.GetMetadata
+    - Reverted on using the old maximum zoom technique
+- **[download]** Added new Download-JSON format
+
 ## 2022.04.16-2
 ### Changelog
 - Coordinates can now be parsed with quotes
