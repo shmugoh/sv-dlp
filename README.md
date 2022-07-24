@@ -13,7 +13,7 @@ is owned by their respective authors.
 ## **Features**
 - Download Panoramas
     - A panorama ID, a coordinate or a short URL can be parsed
-    - Is multithreaded, meaning that every row is being downloaded at the same time enhancing speed
+    - Is multithreaded, meaning that each row is being downloaded at the same time enhancing speed
     - Saves individual tiles if `--save-tiles` is parsed
     - Download from .csv/.json input obtained from [Nur's Map Generator](https://map-generator-flax.vercel.app/)
 - Fully print metadata
@@ -45,7 +45,7 @@ Depending on how close the given coordinates are, it'll download the same panora
 ## **Can X Service be added?**
 Depending on how accesible it is scraping-wise, yes.
 **Feel free to submit in an issue** about the specific service and I'll gladly see what I can do about it. If you're a developer though, refer to the next question.
-## **I'm a develper and I want to add X service or improve the code. Can I?**
+## **I'm a developer and I want to add X service or improve the code. Can I?**
 Sure! You're welcome to submit in a pull request as long as its to improve
 this program, such as improving performance, fixing a bug, adding a service, etc.
 For those who want to add a service, check out [the documentation for it](https://github.com/juanpisuribe13/sv-dlp/blob/master/extractor/README.md).
