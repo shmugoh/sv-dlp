@@ -1,6 +1,7 @@
 import re
 import sys
 import requests
+import urllib.parse
 
 import extractor
 
@@ -35,6 +36,12 @@ class urls:
         url = f'https://yandex.com/maps/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}'
         return url
 
+        ''' 
+        Refer to Issue #4
+        # url = f'/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}'
+        # return urllib.parse.quote(url)
+        '''
+
 class misc:
     def get_pano_from_url(url):
         url = requests.get(url).url
@@ -43,8 +50,8 @@ class misc:
             pano = get_pano_id(pano, '', 'oid')
         except IndexError:
             try:
-                express = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)', url)[0]
-                lat, lng = express[1], express[0]
+                coords = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)', url)[0]
+                lat, lng = coords[1], coords[0]
                 pano = get_pano_id(lat, lng)
             except IndexError:
                 raise extractor.ServiceShortURLFound
@@ -59,6 +66,20 @@ class misc:
             pass
         url = urls._build_short_url(pano_id)
         return url
+
+        ''' 
+        Refer to Issue #4
+        # path = urls._build_short_url(pano_id)
+        # url = (
+        #     "https://yandex.com/maps/api/shortenPath?" + 
+        #     "ajax=1" + 
+        #     "csrfToken=ec630cf510c7af543851c6fc698a9402bc9f3939%3A1658692300" + 
+        #     f"path={path}" + 
+        #     "s=566210619" + 
+        #     "sessionId=1658692300780_640251")
+        # resp = session.get(url)
+        # return resp
+        '''
 
 
 class metadata:
