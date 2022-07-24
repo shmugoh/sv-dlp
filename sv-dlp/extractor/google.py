@@ -87,7 +87,7 @@ class metadata:
             "lng": float(lng),
             "date": f"{image_date[0]}/{image_date[1]}",
             "size": image_size,
-            "max_zoom": len(image_avail_res)-1,
+            "max_zoom": len(image_avail_res[0])-1,
             "is_trekker": len(json[1][0][5][0][3][0][0][2]) > 3
             }
 
