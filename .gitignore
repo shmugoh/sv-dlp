@@ -1,4 +1,6 @@
-/.git
 /env
-/extractor/google_t
-*/__pycache__
+/japan_gen_1
+*.png
+*.csv
+__pycache__/
+*.py[cod]

@@ -1,6 +1,5 @@
-from multiprocessing.sharedctypes import Value
 import requests
-import webbrowser
+import pyproj
 import math
 from io import BytesIO
 from PIL import Image
@@ -52,29 +51,27 @@ class metadata:
     def get_coords(pano_id) -> float:
         raise extractor.ServiceNotSupported
 
-def _get_bounding_box(lat, lon):
-    '''
-    Obtain bounding box of coordinates to
-    parse coordinate to Bing's API.
+    def get_gen(pano_id):
+        raise extractor.ServiceNotSupported
 
-    For more info, see https://en.wikipedia.org/wiki/Latitude#Length_of_a_degree_of_latitude
+def _get_bounding_box(lat, lon, radius=25):
+    """
+    Returns length of latitude and longitude
+    within a square.
 
-    Also see https://stackoverflow.com/questions/62719999/how-can-i-convert-latitude-longitude-into-north-south-east-west-if-its-possib
-    '''
-    pi = math.pi
-    eSq = 0.00669437999014 # eccentricity squared
-    a = 6378137.0 # equatorial radius
-    lat_p = lat * pi / 180
-    lon_p = lon * pi / 180
-
-    lat_len = (pi * a * (1 - eSq)) / (180 * math.pow((1 - eSq * math.pow(math.sin(lat_p), 2)), 3 / 2))
-    lon_len = (pi * a * math.cos(lon_p)) / (180 * math.sqrt((1 - (eSq * math.pow(math.sin(lon_p), 2)))))
+    Taken from sk-zk/streetlevel with a few changes.
+    Kudos to him for saving me.
+    """
+    geod = pyproj.Geod(ellps="WGS84")
+    dist_to_corner = math.sqrt(2 * pow(2*radius, 2)) / 2
+    top_left = geod.fwd(lon, lat, 315, dist_to_corner)
+    bottom_right = geod.fwd(lon, lat, 135, dist_to_corner)
 
     bounds = {
-        "north": lat + (1000 / lat_len),
-        "south": lat - (1000 / lat_len),
-        "east": lon + (1000 / lon_len),
-        "west": lon - (1000 / lon_len)
+        "north": top_left[1],
+        "south": bottom_right[1],
+        "east":  bottom_right[0],
+        "west": top_left[0]
     }
     return bounds
 
@@ -87,10 +84,8 @@ def get_pano_id(lat, lng):
     bounds = _get_bounding_box(lat, lng)
     url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
     json = requests.get(url).json()
-    # print(json)
     bubble_id = json[1]["id"]
     base4_bubbleid = urls._base4(bubble_id)
-    # print(bubble_id)
 
     bubble = {
         "bubble_id": bubble_id,
@@ -101,54 +96,32 @@ def get_pano_id(lat, lng):
     }
     return bubble
 
-def get_max_zoom(**kwargs):
+def get_max_zoom(kwargs):
     return 3
 
-def _find_max_axis(base4_bubble, zoom=2):
-    """
-    Returns available tiles depending on
-    the level of zoom given.
+def _build_tile_arr(base4_bubble, zoom):
+        """
+        Returns available tile URLs depending on
+        the level of zoom given.
 
-    Returns multiple arguments to be given next to
-    encoded Bubble while building the url
+        Taken from sk-zk/streetlevel with a few changes.
+        Kudos to him.
+        """
+        zoom = int(zoom)
+        max_tiles = pow(4, zoom)
+        tiles_urls = [ [] for x in range(max_tiles) ]
 
-    Taken from sk-zk/streetlevel with a few changes.
-    Kudos to him.
-    """
-    if zoom > 3:
-        raise ValueError("Zoom can't be greater than 3")
-
-    arr = []
-    for i in range(0, 6):
-        arr.append([])
-    # print(arr)
-
-    max_tiles = int(math.pow(4, zoom))
-    for tile_id in range(0, 6):
-        tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
-        for group in range(0, max_tiles):
-            if zoom < 1:
-                subdiv_base4 = ""
-            else:
-                subdiv_base4 = urls._base4(group).zfill(zoom)
-            tile_pos = f"{tile_id_base4}{subdiv_base4}"
-            # print(f"hs{base4_bubble}{tile_pos}", tile_id_base4, group)
-            arr[tile_id].append(tile_pos)
-
-    return arr
-
-def _build_tile_arr(bubble, axis_arr):
-        arr = []
-        for i in range(len(axis_arr)): arr.append([])
-        # print(arr)
-
-        for i in axis_arr:
-            count = axis_arr.index(i)
-            for pos in i:
-                # print(pos)
-                arr[count].append(urls._build_tile_url(bubble, pos))
-
-        return arr
+        for tile_id in range(0, 6):
+            tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
+            for tile in range(max_tiles):
+                if zoom < 1:
+                    subdiv_base4 = ""
+                else:
+                    subdiv_base4 = urls._base4(tile).zfill(zoom)
+                tile_pos = f"{tile_id_base4}{subdiv_base4}"
+                url = urls._build_tile_url(base4_bubble, tile_pos)
+                tiles_urls[tile].append(url)
+        return tiles_urls
 
 # def download_tile(bubble, title_pos):
 #     url = urls._build_tile_url(bubble, title_pos)
@@ -163,10 +136,7 @@ def _build_tile_arr(bubble, axis_arr):
 # -70.635805
 
 # if __name__ == '__main__':
-#     lat = -33.590928
-#     lng = -70.715060
+#     lat, lng = 37.59940968040427, -121.3449550497444
 #     bounds = _get_bounding_box(lat, lng)
-#     bubble_id = get_bubble(bounds)['base4_bubble']
-#     axis = _find_axis(bubble_id)
-#     print(_build_tile_arr(bubble_id, axis))
-#     # bubble_id = get_bubble(bounds)
+#     print(bounds)
+#     print(get_pano_id(lat, lng))
