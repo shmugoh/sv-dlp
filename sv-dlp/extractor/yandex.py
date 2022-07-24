@@ -37,7 +37,7 @@ class urls:
         return url
 
         ''' 
-        Refer to Issue #4
+        Refer to Issue #5
         # url = f'/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}'
         # return urllib.parse.quote(url)
         '''
@@ -68,7 +68,7 @@ class misc:
         return url
 
         ''' 
-        Refer to Issue #4
+        Refer to Issue #5
         # path = urls._build_short_url(pano_id)
         # url = (
         #     "https://yandex.com/maps/api/shortenPath?" + 
