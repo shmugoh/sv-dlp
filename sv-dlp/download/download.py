@@ -8,28 +8,6 @@ import download.tiles
 import download.panorama
 from PIL import Image
 
-def _is_coord(coords):
-    try:
-        coords = str(coords).split(',')
-        if len(coords[-1]) == 0: coords.pop(-1)
-        for coord in coords:
-            if type(coord) == float:
-                lat = float(coords[0][:-1])
-                lng = float(coords[1])
-                return lat, lng
-    except ValueError:
-        return False
-    return False
-
-def _download_row(urls_arr) -> list:
-    for url in urls_arr:
-        img = requests.get(url, stream=True)
-        img_io = BytesIO(img.content)
-        img_io.seek(0)
-
-        i = urls_arr.index(url)
-        urls_arr[i] = img_io
-    return urls_arr
 def _download_tiles(tiles_arr):
     thread_size = len(tiles_arr)
     with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
@@ -40,6 +18,18 @@ def _download_tiles(tiles_arr):
             i = tiles_arr.index(thread)
             tiles_arr[i] = thread.result()
     return tiles_arr
+
+
+def _download_row(urls_arr) -> list:
+    for url in urls_arr:
+        img = requests.get(url, stream=True)
+        img_io = BytesIO(img.content)
+        img_io.seek(0)
+
+        i = urls_arr.index(url)
+        urls_arr[i] = img_io
+    return urls_arr
+
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     is_coord = _is_coord(pano) # used for .csv
     if is_coord:
@@ -89,7 +79,6 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
 
     img.save(f"./{folder}/{pano_name}.png")
     return pano
-
 def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     i = 0
     for pano_id in arr:
@@ -99,3 +88,16 @@ def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
             save_tiles, no_crop, folder
         )
         i += 1
+
+def _is_coord(coords):
+    try:
+        coords = str(coords).split(',')
+        if len(coords[-1]) == 0: coords.pop(-1)
+        for coord in coords:
+            if type(coord) == float:
+                lat = float(coords[0][:-1])
+                lng = float(coords[1])
+                return lat, lng
+    except ValueError:
+        return False
+    return False
