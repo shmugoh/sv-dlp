@@ -120,11 +120,10 @@ class metadata:
     def get_gen(pano_id):
         md = metadata.get_metadata(pano_id)
         size = md["size"]
-
         match size:
-            case "1664": return "1"
-            case "6656": return "2/3"
-            case "8192": return "4"
+            case 1664: return "1"
+            case 6656: return "2/3"
+            case 8192: return "4"
 
 def get_pano_id(lat, lon) -> dict:
     """
