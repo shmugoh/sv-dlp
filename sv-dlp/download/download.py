@@ -41,15 +41,16 @@ def _download_tiles(tiles_arr):
             tiles_arr[i] = thread.result()
     return tiles_arr
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
-    print("Downloading...")
     is_coord = _is_coord(pano) # used for .csv
     if is_coord:
+        print("Getting Panorama ID...")
         match service.__name__:
             case 'extractor.yandex':
                 pano = service.get_pano_id(is_coord[0], is_coord[1])
             case _:
                 pano = service.get_pano_id(is_coord[0], is_coord[1])['pano_id']
 
+    print("Getting Metadata...")
     match service.__name__:
         case 'extractor.google':
             pano_name = pano
@@ -66,7 +67,10 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
         case -1:
             zoom = service.get_max_zoom(pano) // 2
 
+    print("Building Tile URLs...")
     tiles_urls = service._build_tile_arr(pano, zoom)
+
+    print("Downloading Tiles...")
     img_io = _download_tiles(tiles_urls)
     if save_tiles:
         for row in img_io:
@@ -75,6 +79,7 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
                 i = f'{img_io.index(row)}_{row.index(tile)}'
                 img.save(f"./{folder}/{pano}_{i}.png")
 
+    print("Stiching Tiles...")
     for row in img_io:
         i = img_io.index(row)
         img_io[i] = download.tiles.stich(row)
