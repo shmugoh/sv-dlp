@@ -66,7 +66,7 @@ class metadata:
         Returns panorama ID metadata.
         '''
         url = urls._build_metadata_url(pano_id)
-        data = str(requests.get(url).content)[38:-3].replace('\\xc2\\xa9 ', '')
+        data = str(requests.get(url).content)[38:-3].replace('\\', '\\\\')
         json = j.loads(data)
 
         lat, lng = json[1][0][5][0][1][0][2], json[1][0][5][0][1][0][3] 
