@@ -87,7 +87,8 @@ class metadata:
             "lng": float(lng),
             "date": f"{image_date[0]}/{image_date[1]}",
             "size": image_size,
-            "max_zoom": len(image_avail_res)-1
+            "max_zoom": len(image_avail_res)-1,
+            "is_trekker": len(json[1][0][5][0][3][0][0][2]) > 3
             }
 
         del url, data, image_size, image_avail_res, image_date
@@ -109,10 +110,8 @@ class metadata:
 
         Thank you nur#2584 for guiding me out.
         """
-        url = urls._build_metadata_url(pano_id)
-        json = j.loads(requests.get(url).content[38:-3])
-        data = data.replace('\\xc2\\xa9 ', '')
-        return len(json[1][0][5][0][3][0][0][2]) > 3
+        md = metadata.get_metadata(pano_id)
+        return md["is_trekker"]
 
     def get_coords(pano_id) -> float: # lul
         md = metadata.get_metadata(pano_id)
