@@ -3,8 +3,10 @@ from pprint import pprint
 import requests
 import json as j
 import re
+from random import choice
 
 class urls:
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
     def _build_tile_url(pano_id, zoom=3, x=0, y=0):
         """
         Build Google Street View Tile URL
@@ -27,7 +29,8 @@ class urls:
         such as image size, location, coordinates,
         date and previous panoramas.
         '''
-        url = f'https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback=a'
+        xdc = "_xdc_._" + ''.join([y for x in range(6) if (y := choice(urls.chars)) is not None])
+        url = f'https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}'
         return url
 
     def _build_short_url(pano_id) -> str:
@@ -63,9 +66,7 @@ class metadata:
         Returns panorama ID metadata.
         '''
         url = urls._build_metadata_url(pano_id)
-        print(url)
-        data = str(requests.get(url).content)[14:-3]
-        data = data.replace('\\xc2\\xa9 ', '')
+        data = str(requests.get(url).content)[38:-3].replace('\\xc2\\xa9 ', '')
         json = j.loads(data)
 
         lat, lng = json[1][0][5][0][1][0][2], json[1][0][5][0][1][0][3] 
@@ -109,7 +110,8 @@ class metadata:
         Thank you nur#2584 for guiding me out.
         """
         url = urls._build_metadata_url(pano_id)
-        json = j.loads(requests.get(url).content[12:-2])
+        json = j.loads(requests.get(url).content[38:-3])
+        data = data.replace('\\xc2\\xa9 ', '')
         return len(json[1][0][5][0][3][0][0][2]) > 3
 
     def get_coords(pano_id) -> float: # lul
