@@ -1,33 +1,34 @@
-from os import listdir
 import requests
 from io import BytesIO
 import concurrent.futures
-import extractor
+from tqdm import tqdm
 
 import download.tiles
 import download.panorama
+import extractor
+
 from PIL import Image
 
 def _download_tiles(tiles_arr):
-    thread_size = len(tiles_arr)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=thread_size) as threads:
-        for row in tiles_arr:
-            i = tiles_arr.index(row)
-            tiles_arr[i] = threads.submit(_download_row, row)
-        for thread in concurrent.futures.as_completed(tiles_arr):
-            i = tiles_arr.index(thread)
-            tiles_arr[i] = thread.result()
+    tiles_size = 0
+    for tiles_url in tiles_arr: 
+        tiles_size += len(tiles_url)
+
+    with tqdm(total=tiles_size) as pbar:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(tiles_arr)) as threads:
+            for row in tiles_arr:
+                tiles_arr[tiles_arr.index(row)] = threads.submit(_download_row, row, pbar)
+            for thread in concurrent.futures.as_completed(tiles_arr):
+                tiles_arr[tiles_arr.index(thread)] = thread.result()
     return tiles_arr
 
-
-def _download_row(urls_arr) -> list:
+def _download_row(urls_arr, pbar) -> list:
     for url in urls_arr:
         img = requests.get(url, stream=True)
         img_io = BytesIO(img.content)
         img_io.seek(0)
-
-        i = urls_arr.index(url)
-        urls_arr[i] = img_io
+        urls_arr[urls_arr.index(url)] = img_io
+        pbar.update(1)
     return urls_arr
 
 def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
@@ -70,15 +71,20 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
                 img.save(f"./{folder}/{pano}_{i}.png")
 
     print("Stiching Tiles...")
-    for row in img_io:
-        i = img_io.index(row)
-        img_io[i] = download.tiles.stich(row)
-    img = download.tiles.merge(img_io)
+    with tqdm(total=len(img_io)+1) as pbar:
+        for row in img_io:
+            i = img_io.index(row)
+            img_io[i] = download.tiles.stich(row)
+            pbar.update(1)
+        img = download.tiles.merge(img_io)
+        pbar.update(1)
     if no_crop != True:
+        print("Cropping...")
         img = download.panorama.crop(img, service.__name__, gen)
 
     img.save(f"./{folder}/{pano_name}.png")
     return pano
+
 def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     i = 0
     for pano_id in arr:
