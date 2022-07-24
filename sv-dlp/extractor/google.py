@@ -2,9 +2,7 @@ from datetime import date
 from pprint import pprint
 import requests
 import json as j
-
 import re
-from random import randrange
 
 class urls:
     def _build_tile_url(pano_id, zoom=3, x=0, y=0):
@@ -60,26 +58,38 @@ class misc:
         return json[0]
 
 class metadata:
-    def get_metadata(pano_id) -> dict:
+    def get_metadata(pano_id, lng=None) -> dict:
         '''
         Returns panorama ID metadata.
         '''
         url = urls._build_metadata_url(pano_id)
-        data = str(requests.get(url).content[12:-2])
+        print(url)
+        data = str(requests.get(url).content)[14:-3]
+        data = data.replace('\\xc2\\xa9 ', '')
+        json = j.loads(data)
 
-        coords = re.search('\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?', data)
-        image_size = re.search('\[[0-9],[0-9],\[(.+?),.+?\]', data).group(1)
-        image_date = re.search('\[*(......)\]\],\["https:', data).group(1)
-        # pans = re.search('\[[0-9]+,"(.+?)"\],\[[0-9],[0-9],\[.+?,(.+?)\],.+?\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?\[*(......)\]\],\["https:', data).group(5)
+        lat, lng = json[1][0][5][0][1][0][2], json[1][0][5][0][1][0][3] 
+        image_size = json[1][0][2][2][0] 
+        image_avail_res = json[1][0][2][3] # obtains all resolutions available
+        image_date = json[1][0][6][-1] # [0] for year - [1] for month
+
+        # coords = re.search('\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?', data)
+        # image_size = re.search('\[[0-9],[0-9],\[(.+?),.+?\]', data).group(1)
+        # image_zoom = re.search('\[[0-9],[0-9],\[.+?,.+?\],\[\[\[(\[.+?)\],null', data).group(1)
+        # image_zoom = ("["*2) + image_zoom
+        # image_date = re.search('\[*(......)\]\],\["https:', data).group(1)
+#       pans = re.search('\[[0-9]+,"(.+?)"\],\[[0-9],[0-9],\[.+?,(.+?)\],.+?\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?\[*(......)\]\],\["https:', data).group(5)
+
         metadata = {
             "panoid": pano_id,
-            "lat": float(coords.group(1)),
-            "lng": float(coords.group(2)),
-            "image_date": str(image_date).replace(',', '/'),
-            "image_size": image_size
+            "lat": float(lat),
+            "lng": float(lng),
+            "date": f"{image_date[0]}/{image_date[1]}",
+            "size": image_size,
+            "max_zoom": len(image_avail_res)-1
             }
 
-        del url, data, coords, image_size, image_date
+        del url, data, image_size, image_avail_res, image_date
         return metadata
 
     def get_date(pano_id) -> str:
@@ -88,7 +98,7 @@ class metadata:
         get_metadata()
         '''
         md = metadata.get_metadata(pano_id)
-        return md["image_date"]
+        return md["date"]
 
     def _is_trekker(pano_id) -> bool:
         """
@@ -104,11 +114,11 @@ class metadata:
 
     def get_coords(pano_id) -> float: # lul
         md = metadata.get_metadata(pano_id)
-        return md["lat"], metadata["lng"]
+        return md["lat"], md["lng"]
 
     def get_gen(pano_id):
         md = metadata.get_metadata(pano_id)
-        size = md["image_size"]
+        size = md["size"]
 
         match size:
             case "1664": return "1"
@@ -138,14 +148,8 @@ def get_max_zoom(pano_id):
     """
     Finds maximum available zoom from given panorama ID.
     """
-    for zoom in range(0, 6):
-        url = urls._build_tile_url(pano_id, zoom)
-        r = requests.get(url).status_code
-        match r:
-            case 200:
-                pass
-            case _:
-                break
+    md = metadata.get_metadata(pano_id)
+    zoom = md['max_zoom']
     if zoom == 5: zoom -= 1
     return zoom
 
