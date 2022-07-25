@@ -19,6 +19,7 @@ sees it.
 ## **Features**
 - Download Panoramas
     - A panorama ID, a coordinate or a short URL can be parsed
+        - **[GOOGLE]** A can radius can be parsed as well 
     - Is multithreaded, meaning that each row is being downloaded at the same time enhancing speed
     - Saves individual tiles if `--save-tiles` is parsed
     - Download from .csv/.json input obtained from [Nur's Map Generator](https://map-generator-flax.vercel.app/)
