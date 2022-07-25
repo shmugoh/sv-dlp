@@ -1,7 +1,6 @@
-from datetime import date
 from pprint import pprint
 import math
-import sys
+import extractor
 import requests
 import json as j
 import re
@@ -151,21 +150,24 @@ def get_pano_id(lat, lon, radius=500) -> dict:
     """
     Returns closest Google panorama ID to given parsed coordinates.
     """
-    url = urls._build_pano_url(lat, lon, 'singleimagesearch', radius)
-    json = requests.get(url).text
-    if "Search returned no images." in json:
-        print("[GOOGLE]: Finding nearest panorama via satellite zoom...")
-        url = urls._build_pano_url(lat, lon, mode='satellite')
+    try:
+        url = urls._build_pano_url(lat, lon, 'singleimagesearch', radius)
         json = requests.get(url).text
-        data = j.loads(json[4:])
-        pano = data[1][1][0][0][0][1]
-        lat = data[1][1][0][0][2][0][2]
-        lng = data[1][1][0][0][2][0][3]
-    else:
-        data = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
-        pano = data[0][0]
-        lat = data[0][1]
-        lng = data[0][2]
+        if "Search returned no images." in json:
+            print("[GOOGLE]: Finding nearest panorama via satellite zoom...")
+            url = urls._build_pano_url(lat, lon, mode='satellite')
+            json = requests.get(url).text
+            data = j.loads(json[4:])
+            pano = data[1][1][0][0][0][1]
+            lat = data[1][1][0][0][2][0][2]
+            lng = data[1][1][0][0][2][0][3]
+        else:
+            data = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
+            pano = data[0][0]
+            lat = data[0][1]
+            lng = data[0][2]
+    except TypeError:
+        return extractor.NoPanoIDAvailable
     # pans = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
     # print(url)
 

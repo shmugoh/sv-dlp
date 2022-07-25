@@ -143,6 +143,7 @@ def main(args=None):
         except extractor.ServiceNotSupported as error:
             parser.error(error.message)
     elif _is_coord(args.pano):
+        print(args.pano)
         try:
             lat = float(args.pano[0][:-1])
             lng = float(args.pano[1])
@@ -155,13 +156,16 @@ def main(args=None):
             pano = args.pano[0]
 
         print("Getting Panorama ID...")
-        match service.__name__:
-            case 'extractor.yandex':
-                pano = service.get_pano_id(lat, lng)
-            case 'extractor.google':
-                pano = service.get_pano_id(lat, lng, args.radius)["pano_id"]
-            case _:
-                pano = service.get_pano_id(lat, lng)["pano_id"]
+        try:
+            match service.__name__:
+                case 'extractor.yandex':
+                    pano = service.get_pano_id(lat, lng)
+                case 'extractor.google':
+                    pano = service.get_pano_id(lat, lng, args.radius)["pano_id"]
+                case _:
+                    pano = service.get_pano_id(lat, lng)["pano_id"]
+        except Exception:
+                parser.error(extractor.NoPanoIDAvailable.message)
 
     else:
         # if panorama id is already parsed

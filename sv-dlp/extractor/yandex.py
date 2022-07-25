@@ -125,12 +125,15 @@ class metadata:
         raise extractor.ServiceNotSupported
 
 def get_pano_id(lat, lon, mode='ll'):
-    url = urls._build_pano_url(lat, lon, mode)
-    data = requests.get(url).json()
-    return {
-        "pano_id": data['data']['Data']['Images']['imageId'],
-        "oid": data['data']['Data']['panoramaId']
-    }
+    try:
+        url = urls._build_pano_url(lat, lon, mode)
+        data = requests.get(url).json()
+        return {
+            "pano_id": data['data']['Data']['Images']['imageId'],
+            "oid": data['data']['Data']['panoramaId']
+        }
+    except Exception:
+        raise extractor.NoPanoIDAvailable
 
 def get_max_zoom(pano):
     data = metadata.get_metadata(pano)

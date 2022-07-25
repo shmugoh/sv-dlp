@@ -80,21 +80,23 @@ def get_pano_id(lat, lng):
     Returns closest bubble ID and its metadata
     with parsed coordinate bounds.
     """
+    try:
+        bounds = _get_bounding_box(lat, lng)
+        url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
+        json = requests.get(url).json()
+        bubble_id = json[1]["id"]
+        base4_bubbleid = urls._base4(bubble_id)
 
-    bounds = _get_bounding_box(lat, lng)
-    url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
-    json = requests.get(url).json()
-    bubble_id = json[1]["id"]
-    base4_bubbleid = urls._base4(bubble_id)
-
-    bubble = {
-        "bubble_id": bubble_id,
-        "pano_id": str(base4_bubbleid).zfill(16),
-        "lat": json[1]["lo"],
-        "lon": json[1]["la"],
-        "date": json[1]["cd"]
-    }
-    return bubble
+        bubble = {
+            "bubble_id": bubble_id,
+            "pano_id": str(base4_bubbleid).zfill(16),
+            "lat": json[1]["lo"],
+            "lon": json[1]["la"],
+            "date": json[1]["cd"]
+        }
+        return bubble
+    except Exception:
+        raise extractor.NoPanoIDAvailable
 
 def get_max_zoom(kwargs):
     return 3
