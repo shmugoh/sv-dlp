@@ -159,7 +159,6 @@ def main(args=None):
         try:
             match service.__name__:
                 case 'extractor.yandex':
-                    print("lol ok")
                     pano = service.get_pano_id(lat, lng)
                 case 'extractor.google':
                     pano = service.get_pano_id(lat, lng, args.radius)["pano_id"]
