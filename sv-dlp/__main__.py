@@ -80,6 +80,9 @@ def main(args=None):
     parser.add_argument('-z', '--zoom',
         metavar='', default=(-1),
         help='sets zoom level. if not parsed, it\'ll automatically obtain half of available zoom')
+    parser.add_argument('-r', '--radius',
+        metavar='', default=500,
+        help='sets radius level when parsing with coordinates - default is 500m')
     parser.add_argument('-f', '--folder',
         metavar='', default='.\\',
         help='sets folder to save panorama to')
@@ -155,8 +158,11 @@ def main(args=None):
         match service.__name__:
             case 'extractor.yandex':
                 pano = service.get_pano_id(lat, lng)
+            case 'extractor.google':
+                pano = service.get_pano_id(lat, lng, args.radius)["pano_id"]
             case _:
                 pano = service.get_pano_id(lat, lng)["pano_id"]
+
     else:
         # if panorama id is already parsed
         pano = args.pano[0]
