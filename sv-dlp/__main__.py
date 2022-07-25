@@ -159,6 +159,7 @@ def main(args=None):
         try:
             match service.__name__:
                 case 'extractor.yandex':
+                    print("lol ok")
                     pano = service.get_pano_id(lat, lng)
                 case 'extractor.google':
                     pano = service.get_pano_id(lat, lng, args.radius)["pano_id"]
@@ -170,6 +171,10 @@ def main(args=None):
     else:
         # if panorama id is already parsed
         pano = args.pano[0]
+        try:
+            md = service.metadata.get_metadata(pano)
+        except extractor.PanoIDInvalid as e: # some services don't have metadata implemented yet
+            parser.error(e.message)          # but the exception in _is_coord_ will do the job
 
     match args.action:
 #   --- actions ---

@@ -101,10 +101,10 @@ class metadata:
             pano_id = pano_id['oid']
         except TypeError: # pano id already parsed
             pass
-
         url = urls._build_pano_url(pano_id, 0, 'oid')
         data = requests.get(url).json()
-        return data
+        if data['status'] != 'success': raise extractor.PanoIDInvalid
+        return data['status']
 
     def get_coords(pano_id) -> float:
         data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']

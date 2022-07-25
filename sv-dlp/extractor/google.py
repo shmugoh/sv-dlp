@@ -90,10 +90,13 @@ class metadata:
         data = str(requests.get(url).content)[38:-3].replace('\\', '\\\\')
         json = j.loads(data)
 
-        lat, lng = json[1][0][5][0][1][0][2], json[1][0][5][0][1][0][3] 
-        image_size = json[1][0][2][2][0] # obtains highest resolution
-        image_avail_res = json[1][0][2][3] # obtains all resolutions available
-        image_date = json[1][0][6][-1] # [0] for year - [1] for month
+        try:
+            lat, lng = json[1][0][5][0][1][0][2], json[1][0][5][0][1][0][3] 
+            image_size = json[1][0][2][2][0] # obtains highest resolution
+            image_avail_res = json[1][0][2][3] # obtains all resolutions available
+            image_date = json[1][0][6][-1] # [0] for year - [1] for month
+        except IndexError:
+            raise extractor.PanoIDInvalid
 
         # coords = re.search('\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?', data)
         # image_size = re.search('\[[0-9],[0-9],\[(.+?),.+?\]', data).group(1)
