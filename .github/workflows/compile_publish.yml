@@ -26,7 +26,7 @@ jobs:
       run: echo "::set-output name=ver::$(sed -e "s#.*=\(\)#\1#;s/'//g" sv-dlp/version.py)"
 
     - name: Get Changelog
-      run: sed '/## '$DATE_BUILD'/d;/'---'/Q' CHANGELOG.md >> changelog_body
+      run: sed '/## '${{ steps.ver.outputs.ver }}'/d;/'---'/Q' CHANGELOG.md >> changelog_body
 
     - name: Create Release
       id: release
