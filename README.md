@@ -4,11 +4,17 @@
     </b>
 </h1>
 
-sv-dlp is a panorama scraper for various street view platforms.
+sv-dlp is a panorama scraper for various street view platforms that can download, 
+obtain metadata and short URLs.
 
+sv-dlp heavily relies on reverse engineered APIs - in the event of one service
+not working, please submit an issue with the `Dead API` label 
+and will be solved as soon as possible once I (or a collaborator)
 
 This project has been made for educational purposes and all content scraped from
 is owned by their respective authors.
+
+sees it.
 
 ## **Features**
 - Download Panoramas
