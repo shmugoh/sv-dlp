@@ -1,4 +1,18 @@
 ## 2022.07.23
+Initial sv-dlp release (horray!!)
+### Changelog
+- **[GOOGLE]** Changed Metadata Selection Method
+- **[GOOGLE]** Generate XDC callback
+- **[GOOGLE]** Add is_trekker to metadata
+- **[CLI]** Added Download Logs
+- **[DOWNLOAD]** Implemented Progress Bar
+### Known Bugs
+- **[GOOGLE]** Coordinates to Pano ID Borked #6
+- **[GOOGLE]** Zoom 5 Stiching Tiles Borked #8
+- **[BING]** Stiching Tiles Borked #7
+- **[YANDEX]** Short URL API not working #5 
+---
+## 2022.07.23
 ### Changelog
 - **[GOOGLE]** #3 - Fix CBK API not working 
     - Replaced with GeoPhotoService.GetMetadata

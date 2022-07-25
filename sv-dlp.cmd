@@ -1,1 +1,0 @@
-python sv-dlp/sv-dlp.py %*

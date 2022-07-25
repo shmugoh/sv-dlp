@@ -15,3 +15,9 @@ class ServiceNotFound(Exception):
 class ServiceShortURLFound(Exception):
     message = "Short URL used. Avoid using them as they don't work with this service"
     pass
+
+class NoPanoIDAvailable(Exception):
+    message = "Panorama ID not available in parsed coordinate."
+
+class PanoIDInvalid(Exception):
+    message = "Invalid Panorama ID. Please input a valid one and try again."
