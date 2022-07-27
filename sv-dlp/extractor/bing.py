@@ -3,7 +3,6 @@ import pyproj
 import math
 from io import BytesIO
 from PIL import Image
-
 import extractor
 
 class urls:
@@ -34,25 +33,25 @@ class urls:
         buff = "".join(str(i) for i in buff)
         return buff
 
-class misc:
-    def get_pano_from_url(url):
-        raise extractor.ServiceNotSupported
+# class misc:
+    # def get_pano_from_url(url):
+    #     raise extractor.ServiceNotSupported
 
-    def short_url(pano_id):
-        raise extractor.ServiceNotSupported
+    # def short_url(pano_id):
+    #     raise extractor.ServiceNotSupported
 
-class metadata:
-    def get_date(pano_id) -> str:
-        raise extractor.ServiceNotSupported
+# class metadata:
+    # def get_metadata(pano_id) -> str:
+    #     raise extractor.ServiceNotSupported
 
-    def get_metadata(pano_id) -> str:
-        raise extractor.ServiceNotSupported
+    # def get_date(pano_id) -> str:
+    #     raise extractor.ServiceNotSupported
 
-    def get_coords(pano_id) -> float:
-        raise extractor.ServiceNotSupported
+    # def get_coords(pano_id) -> float:
+    #     raise extractor.ServiceNotSupported
 
-    def get_gen(pano_id):
-        raise extractor.ServiceNotSupported
+    # def get_gen(pano_id):
+    #     raise extractor.ServiceNotSupported
 
 def _get_bounding_box(lat, lon, radius=25):
     """
@@ -110,35 +109,20 @@ def _build_tile_arr(base4_bubble, zoom):
         Kudos to him.
         """
         zoom = int(zoom)
-        max_tiles = pow(4, zoom)
-        tiles_urls = [ [] for x in range(max_tiles) ]
+        subdivs = pow(4, zoom)
+        faces = [ [] for x in range(0, 6) ]
 
         for tile_id in range(0, 6):
             tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
-            for tile in range(max_tiles):
+            for tile in range(subdivs):
                 if zoom < 1:
                     subdiv_base4 = ""
                 else:
                     subdiv_base4 = urls._base4(tile).zfill(zoom)
                 tile_pos = f"{tile_id_base4}{subdiv_base4}"
                 url = urls._build_tile_url(base4_bubble, tile_pos)
-                tiles_urls[tile].append(url)
-        return tiles_urls
+                faces[tile_id].append(url)
+        return faces
 
-# def download_tile(bubble, title_pos):
-#     url = urls._build_tile_url(bubble, title_pos)
-#     r = requests.get(url)
-#     im = Image.open(BytesIO(r.content))
-#     im.save(f"tile{i}.png")
-
-# https://t.ssl.ak.tiles.virtualearth.net/tiles/cmd/StreetSideBubbleMetaData?count=1&north=-33.43281436861051&south=-33.44202963138949&east=-70.63119736861051&west=-70.6404126313895
-# https://www.bing.com/maps?cp=-33.437422~-70.635805&style=x&mo=z.0&v=2&sV=2&form=S00027
-
-# -33.437422
-# -70.635805
-
-# if __name__ == '__main__':
-#     lat, lng = 37.59940968040427, -121.3449550497444
-#     bounds = _get_bounding_box(lat, lng)
-#     print(bounds)
-#     print(get_pano_id(lat, lng))
+if __name__ == '__main__':
+    print(get_pano_id(-33.74429348821123, -70.73846604377563))
