@@ -31,25 +31,35 @@ class urls:
         buff = "".join(str(i) for i in buff)
         return buff
 
-# class misc:
-    # def get_pano_from_url(url):
-    #     raise extractor.ServiceNotSupported
+class misc:
+    def get_pano_from_url(url):
+        raise extractor.ServiceNotSupported
 
-    # def short_url(pano_id):
-    #     raise extractor.ServiceNotSupported
+    def short_url(pano_id):
+        raise extractor.ServiceNotSupported
 
-# class metadata:
-    # def get_metadata(pano_id) -> str:
-    #     raise extractor.ServiceNotSupported
+class metadata:
+    '''
+    Metadata API call only accepts
+    coordinates from what I know, so
+    only way of making this work 
+    '''
+    def get_metadata(lat, lng) -> str:
+        bounds = _get_bounding_box(lat, lng)
+        url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
+        json = requests.get(url).json()
+        return json
 
-    # def get_date(pano_id) -> str:
-    #     raise extractor.ServiceNotSupported
+    def get_date(lat, lng) -> str:
+        md = metadata.get_metadata(lat, lng)
+        return md[1]['cd']
 
-    # def get_coords(pano_id) -> float:
-    #     raise extractor.ServiceNotSupported
+    def get_coords(lat, lng) -> float:
+        md = metadata.get_metadata(lat, lng)
+        return md[1]['la'], md[1]['lo']
 
-    # def get_gen(pano_id):
-    #     raise extractor.ServiceNotSupported
+    def get_gen(**kwargs):
+        raise extractor.ServiceNotSupported
 
 def _get_bounding_box(lat, lon, radius=25):
     """
