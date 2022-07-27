@@ -1,10 +1,5 @@
-from random import randrange
 import re
-
 import requests
-import json as j
-from pprint import pprint
-
 import extractor
 
 class urls:
@@ -41,16 +36,21 @@ class misc:
         raise extractor.ServiceNotSupported
 
 class metadata:
-    def get_date(pano_id) -> str:
-        raise extractor.ServiceNotSupported
-
     def get_metadata(pano_id) -> str:
         url = urls._build_metadata_url(pano_id)
         data = requests.get(url).json()
-        pprint(data)
+        # pprint(data)
+        return data
+
+    def get_date(pano_id) -> str:
+        md = metadata.get_metadata(pano_id)
+        date = md['content'][0]['Date']
+        return date
 
     def get_coords(pano_id) -> float:
-        raise extractor.ServiceNotSupported
+        md = metadata.get_metadata(pano_id)
+        lat, lng = md['content'][0]['RX'], md['content'][0]['RY']
+        return lat, lng # atm returns only BD-09 coordinates
 
 def get_pano_id(lat, lon):
     url = urls._build_pano_url(lat, lon)
@@ -65,54 +65,32 @@ def get_max_zoom(pano_id):
     Finds maximum available zoom from given panorama ID.
     """
     url = urls._build_metadata_url(pano_id)
-    json = requests.get(url).json()
-    return json["content"][0]["ImgLayer"][-1]["ImgLevel"]
+    md = requests.get(url).json()
+    max = md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
+    return max
 
-def _find_max_axis(pano_id, zoom):
-    x = 0
-    y = 0
-    x_axis = []
-    y_axis = []
-
-    # x axis
-    while True:
-        url = urls._build_tile_url(pano_id, x, y, zoom)
-        r = requests.get(url).status_code
-        match r:
-            case 200:
-                x_axis = x
-                x += 1
-            case _:
-                x = 0
-                break
-
-    # y axis
-    while True:
-        url = urls._build_tile_url(pano_id, x, y, zoom)
-        r = requests.get(url).status_code
-        match r:
-            case 200:
-                y_axis = y
-                y += 1
-            case _:
-                break
-
-    max_axis = {
-        "x": x_axis,
-        "y": y_axis
-    }
-    return max_axis
-
-def _build_tile_arr(pano_id, zoom, axis_arr):
+def _build_tile_arr(pano_id, zoom):
     arr = []
-    for i in range(zoom - 1):
-        arr.append([])
-    print(arr)
+    x_y = [0, 0]
+    i = 0
 
-    for y in range(0, len(arr)):
-        for x in range(len(axis_arr['x']) + 1):
+    while True:
+        if i >= 2:
+            break
+        if i == 0: url = urls._build_tile_url(pano_id, x_y[0], 0, zoom)
+        else: url = urls._build_tile_url(pano_id, 0, x_y[1], zoom)
+        r = requests.get(url).status_code
+        match r:
+            case 200:
+                x_y[i] += 1
+            case _:
+                i += 1
+                continue
+    for y in range(int(x_y[1])):
+        arr.append([])
+        for x in range(x_y[0]):
             url = urls._build_tile_url(pano_id, x, y, zoom)
-            arr[y].append(url)
+            arr[y].insert(x, url)
     return arr
 
 # if __name__ == "__main__":
