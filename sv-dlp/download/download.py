@@ -71,13 +71,18 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
                 img.save(f"./{folder}/{pano}_{i}.png")
 
     print("Stiching Tiles...")
-    with tqdm(total=len(img_io)+1) as pbar:
-        for row in img_io:
-            i = img_io.index(row)
-            img_io[i] = download.tiles.stich(row)
-            pbar.update(1)
-        img = download.tiles.merge(img_io)
-        pbar.update(1)
+    with tqdm(total=len(img_io)) as pbar:
+        match service.__name__:
+            case 'extractor.bing':
+                img = download.tiles.bing.merge(img_io, pbar)
+                img.show()
+            case _:
+                for row in img_io:
+                    i = img_io.index(row)
+                    img_io[i] = download.tiles.stich(row)
+                    pbar.update(1)
+                img = download.tiles.merge(img_io)
+                pbar.update(1)
     if no_crop != True:
         print("Cropping...")
         img = download.panorama.crop(img, service.__name__, gen)
