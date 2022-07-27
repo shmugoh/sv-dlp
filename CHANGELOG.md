@@ -1,4 +1,20 @@
-## 2022.07.23
+## 2022.07.26
+## Changelog
+- **[DOWNLOAD]** File not being saved correctly #14
+- **[CLI]** Console will no longer print coordinates when parsing one
+## Known Bugs
+- **[BING]** Stiching Tiles Borked #7
+- **[YANDEX]** Short URL API not working #5 
+---
+## 2022.07.25
+## Changelog
+- **[GOOGLE]** Implement Satellite Zoom and Radius - #6
+- **[CLI]** Detect when input is invalid - #9
+## Known Bugs
+- **[BING]** Stiching Tiles Borked #7
+- **[YANDEX]** Short URL API not working #5 
+---
+## 2022.07.24
 Initial sv-dlp release (horray!!)
 ### Changelog
 - **[GOOGLE]** Changed Metadata Selection Method

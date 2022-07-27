@@ -84,7 +84,7 @@ def main(args=None):
         metavar='', default=500,
         help='sets radius level when parsing with coordinates - default is 500m')
     parser.add_argument('-f', '--folder',
-        metavar='', default='.\\',
+        metavar='', default='',
         help='sets folder to save panorama to')
 
     parser.add_argument('--save-tiles',
@@ -143,7 +143,6 @@ def main(args=None):
         except extractor.ServiceNotSupported as error:
             parser.error(error.message)
     elif _is_coord(args.pano):
-        print(args.pano)
         try:
             lat = float(args.pano[0][:-1])
             lng = float(args.pano[1])
@@ -217,13 +216,15 @@ def main(args=None):
 #   --- metadata ---
         case 'get-metadata':
             try:
-                data = service.metadata.get_metadata(pano)
+                if args.service[0] == 'bing': data = service.metadata.get_metadata(lat, lng)
+                else: data = service.metadata.get_metadata(pano)
                 pprint(data)
             except extractor.ServiceNotSupported as error:
                 parser.error(error.message)
         case 'get-date':
             try:
-                date = service.metadata.get_date(pano)
+                if args.service[0] == 'bing': date = service.metadata.get_date(lat, lng)
+                else: date = service.metadata.get_date(pano)
                 print(date)
             except extractor.ServiceNotSupported as error:
                 parser.error(error.message)
@@ -231,7 +232,8 @@ def main(args=None):
             print(pano) # lol
         case 'get-coords':
             try:
-                coords = service.metadata.get_coords(pano)
+                if args.service[0] == 'bing': coords = service.metadata.get_coords(lat, lng)
+                else: coords = service.metadata.get_coords(pano)
                 print(coords)
             except extractor.ServiceNotSupported as error:
                 parser.error(error.message)
