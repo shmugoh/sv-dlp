@@ -1,8 +1,6 @@
 import requests
 import pyproj
 import math
-from io import BytesIO
-from PIL import Image
 import extractor
 
 class urls:
