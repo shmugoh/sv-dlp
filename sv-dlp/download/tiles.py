@@ -1,8 +1,24 @@
 import math
 from PIL import Image
+import PIL
+import pillow_heif
+# bruh
 
 def stich(row_io_arr):
-    images = [Image.open(x) for x in row_io_arr]
+    try:
+        images = [Image.open(x) for x in row_io_arr]
+    except PIL.UnidentifiedImageError: # HEIC
+        images = []
+        for i in range(len(row_io_arr)):
+            img = pillow_heif.read_heif(row_io_arr[i])
+            img = Image.frombytes(
+                img.mode,
+                img.size,
+                img.data,
+                "raw",
+            )
+            images.append(img)
+
     widths, heights = zip(*(i.size for i in images))
     total_width, max_height = sum(widths), max(heights)
     row_img = Image.new('RGB', (total_width, max_height))
@@ -39,6 +55,38 @@ def merge(rows_io_arr):
 
     # merged_img.show()
     return merged_img
+
+class apple:
+    # TODO: Rewrite this because Panoramas are sorted in a different way.
+    # Maybe do something like class bing, where it pastes each face
+    # on its adequate position.
+    def stitch(row_io_arr):
+        images = []
+        for i in range(len(row_io_arr)):
+            img = pillow_heif.read_heif(row_io_arr[i])
+            img = Image.frombytes(
+                img.mode,
+                img.size,
+                img.data,
+                "raw",
+            )
+            images.append(img)
+
+        widths, heights = zip(*(i.size for i in images))
+        total_width, max_height = sum(widths), max(heights)
+        row_img = Image.new('RGB', (total_width, max_height))
+
+        x = 0
+        for m in images:
+            if m == images[0]:
+                row_img.paste(m, (0, 0))
+            else:
+                row_img.paste(m, (last_image.width*x, 0))
+            last_image = m
+            x += 1
+
+        # row_img.show()
+        return row_img
 
 class bing:
     TILE_SIZE = 256

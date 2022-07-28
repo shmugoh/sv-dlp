@@ -1,6 +1,7 @@
 import requests
 import extractor
-from auth import Authenticator
+
+from .auth import Authenticator
 
 class urls:
     def _build_tile_url(pano_id, face, zoom):
@@ -42,20 +43,28 @@ def get_pano_id(lat, lon):
     raise extractor.ServiceNotSupported
 
 def get_max_zoom(pano_id):
-    raise extractor.ServiceNotSupported
+    auth = Authenticator()
+    i = 0
+    while True:
+        url = auth.authenticate_url(urls._build_tile_url(pano_id, 0, i))
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            i += 1
+        else: break
+    return i
 
 # last tow funcs are bit universal-ish,
 # so they could work with any service
 def _build_tile_arr(pano_id, zoom=0):
     auth = Authenticator()
-    arr = []
+    arr = [[]]
     i = 0
     while True:
         url = auth.authenticate_url(urls._build_tile_url(pano_id, i, zoom))
         resp = requests.get(url)
         if resp.status_code == 200:
             i += 1
-            arr.append(url)
+            arr[0].append(url)
         else: break
     return arr
 

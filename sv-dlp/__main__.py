@@ -161,6 +161,8 @@ def main(args=None):
                     pano = service.get_pano_id(lat, lng)
                 case 'extractor.google':
                     pano = service.get_pano_id(lat, lng, args.radius)["pano_id"]
+                case 'extractor.apple':
+                    pass # Doesn't have get_pano_id() yet, so this is another crazy workaround
                 case _:
                     pano = service.get_pano_id(lat, lng)["pano_id"]
         except Exception:
