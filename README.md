@@ -36,7 +36,8 @@ Service|Status|Notes
 Google |100%  |Zoom 5 only obtains a portion of the face, but that might be Google's problem.
 Yandex |99%   |Short Link function does not use the `shortenPath` API call. Only crops panorama for one specific resolution.
 Bing   |95%   |Misc features not implemented; only obtains metadata by coords
-Baidu  |33%   |**Is in own branch**; metadata and misc features partially implemented; does not get all zooms and faces correctly
+Baidu  |33%   |**Is in own branch #12**; metadata and misc features partially implemented; does not get all zooms and faces correctly
+Apple  |15%   |**Is in own branch #16**;Can only scrape with Panorama ID; metadata and misc features not implemented
 
 ## **Installation**
 ### **Windows**
