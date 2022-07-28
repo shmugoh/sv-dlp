@@ -1,15 +1,23 @@
 import requests
-from auth import Authenticator
-from proto import MapTile_pb2
+from .auth import Authenticator
+from .proto import MapTile_pb2
 import math
-class extractor: pass
+import extractor
+# class extractor: pass
 
 TILE_SIZE = 256
 
 class urls:
-    def _build_tile_url(pano_id, face, zoom):
-        url = f"https://gspe72-ssl.ls.apple.com/mnn_us/0665/1337/7579/4483/3546/{pano_id}/t/{face}/{zoom}"
-        return url
+    def _build_tile_url(pano_id, face=0, zoom=0):
+            url = "https://gspe72-ssl.ls.apple.com/mnn_us/"
+            pano = pano_id[0]
+            regional_id = pano_id[1]
+            zoom = min(7, zoom)
+            panoid_padded = str(pano).zfill(20)
+            panoid_split = [panoid_padded[i:i + 4] for i in range(0, len(panoid_padded), 4)]
+            panoid_url = "/".join(panoid_split)
+            url = url + f"{panoid_url}/{regional_id}/t/{face}/{zoom}"
+            return url
 
     def _build_pano_url(lat, lon):
         url = f"https://example.com/?pano&lat={lat}&lng={lon}"
@@ -44,7 +52,8 @@ class misc:
         )
 
 class metadata:
-    def get_coverage_tile(tile_x, tile_y):
+    def get_metadata(lat, lon) -> str:
+        tile_x, tile_y = misc.wgs84_to_tile_coord(lat, lon, 17)
         headers = {
             "maps-tile-style": "style=57&size=2&scale=0&v=0&preflight=2",
             "maps-tile-x": str(tile_x),
@@ -57,34 +66,7 @@ class metadata:
         tile.ParseFromString(response.content)
         return tile
 
-    def get_coverage_tile_by_latlon(lat, lon):
-        x, y = misc.wgs84_to_tile_coord(lat, lon, 17)
-        return metadata.get_coverage_tile(x, y)
-
-    def fetch_pano_segment(panoid, that_other_id, segment, zoom, auth):
-        endpoint = "https://gspe72-ssl.ls.apple.com/mnn_us/"
-        panoid = str(panoid)
-        if len(panoid) > 20:
-            raise ValueError("panoid must not be longer than 20 characters.")
-        if segment > 5:
-            raise ValueError("Segments range from 0 to 5 inclusive.")
-
-        zoom = min(7, zoom)
-        panoid_padded = str(panoid).zfill(20)
-        panoid_split = [panoid_padded[i:i + 4] for i in range(0, len(panoid_padded), 4)]
-        panoid_url = "/".join(panoid_split)
-        url = endpoint + f"{panoid_url}/{that_other_id}/t/{segment}/{zoom}"
-        url = auth.authenticate_url(url)
-        response = requests.get(url)
-        if response.ok:
-            return response.content
-        else:
-            raise Exception(str(response))
-
     def get_date(pano_id) -> str:
-        raise extractor.ServiceNotSupported
-
-    def get_metadata(pano_id) -> str:
         raise extractor.ServiceNotSupported
 
     def get_coords(pano_id) -> float:
@@ -94,18 +76,18 @@ class metadata:
         raise extractor.ServiceNotSupported
 
 def get_pano_id(lat, lon):
-    raise extractor.ServiceNotSupported
+    try:
+        md = metadata.get_metadata(lat, lon)
+        with open('hi', 'w+') as f:
+            f.write(str(md))
+        pano = str(md.pano[0].panoid)
+        regional_id = str(md.unknown13.last_part_of_pano_url)
+        return pano, regional_id
+    except IndexError:
+        raise extractor.NoPanoIDAvailable
 
 def get_max_zoom(pano_id):
-    auth = Authenticator()
-    i = 0
-    while True:
-        url = auth.authenticate_url(urls._build_tile_url(pano_id, 0, i))
-        resp = requests.get(url)
-        if resp.status_code == 200:
-            i += 1
-        else: break
-    return i
+    return 6
 
 # last tow funcs are bit universal-ish,
 # so they could work with any service
@@ -122,8 +104,11 @@ def _build_tile_arr(pano_id, zoom=0):
         else: break
     return arr
 
-if __name__ == "__main__":
-    print(metadata.get_coverage_tile_by_latlon(37.78076123764633, -122.47225139489618))
+# if __name__ == "__main__":
+#     auth = Authenticator()
+#     pans = get_pano_id(50.655802929382766, 9.678869633691273)
+#     print(urls._build_tile_url(pans))
+
 #    pano_id = get_pano_id(39.900139527145846, 116.3958936511099)
 #    zoom = _get_max_zoom(pano_id)
 #    axis = _find_max_axis(pano_id, zoom)
