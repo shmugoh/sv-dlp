@@ -1,5 +1,5 @@
 import requests
-# import extractor
+import extractor
 from auth import Authenticator
 
 class urls:
@@ -15,34 +15,34 @@ class urls:
         url = f"https://example.com/?pano={pano_id}"
         return url
 
-#     def _build_short_url(pano_id) -> str:
-#         raise extractor.ServiceNotSupported
+    def _build_short_url(pano_id) -> str:
+        raise extractor.ServiceNotSupported
 
-# class misc:
-#     def get_pano_from_url(url):
-#         raise extractor.ServiceNotSupported
+class misc:
+    def get_pano_from_url(url):
+        raise extractor.ServiceNotSupported
 
-#     def short_url(pano_id):
-#         raise extractor.ServiceNotSupported
+    def short_url(pano_id):
+        raise extractor.ServiceNotSupported
 
-# class metadata:
-#     def get_date(pano_id) -> str:
-#         raise extractor.ServiceNotSupported
+class metadata:
+    def get_date(pano_id) -> str:
+        raise extractor.ServiceNotSupported
 
-#     def get_metadata(pano_id) -> str:
-#         raise extractor.ServiceNotSupported
+    def get_metadata(pano_id) -> str:
+        raise extractor.ServiceNotSupported
 
-#     def get_coords(pano_id) -> float:
-#         raise extractor.ServiceNotSupported
+    def get_coords(pano_id) -> float:
+        raise extractor.ServiceNotSupported
 
-#     def get_gen(pano_id):
-#         raise extractor.ServiceNotSupported
+    def get_gen(pano_id):
+        raise extractor.ServiceNotSupported
 
-# def get_pano_id(lat, lon):
-#     raise extractor.ServiceNotSupported
+def get_pano_id(lat, lon):
+    raise extractor.ServiceNotSupported
 
-# def get_max_zoom(pano_id):
-#     raise extractor.ServiceNotSupported
+def get_max_zoom(pano_id):
+    raise extractor.ServiceNotSupported
 
 # last tow funcs are bit universal-ish,
 # so they could work with any service
