@@ -1,3 +1,13 @@
+## 2022.07.28
+## Changelog
+- **[BING]** Metadata & Misc features implemented*
+    - *Short URL API hasn't been implemented
+## Fixed
+- **[BING]** Stiching Tiles Borked #7
+## Known Bugs
+- **[YANDEX]** Short URL API not working #5 
+- **[GOOGLE]** Zoom 5 Stiching Tiles Borked #8
+---
 ## 2022.07.26
 ## Changelog
 - **[DOWNLOAD]** File not being saved correctly #14
