@@ -7,8 +7,7 @@ import string
 import time
 from urllib.parse import urlparse, quote
 
-from extractor.apple import ResourceManifest_pb2 as ResourceManifest_pb2
-
+from proto import ResourceManifest_pb2
 
 class Authenticator:
     TOKEN_P1 = "4cjLaD4jGRwlQ9U"
