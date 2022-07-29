@@ -76,16 +76,14 @@ class apple:
         total_width, max_height = sum(widths), max(heights)
         row_img = Image.new('RGB', (total_width, max_height))
 
-        x = 0
-        for m in images:
-            if m == images[0]:
-                row_img.paste(m, (0, 0))
-            else:
-                row_img.paste(m, (last_image.width*x, 0))
-            last_image = m
-            x += 1
+        row_img.paste(images[0], (0,0))
+        row_img.paste(images[1], (images[0].width-257, 0))
+        row_img.paste(images[2], ((images[0].width+images[1].width)-(257*2), 0))
+        row_img.paste(images[3], ((images[0].width+images[1].width+images[2].width)-(257*3), 0))
+        row_img.show()
+        # only works for maximum zoom level
+        # TODO: make this work for all zoom levels
 
-        # row_img.show()
         return row_img
 
 class bing:
