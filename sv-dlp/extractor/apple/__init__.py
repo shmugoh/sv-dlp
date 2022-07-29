@@ -9,6 +9,7 @@ TILE_SIZE = 256
 
 class urls:
     def _build_tile_url(pano_id, face=0, zoom=0):
+            auth = Authenticator()
             url = "https://gspe72-ssl.ls.apple.com/mnn_us/"
             pano = pano_id[0]
             regional_id = pano_id[1]
@@ -16,7 +17,7 @@ class urls:
             panoid_padded = str(pano).zfill(20)
             panoid_split = [panoid_padded[i:i + 4] for i in range(0, len(panoid_padded), 4)]
             panoid_url = "/".join(panoid_split)
-            url = url + f"{panoid_url}/{regional_id}/t/{face}/{zoom}"
+            url = auth.authenticate_url(url + f"{panoid_url}/{regional_id}/t/{face}/{zoom}")
             return url
 
     def _build_pano_url(lat, lon):
@@ -78,10 +79,10 @@ class metadata:
 def get_pano_id(lat, lon):
     try:
         md = metadata.get_metadata(lat, lon)
-        with open('hi', 'w+') as f:
-            f.write(str(md))
         pano = str(md.pano[0].panoid)
         regional_id = str(md.unknown13.last_part_of_pano_url)
+        resp = requests.get(urls._build_tile_url([pano, regional_id]))
+        if resp.status_code != 200: raise extractor.NoPanoIDAvailable
         return pano, regional_id
     except IndexError:
         raise extractor.NoPanoIDAvailable
@@ -96,7 +97,7 @@ def _build_tile_arr(pano_id, zoom=0):
     arr = [[]]
     i = 0
     while True:
-        url = auth.authenticate_url(urls._build_tile_url(pano_id, i, zoom))
+        url = urls._build_tile_url(pano_id, i, zoom)
         resp = requests.get(url)
         if resp.status_code == 200:
             i += 1
