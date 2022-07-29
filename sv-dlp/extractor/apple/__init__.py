@@ -143,11 +143,10 @@ def _build_tile_arr(pano_id, zoom=0):
     auth = Authenticator()
     arr = [[]]
     i = 0
-    while True:
+    for i in range(4):
         url = urls._build_tile_url(pano_id, i, zoom)
         resp = requests.get(url)
         if resp.status_code == 200:
-            i += 1
             arr[0].append(url)
         else: break
     return arr
