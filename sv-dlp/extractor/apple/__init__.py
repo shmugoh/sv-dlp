@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 from .auth import Authenticator
 from .proto import MapTile_pb2
@@ -38,9 +39,23 @@ class misc:
     def short_url(pano_id):
         raise extractor.ServiceNotSupported
 
+class geo:
+    def protobuf_tile_offset_to_wgs84(x_offset, y_offset, tile_x, tile_y):
+        """
+        Calculates the absolute position of a pano from the tile offsets returned by the API.
+        :param x_offset: The X coordinate of the raw tile offset returned by the API.
+        :param y_offset: The Y coordinate of the raw tile offset returned by the API.
+        :param tile_x: X coordinate of the tile this pano is on, at z=17.
+        :param tile_y: Y coordinate of the tile this pano is on, at z=17.
+        :return: The WGS84 lat/lon of the pano.
+        """
+        pano_x = tile_x + (x_offset / 64.0) / (TILE_SIZE - 1)
+        pano_y = tile_y + (255 - (y_offset / 64.0)) / (TILE_SIZE - 1)
+        lat, lon = geo.tile_coord_to_wgs84(pano_x, pano_y, 17)
+        return lat, lon
     def wgs84_to_tile_coord(lat, lon, zoom):
         scale = 1 << zoom
-        world_coord = misc.wgs84_to_mercator(lat, lon)
+        world_coord = geo.wgs84_to_mercator(lat, lon)
         pixel_coord = (math.floor(world_coord[0] * scale), math.floor(world_coord[1] * scale))
         tile_coord = (math.floor((world_coord[0] * scale) / TILE_SIZE), math.floor((world_coord[1] * scale) / TILE_SIZE))
         return tile_coord
@@ -51,10 +66,39 @@ class misc:
             TILE_SIZE * (0.5 + lon / 360.0),
             TILE_SIZE * (0.5 - math.log((1 + siny) / (1 - siny)) / (4 * math.pi))
         )
+    def mercator_to_wgs84(x, y):
+        lat = (2 * math.atan(math.exp((y - 128) / -(256 / (2 * math.pi)))) - math.pi / 2) / (math.pi / 180)
+        lon = (x - 128) / (256 / 360)
+        return lat, lon
+    def tile_coord_to_wgs84(x, y, zoom):
+        scale = 1 << zoom
+        pixel_coord = (x * TILE_SIZE, y * TILE_SIZE)
+        world_coord = (pixel_coord[0] / scale, pixel_coord[1] / scale)
+        lat_lon = geo.mercator_to_wgs84(world_coord[0], world_coord[1])
+        return lat_lon
 
 class metadata:
-    def get_metadata(lat, lon) -> str:
-        tile_x, tile_y = misc.wgs84_to_tile_coord(lat, lon, 17)
+    def get_metadata(lat, lng):
+        tile_x, tile_y = geo.wgs84_to_tile_coord(lat, lng, 17)
+        md_raw = metadata.get_raw_metadata(tile_x, tile_y)
+        panos = []
+        for tile in md_raw.pano:
+            lat, lng = geo.protobuf_tile_offset_to_wgs84(
+                tile.unknown4.longitude_offset,
+                tile.unknown4.latitude_offset,
+                tile_x,
+                tile_y)
+            panos.append(
+                {
+                "pano": tile.panoid,
+                "regional_id": md_raw.unknown13.last_part_of_pano_url,
+                "lat": lat,
+                "lng": lng,
+                "date": datetime.fromtimestamp(int(tile.timestamp) / 1000.0).strftime('%Y-%m-%d')
+            })
+        return panos
+
+    def get_raw_metadata(tile_x, tile_y) -> str:
         headers = {
             "maps-tile-style": "style=57&size=2&scale=0&v=0&preflight=2",
             "maps-tile-x": str(tile_x),
@@ -67,8 +111,9 @@ class metadata:
         tile.ParseFromString(response.content)
         return tile
 
-    def get_date(pano_id) -> str:
-        raise extractor.ServiceNotSupported
+    def get_date(lat, lng) -> str:
+        md = metadata.get_metadata(lat, lng)
+        return md[0]['date']
 
     def get_coords(pano_id) -> float:
         raise extractor.ServiceNotSupported
@@ -79,8 +124,8 @@ class metadata:
 def get_pano_id(lat, lon):
     try:
         md = metadata.get_metadata(lat, lon)
-        pano = str(md.pano[0].panoid)
-        regional_id = str(md.unknown13.last_part_of_pano_url)
+        pano = str(md[0]['pano'])
+        regional_id = str(md[0]['regional_id'])
         resp = requests.get(urls._build_tile_url([pano, regional_id]))
         if resp.status_code != 200: raise extractor.NoPanoIDAvailable
         return pano, regional_id

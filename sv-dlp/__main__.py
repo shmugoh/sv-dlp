@@ -218,14 +218,14 @@ def main(args=None):
 #   --- metadata ---
         case 'get-metadata':
             try:
-                if args.service[0] == 'bing': data = service.metadata.get_metadata(lat, lng)
+                if args.service[0] == 'bing' or 'apple': data = service.metadata.get_metadata(lat, lng)
                 else: data = service.metadata.get_metadata(pano)
                 pprint(data)
             except extractor.ServiceNotSupported as error:
                 parser.error(error.message)
         case 'get-date':
             try:
-                if args.service[0] == 'bing': date = service.metadata.get_date(lat, lng)
+                if args.service[0] == 'bing' or 'apple': date = service.metadata.get_date(lat, lng)
                 else: date = service.metadata.get_date(pano)
                 print(date)
             except extractor.ServiceNotSupported as error:
@@ -234,7 +234,7 @@ def main(args=None):
             print(pano) # lol
         case 'get-coords':
             try:
-                if args.service[0] == 'bing': coords = service.metadata.get_coords(lat, lng)
+                if args.service[0] == 'bing' or 'apple': coords = service.metadata.get_coords(lat, lng)
                 else: coords = service.metadata.get_coords(pano)
                 print(coords)
             except extractor.ServiceNotSupported as error:
