@@ -8,6 +8,7 @@ import download.panorama
 import extractor
 
 from PIL import Image
+import pillow_heif
 
 def _download_tiles(tiles_arr):
     tiles_size = 0
@@ -66,7 +67,16 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     if save_tiles:
         for row in img_io:
             for tile in row:
-                img = Image.open(tile)
+                if service.__name__ == 'extractor.apple':
+                    img = pillow_heif.read_heif(tile)
+                    img = Image.frombytes(
+                        img.mode,
+                        img.size,
+                        img.data,
+                        "raw",
+                    )
+                else:
+                    img = Image.open(tile)
                 i = f'{img_io.index(row)}_{row.index(tile)}'
                 img.save(f"./{folder}/{pano}_{i}.png")
 
