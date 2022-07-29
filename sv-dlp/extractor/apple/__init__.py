@@ -14,7 +14,6 @@ class urls:
             url = "https://gspe72-ssl.ls.apple.com/mnn_us/"
             pano = pano_id[0]
             regional_id = pano_id[1]
-            zoom = min(7, zoom)
             panoid_padded = str(pano).zfill(20)
             panoid_split = [panoid_padded[i:i + 4] for i in range(0, len(panoid_padded), 4)]
             panoid_url = "/".join(panoid_split)
@@ -133,11 +132,14 @@ def get_pano_id(lat, lon):
         raise extractor.NoPanoIDAvailable
 
 def get_max_zoom(pano_id):
-    return 6
+    return 7
 
 # last tow funcs are bit universal-ish,
 # so they could work with any service
 def _build_tile_arr(pano_id, zoom=0):
+    max_zoom = get_max_zoom(pano_id)
+    zoom = max_zoom - zoom
+
     auth = Authenticator()
     arr = [[]]
     i = 0
