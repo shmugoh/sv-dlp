@@ -138,17 +138,16 @@ def get_max_zoom(pano_id):
 # so they could work with any service
 def _build_tile_arr(pano_id, zoom=0):
     max_zoom = get_max_zoom(pano_id)
-    zoom = max_zoom - zoom
+    zoom = max_zoom - int(zoom)
 
     auth = Authenticator()
     arr = [[]]
     i = 0
-    for i in range(4):
+    for i in range(4): # sticking to four faces at the moment
+                       # cause the last two seem to not
+                       # stitch well with the others
         url = urls._build_tile_url(pano_id, i, zoom)
-        resp = requests.get(url)
-        if resp.status_code == 200:
-            arr[0].append(url)
-        else: break
+        arr[0].append(url)
     return arr
 
 # if __name__ == "__main__":
