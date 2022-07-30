@@ -8,6 +8,7 @@ import download.panorama
 import extractor
 
 from PIL import Image
+import pillow_heif
 
 def _download_tiles(tiles_arr):
     tiles_size = 0
@@ -49,6 +50,9 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
         case 'extractor.yandex':
             pano_name = pano['oid']
             gen = None
+        case 'extractor.apple':
+            pano_name = f"{pano[0]}"
+            gen = None
         case _:
             pano_name = pano
             gen = None
@@ -66,7 +70,16 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     if save_tiles:
         for row in img_io:
             for tile in row:
-                img = Image.open(tile)
+                if service.__name__ == 'extractor.apple':
+                    img = pillow_heif.read_heif(tile)
+                    img = Image.frombytes(
+                        img.mode,
+                        img.size,
+                        img.data,
+                        "raw",
+                    )
+                else:
+                    img = Image.open(tile)
                 i = f'{img_io.index(row)}_{row.index(tile)}'
                 img.save(f"./{folder}/{pano}_{i}.png")
 
@@ -75,7 +88,9 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
         match service.__name__:
             case 'extractor.bing':
                 img = download.tiles.bing.merge(img_io, pbar)
-                # img.show()
+            case 'extractor.apple':
+                img = download.tiles.apple.stitch(img_io[0])
+                pbar.update(1)
             case _:
                 for row in img_io:
                     i = img_io.index(row)
@@ -87,6 +102,7 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
         print("Cropping...")
         img = download.panorama.crop(img, service.__name__, gen)
 
+    print("Saving...")
     img.save(f"./{folder}/{pano_name}.png")
     return pano
 

@@ -35,9 +35,9 @@ Service|Status|Notes
 :------|:-----|:----
 Google |100%  |Zoom 5 only obtains a portion of the face, but that might be Google's problem.
 Yandex |99%   |Short Link function does not use the `shortenPath` API call. Only crops panorama for one specific resolution.
-Bing   |95%   |Misc features not implemented; only obtains metadata by coords
-Baidu  |33%   |**Is in own branch #12**; metadata and misc features partially implemented; does not get all zooms and faces correctly
-Apple  |15%   |**Is in own branch #16**;Can only scrape with Panorama ID; metadata and misc features not implemented
+Apple  |99%   |Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/juanpisuribe13/sv-dlp/blob/master/CREDITS)
+Bing   |95%   |Misc features not implemented; can only obtain metadata by coords - credit to [sk-zk](https://github.com/juanpisuribe13/sv-dlp/blob/master/CREDITS)
+Baidu  |33%   |**Is in own branch #12**; metadata and misc features partially implemented; cannot parse coordinates to BD09MC
 
 ## **Installation**
 ### **Windows**
@@ -56,7 +56,7 @@ Sure! You're welcome to submit in a pull request as long as its to improve
 this program, such as improving performance, fixing a bug, adding a service, etc.
 For those who want to add a service, check out [the documentation for it](https://github.com/juanpisuribe13/sv-dlp/blob/master/extractor/README.md).
 ## **What does sv-dlp stand for?**
-~~IDK i copied it from yt-dlp since I got inspiration from it~~ Street View Download Plus; sv-dlp is more than a downloader if you look at its features.
+Inspired from yt-dlp, sv-dlp is more than a panorama scrapper.
 
 ## **License**
 [MIT](https://raw.githubusercontent.com/juanpisuribe13/sv-dlp/master/LICENSE)
