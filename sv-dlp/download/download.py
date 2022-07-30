@@ -87,11 +87,7 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
                 img = download.tiles.bing.merge(img_io, pbar)
                 img.show()
             case 'extractor.apple':
-                # TODO: rewrite all of this because it's just one row lol
-                for row in img_io:
-                    i = img_io.index(row)
-                    img_io[i] = download.tiles.apple.stitch(row)
-                img = download.tiles.merge(img_io)
+                img = download.tiles.apple.stitch(img_io[0])
                 pbar.update(1)
             case _:
                 for row in img_io:
