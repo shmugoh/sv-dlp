@@ -81,6 +81,7 @@ class apple:
         row_img.paste(images[3], ((images[0].width+images[1].width+images[2].width)-(TILE_SIZE*3), 0))
 
         return row_img
+
 class bing:
     TILE_SIZE = 256
 
