@@ -9,12 +9,10 @@ obtain metadata and short URLs.
 
 sv-dlp heavily relies on reverse engineered APIs - in the event of one service
 not working, please submit an issue with the `Dead API` label 
-and will be solved as soon as possible once I (or a collaborator)
+and will be solved as soon as possible once I (or a collaborator) sees it.
 
 This project has been made for educational purposes and all content scraped from
 is owned by their respective authors.
-
-sees it.
 
 ## **Features**
 - Download Panoramas
@@ -34,10 +32,10 @@ A built-in generator is also planned for intensive tasks that the web browser ve
 Service|Status|Notes
 :------|:-----|:----
 Google |100%  |Zoom 5 only obtains a portion of the face, but that might be Google's problem.
+Baidu  |100%  |Downloading might be slow depending on how far you are from Baidu's servers
 Yandex |99%   |Short Link function does not use the `shortenPath` API call. Only crops panorama for one specific resolution.
 Apple  |99%   |Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/juanpisuribe13/sv-dlp/blob/master/CREDITS)
 Bing   |95%   |Misc features not implemented; can only obtain metadata by coords - credit to [sk-zk](https://github.com/juanpisuribe13/sv-dlp/blob/master/CREDITS)
-Baidu  |33%   |**Is in own branch #12**; metadata and misc features partially implemented; cannot parse coordinates to BD09MC
 
 ## **Installation**
 ### **Windows**

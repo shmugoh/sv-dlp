@@ -5,6 +5,7 @@ import requests
 import json as j
 import re
 from random import choice
+import urllib.parse
 
 class urls:
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -45,8 +46,8 @@ class urls:
         Build API call URL that shorts an encoded URL.
         Useful for shortening panorama IDs.
         """
-        encoded_input = f"https%3A%2F%2Fwww.google.com%2Fmaps%2F%40%3Fapi%3D1%26map_action%3Dpano%26pano%3D{pano_id}" # trynna make it modular
-        url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{encoded_input}'
+        encoded_input = f"https://www.google.com/maps/@?api=1&map_action=pano&pano={pano_id}"
+        url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{urllib.parse.quote(encoded_input)}'
         return url
     
     def _project(lat, lng, TILE_SIZE=256):

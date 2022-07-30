@@ -244,10 +244,10 @@ def main(args=None):
         case 'get-coords':
             try:
                 try:
-                    if args.service[0] == 'bing' or 'apple': coords = service.metadata.get_coords(lat, lng)
+                    if args.service[0] == 'bing' or 'apple': lat, lng = service.metadata.get_coords(lat, lng)
                 except Exception: 
-                    coords = service.metadata.get_coords(pano)
-                print(coords)
+                    lat, lng = service.metadata.get_coords(pano)
+                print(f"{lat}, {lng}")
             except extractor.ServiceNotSupported as error:
                 parser.error(error.message)
         case 'get-gen':
