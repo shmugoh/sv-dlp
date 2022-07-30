@@ -88,7 +88,6 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
         match service.__name__:
             case 'extractor.bing':
                 img = download.tiles.bing.merge(img_io, pbar)
-                img.show()
             case 'extractor.apple':
                 img = download.tiles.apple.stitch(img_io[0])
                 pbar.update(1)
