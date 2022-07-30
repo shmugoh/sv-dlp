@@ -1,6 +1,8 @@
 ## 2022.07.30
+## New Services
+- **[APPLE]** Implemented Apple Look Around - #16
+- **[BAIDU]** Implemented Baidu Panorama - #12
 ## Changelog
-- Added **[APPLE]** #16 and **[BAIDU]** #12
 - **[CLI]** Datetime structure is now returned in get-date
     - **[YANDEX]** Date is now returned more precisely
 - **[GOOGLE]** Short URL is now encoded
