@@ -90,7 +90,7 @@ class metadata:
             panos.append(
                 {
                 "pano": tile.panoid,
-                "regional_id": md_raw.unknown13.last_part_of_pano_url,
+                "regional_id": md_raw.unknown13[0].region_id,
                 "lat": lat,
                 "lng": lng,
                 "date": datetime.fromtimestamp(int(tile.timestamp) / 1000.0).strftime('%Y-%m-%d')
