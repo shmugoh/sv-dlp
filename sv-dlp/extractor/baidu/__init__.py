@@ -2,6 +2,7 @@ import re
 import requests
 import extractor
 import extractor.baidu.geo as geo
+import urllib.parse
 
 class urls:
     def _build_tile_url(pano_id, x, y, zoom=4):
@@ -27,6 +28,11 @@ class urls:
         url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=sdata&sid={pano_id}"
         return url
 
+    def _build_short_url(pano_id, heading=0, pitch=0):
+        encoded_input = f"https://map.baidu.com/?newmap=1&shareurl=1&panoid={pano_id}&panotype=street&heading={heading}&pitch={pitch}"
+        url = f"https://j.map.baidu.com/?url={urllib.parse.quote(encoded_input)}"
+        return url
+
 class misc:
     def get_pano_from_url(url):
         new_url = requests.get(url).url
@@ -34,7 +40,8 @@ class misc:
         return pano_id
 
     def short_url(pano_id):
-        raise extractor.ServiceNotSupported
+        resp = requests.get(urls._build_short_url(pano_id))
+        return resp.json()['url']
 
 class metadata:
     def get_metadata(pano_id) -> str:
