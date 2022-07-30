@@ -57,13 +57,10 @@ def merge(rows_io_arr):
     return merged_img
 
 class apple:
-    # TODO: Rewrite this because Panoramas are sorted in a different way.
-    # Maybe do something like class bing, where it pastes each face
-    # on its adequate position.
-    def stitch(row_io_arr):
+    def stitch(row):
         images = []
-        for i in range(len(row_io_arr)):
-            img = pillow_heif.read_heif(row_io_arr[i])
+        for i in range(len(row)):
+            img = pillow_heif.read_heif(row[i])
             img = Image.frombytes(
                 img.mode,
                 img.size,
@@ -72,15 +69,16 @@ class apple:
             )
             images.append(img)
 
+        TILE_SIZE = round(images[0].width * (256 / 5632))
+        WIDTH_SIZE = round(images[0].width * (768 / 5632))
         widths, heights = zip(*(i.size for i in images))
-        total_width, max_height = sum(widths), max(heights)
+        total_width, max_height = (sum(widths)-WIDTH_SIZE), max(heights)
         row_img = Image.new('RGB', (total_width, max_height))
 
         row_img.paste(images[0], (0,0))
-        row_img.paste(images[1], (images[0].width-257, 0))
-        row_img.paste(images[2], ((images[0].width+images[1].width)-(257*2), 0))
-        row_img.paste(images[3], ((images[0].width+images[1].width+images[2].width)-(257*3), 0))
-        row_img.show()
+        row_img.paste(images[1], (images[0].width-TILE_SIZE, 0))
+        row_img.paste(images[2], ((images[0].width+images[1].width)-(TILE_SIZE*2), 0))
+        row_img.paste(images[3], ((images[0].width+images[1].width+images[2].width)-(TILE_SIZE*3), 0))
         # only works for maximum zoom level
         # TODO: make this work for all zoom levels
 
