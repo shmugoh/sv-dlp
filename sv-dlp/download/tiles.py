@@ -79,8 +79,6 @@ class apple:
         row_img.paste(images[1], (images[0].width-TILE_SIZE, 0))
         row_img.paste(images[2], ((images[0].width+images[1].width)-(TILE_SIZE*2), 0))
         row_img.paste(images[3], ((images[0].width+images[1].width+images[2].width)-(TILE_SIZE*3), 0))
-        # only works for maximum zoom level
-        # TODO: make this work for all zoom levels
 
         return row_img
 
