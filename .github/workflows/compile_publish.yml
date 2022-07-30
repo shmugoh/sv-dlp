@@ -61,6 +61,9 @@ jobs:
       - name: Set up Python Virtual Environment
         run: python -m venv env || ./env/bin/activate
 
+      - name: Install Required System Libraries
+        run: sudo apt-get install libaom0 libde265-0 libx265-179 libwebp6 liblzma5 libjpeg8 libjpeg9 libxau6 libnghttp2-14 libsqlite3-0 libtiff5 python3-libtiff libcurl4 python3-pycurl
+
       - name: Install Required Modules
         run: python -m pip install -r requirements.txt
 
