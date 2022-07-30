@@ -172,7 +172,12 @@ def main(args=None):
         # if panorama id is already parsed
         pano = args.pano[0]
         try:
-            md = service.metadata.get_metadata(pano)
+            match service.__name__:
+                case 'extractor.apple':
+                    if '/' in pano:
+                        pano = pano.split('/')
+                case _:
+                    md = service.metadata.get_metadata(pano)
         except extractor.PanoIDInvalid as e: # some services don't have metadata implemented yet
             parser.error(e.message)          # but the exception in _is_coord_ will do the job
 
