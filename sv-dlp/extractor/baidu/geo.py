@@ -214,6 +214,11 @@ class ChangeCoord(object):
         :param lat : 纬度
         :return 转换后的wgs84经纬坐标
         """
+        if int(lng[:3]) >= 100 & int(lng[:3]) < 135:
+            lng = float(lng[:7] + '.' + lng[7:])
+        else: 
+            lng = float(lng[:8] + '.' + lng[8:])
+        lat = float(lat[:7] + '.' + lat[7:])
         location_bd09 = self.bd09mc_to_bd09(lng, lat)
         location_gcj02 = self.bd09_to_gcj02(location_bd09[0], location_bd09[1])
         location_wgs84 = self.gcj02_to_wgs84(location_gcj02[0], location_gcj02[1])

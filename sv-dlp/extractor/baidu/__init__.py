@@ -49,9 +49,11 @@ class metadata:
         return date
 
     def get_coords(pano_id) -> float:
+        ChangeCoord = geo.ChangeCoord()
         md = metadata.get_metadata(pano_id)
-        lng_mc, lat_mc = md['content'][0]['RX'], md['content'][0]['RY']
-        return lng_mc, lat_mc # atm returns only BD09MC coordinates
+        lng, lat = str(md['content'][0]['RX']), str(md['content'][0]['RY'])
+        lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
+        return lat, lng
 
 def get_pano_id(lat, lng):
     try:
