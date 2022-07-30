@@ -3,6 +3,7 @@ import requests
 import extractor
 import extractor.baidu.geo as geo
 import urllib.parse
+from datetime import datetime
 
 class urls:
     def _build_tile_url(pano_id, x, y, zoom=4):
@@ -52,7 +53,7 @@ class metadata:
 
     def get_date(pano_id) -> str:
         md = metadata.get_metadata(pano_id)
-        date = md['content'][0]['Date']
+        date = datetime.strptime(md['content'][0]['Date'], '%Y%m%d')
         return date
 
     def get_coords(pano_id) -> float:

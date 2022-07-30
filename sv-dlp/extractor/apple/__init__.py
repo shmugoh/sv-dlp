@@ -90,7 +90,7 @@ class metadata:
                 "regional_id": md_raw.unknown13[0].region_id,
                 "lat": lat,
                 "lng": lng,
-                "date": datetime.fromtimestamp(int(tile.timestamp) / 1000.0).strftime('%Y-%m-%d')
+                "date": datetime.fromtimestamp(int(tile.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S")
             })
         return panos
 

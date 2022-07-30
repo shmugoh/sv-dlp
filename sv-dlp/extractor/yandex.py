@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 import sys
 import requests
@@ -83,19 +84,6 @@ class misc:
 
 
 class metadata:
-    def get_date(pano_id) -> str:
-        data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
-        try:
-            pano_id = pano_id['oid']
-        except TypeError: # pano id already parsed
-            pass
-
-        for i in data:
-            if i['Connection']['oid'] == pano_id:
-                return int(i['Connection']['name'])
-        return None
-
-
     def get_metadata(pano_id) -> str:
         try:
             pano_id = pano_id['oid']
@@ -104,7 +92,7 @@ class metadata:
         url = urls._build_pano_url(pano_id, 0, 'oid')
         data = requests.get(url).json()
         if data['status'] != 'success': raise extractor.PanoIDInvalid
-        return data['status']
+        return data
 
     def get_coords(pano_id) -> float:
         data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
@@ -119,6 +107,21 @@ class metadata:
                 lat = coords[1]
                 lng = coords[0]
                 return lat, lng
+        return None
+
+    def get_date(pano_id) -> str:
+        data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
+        try:
+            pano_id = pano_id['oid']
+        except TypeError: # pano id already parsed
+            pass
+
+        for i in data:
+            if i['Connection']['oid'] == pano_id:
+                url = i['Connection']['href']
+                timestamp = re.search(r'connectionsTimestamp=(.+)', url)[1]
+                date = datetime.fromtimestamp(int(timestamp))
+                return date
         return None
 
     def get_gen(pano_id):

@@ -2,6 +2,7 @@ import requests
 import pyproj
 import math
 import extractor
+from datetime import datetime
 
 class urls:
     def _build_tile_url(bubble, tile_pos):
@@ -52,7 +53,8 @@ class metadata:
 
     def get_date(lat, lng) -> str:
         md = metadata.get_metadata(lat, lng)
-        return md[1]['cd']
+        date = datetime.strptime(md[1]['cd'], '%m/%d/%Y %I:%M:%S %p')
+        return date
 
     def get_coords(lat, lng) -> float:
         md = metadata.get_metadata(lat, lng)

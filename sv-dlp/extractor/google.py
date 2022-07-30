@@ -1,3 +1,4 @@
+from datetime import datetime
 from pprint import pprint
 import math
 import extractor
@@ -125,7 +126,8 @@ class metadata:
         get_metadata()
         '''
         md = metadata.get_metadata(pano_id)
-        return md["date"]
+        date = datetime.strptime(md["date"], '%Y/%m')
+        return date
 
     def _is_trekker(pano_id) -> bool:
         """
