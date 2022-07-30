@@ -1,29 +1,30 @@
 import re
 import requests
 import extractor
+import extractor.baidu.geo as geo
 
 class urls:
-    def _build_tile_url(panoID, x, y, zoom=4):
+    def _build_tile_url(pano_id, x, y, zoom=4):
         """
         Build Baidu Maps Tile URL.
         """
-        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=pdata&sid={panoID}&pos={y}_{x}&z={zoom}"
+        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=pdata&sid={pano_id}&pos={y}_{x}&z={zoom}"
         return url
 
-    def _build_pano_url(lat, lon):
+    def _build_pano_url(lng, lat):
         """
         Build Baidu URL containing panorama ID from
         coordinates.
         """
-        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=qsdata&x={lat}&y={lon}"
+        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=qsdata&x={lng}&y={lat}"
         return url
 
-    def _build_metadata_url(panoID):
+    def _build_metadata_url(pano_id):
         """
         Build Baidu URL containing maximum zoom levels
         and older imagery.
         """
-        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=sdata&sid={panoID}"
+        url = f"https://mapsv0.bdimg.com/?udt=20200825&qt=sdata&sid={pano_id}"
         return url
 
 class misc:
@@ -49,11 +50,17 @@ class metadata:
 
     def get_coords(pano_id) -> float:
         md = metadata.get_metadata(pano_id)
-        lat, lng = md['content'][0]['RX'], md['content'][0]['RY']
-        return lat, lng # atm returns only BD-09 coordinates
+        lng_mc, lat_mc = md['content'][0]['RX'], md['content'][0]['RY']
+        return lng_mc, lat_mc # atm returns only BD09MC coordinates
 
-def get_pano_id(lat, lon):
-    url = urls._build_pano_url(lat, lon)
+def get_pano_id(lat, lng):
+    try:
+        ChangeCoord = geo.ChangeCoord()
+        lng, lat = ChangeCoord.wgs84_to_bd09(lng, lat)
+        lng, lat = ChangeCoord.bd09_to_bd09mc(lng, lat)
+        url = urls._build_pano_url(lng, lat)
+    except Exception as e:
+        print(e)
     json = requests.get(url).json()
     pano_id = json["content"]["id"]
     return {
