@@ -9,7 +9,7 @@ import extractor
 TILE_SIZE = 256
 
 class urls:
-    def _build_tile_url(pano_id, face=0, zoom=0):
+    def _build_tile_url(pano_id, face=0, zoom=0) -> str:
             auth = Authenticator()
             url = "https://gspe72-ssl.ls.apple.com/mnn_us/"
             pano = pano_id[0]
@@ -20,13 +20,9 @@ class urls:
             url = auth.authenticate_url(url + f"{panoid_url}/{regional_id}/t/{face}/{zoom}")
             return url
 
-    def _build_pano_url(lat, lon):
-        url = f"https://example.com/?pano&lat={lat}&lng={lon}"
-        return url
-
-    def _build_metadata_url(pano_id):
-        url = f"https://example.com/?pano={pano_id}"
-        return url
+    def _build_metadata_url(headers) -> requests.PreparedRequest:
+        prepared_request = requests.Request('GET', 'https://gspe76-ssl.ls.apple.com/api/tile?', headers).prepare()
+        return prepared_request
 
     def _build_short_url(pano_id) -> str:
         raise extractor.ServiceNotSupported
@@ -78,8 +74,9 @@ class geo:
 
 class metadata:
     def get_metadata(lat, lng):
+        session = requests.Session()
         tile_x, tile_y = geo.wgs84_to_tile_coord(lat, lng, 17)
-        md_raw = metadata.get_raw_metadata(tile_x, tile_y)
+        md_raw = metadata.get_raw_metadata(tile_x, tile_y, session)
         panos = []
         for tile in md_raw.pano:
             lat, lng = geo.protobuf_tile_offset_to_wgs84(
@@ -97,7 +94,7 @@ class metadata:
             })
         return panos
 
-    def get_raw_metadata(tile_x, tile_y) -> str:
+    def get_raw_metadata(tile_x, tile_y, session) -> str:
         headers = {
             "maps-tile-style": "style=57&size=2&scale=0&v=0&preflight=2",
             "maps-tile-x": str(tile_x),
@@ -105,7 +102,7 @@ class metadata:
             "maps-tile-z": "17",
             "maps-auth-token": "w31CPGRO/n7BsFPh8X7kZnFG0LDj9pAuR8nTtH3xhH8=",
         }
-        response = requests.get("https://gspe76-ssl.ls.apple.com/api/tile?", headers=headers)
+        response = session.send(urls._build_metadata_url(headers))
         tile = MapTile_pb2.MapTile()
         tile.ParseFromString(response.content)
         return tile
@@ -134,8 +131,6 @@ def get_pano_id(lat, lon):
 def get_max_zoom(pano_id):
     return 7
 
-# last tow funcs are bit universal-ish,
-# so they could work with any service
 def _build_tile_arr(pano_id, zoom=0):
     max_zoom = get_max_zoom(pano_id)
     zoom = max_zoom - int(zoom)
