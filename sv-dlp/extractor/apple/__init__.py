@@ -111,8 +111,9 @@ class metadata:
         md = metadata.get_metadata(lat, lng)
         return md[0]['date']
 
-    def get_coords(pano_id) -> float:
-        raise extractor.ServiceNotSupported
+    def get_coords(lat, lng) -> float:
+        md = metadata.get_metadata(lat, lng)
+        return md[0]['lat'], md[0]['lng']
 
     def get_gen(pano_id):
         raise extractor.ServiceNotSupported
