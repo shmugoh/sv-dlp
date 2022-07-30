@@ -35,8 +35,9 @@ Service|Status|Notes
 :------|:-----|:----
 Google |100%  |Zoom 5 only obtains a portion of the face, but that might be Google's problem.
 Yandex |99%   |Short Link function does not use the `shortenPath` API call. Only crops panorama for one specific resolution.
-Bing   |95%   |Misc features not implemented; only obtains metadata by coords
-Baidu  |33%   |**Is in own branch**; metadata and misc features partially implemented; does not get all zooms and faces correctly
+Apple  |99%   |Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/juanpisuribe13/sv-dlp/blob/master/CREDITS)
+Bing   |95%   |Misc features not implemented; can only obtain metadata by coords - credit to [sk-zk](https://github.com/juanpisuribe13/sv-dlp/blob/master/CREDITS)
+Baidu  |33%   |**Is in own branch #12**; metadata and misc features partially implemented; cannot parse coordinates to BD09MC
 
 ## **Installation**
 ### **Windows**
@@ -45,8 +46,6 @@ Baidu  |33%   |**Is in own branch**; metadata and misc features partially implem
 [W.I.P]
 
 ## **FAQ**
-## **Is this in a pre-release state?**
-For now, yes. Until all services reach a 95% state (except Baidu due to its own branch) and the UX is considered good by my standards, sv-dlp will stay as a pre-release.
 ## **Why aren't all my coordinates from .csv downloading?**
 Depending on how close the given coordinates are, it'll download the same panorama ID no matter the difference. It's recommended to use .json or .csv with panorama IDs instead.
 ## **Can X Service be added?**
@@ -57,7 +56,7 @@ Sure! You're welcome to submit in a pull request as long as its to improve
 this program, such as improving performance, fixing a bug, adding a service, etc.
 For those who want to add a service, check out [the documentation for it](https://github.com/juanpisuribe13/sv-dlp/blob/master/extractor/README.md).
 ## **What does sv-dlp stand for?**
-~~IDK i copied it from yt-dlp since I got inspiration from it~~ Street View Download Plus; sv-dlp is more than a downloader if you look at its features.
+Inspired from yt-dlp, sv-dlp is more than a panorama scrapper.
 
 ## **License**
 [MIT](https://raw.githubusercontent.com/juanpisuribe13/sv-dlp/master/LICENSE)

@@ -1,8 +1,24 @@
 import math
 from PIL import Image
+import PIL
+import pillow_heif
+# bruh
 
 def stich(row_io_arr):
-    images = [Image.open(x) for x in row_io_arr]
+    try:
+        images = [Image.open(x) for x in row_io_arr]
+    except PIL.UnidentifiedImageError: # HEIC
+        images = []
+        for i in range(len(row_io_arr)):
+            img = pillow_heif.read_heif(row_io_arr[i])
+            img = Image.frombytes(
+                img.mode,
+                img.size,
+                img.data,
+                "raw",
+            )
+            images.append(img)
+
     widths, heights = zip(*(i.size for i in images))
     total_width, max_height = sum(widths), max(heights)
     row_img = Image.new('RGB', (total_width, max_height))
@@ -40,6 +56,31 @@ def merge(rows_io_arr):
     # merged_img.show()
     return merged_img
 
+class apple:
+    def stitch(row):
+        images = []
+        for i in range(len(row)):
+            img = pillow_heif.read_heif(row[i])
+            img = Image.frombytes(
+                img.mode,
+                img.size,
+                img.data,
+                "raw",
+            )
+            images.append(img)
+
+        TILE_SIZE = round(images[0].width * (256 / 5632))
+        WIDTH_SIZE = round(images[0].width * (768 / 5632))
+        widths, heights = zip(*(i.size for i in images))
+        total_width, max_height = (sum(widths)-WIDTH_SIZE), max(heights)
+        row_img = Image.new('RGB', (total_width, max_height))
+
+        row_img.paste(images[0], (0,0))
+        row_img.paste(images[1], (images[0].width-TILE_SIZE, 0))
+        row_img.paste(images[2], ((images[0].width+images[1].width)-(TILE_SIZE*2), 0))
+        row_img.paste(images[3], ((images[0].width+images[1].width+images[2].width)-(TILE_SIZE*3), 0))
+
+        return row_img
 class bing:
     TILE_SIZE = 256
 
