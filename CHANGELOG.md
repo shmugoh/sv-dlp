@@ -1,3 +1,16 @@
+## 2022.07.30
+## Changelog
+- Added **[APPLE]** #16 and **[BAIDU]** #12
+- **[CLI]** Datetime structure is now returned in get-date
+    - **[YANDEX]** Date is now returned more precisely
+- **[GOOGLE]** Short URL is now encoded
+- **[CLI]** --get-coords now separates lat and lng
+## Fixed
+- **[CLI]** Fixed an issue where metadata commands required two arguments
+## Known Bugs 
+- **[YANDEX]** Short URL API not working #5 
+- **[GOOGLE]** Zoom 5 Stiching Tiles Borked #8
+---
 ## 2022.07.28
 ## Changelog
 - **[BING]** Metadata & Misc features implemented*
