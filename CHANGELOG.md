@@ -9,9 +9,12 @@
 - **[CLI]** --get-coords now separates lat and lng
 ## Fixed
 - **[CLI]** Fixed an issue where metadata commands required two arguments
+## Removed
+- Support for Windows x86 (32 bits) (refer to issue #19)
 ## Known Bugs 
 - **[YANDEX]** Short URL API not working #5 
 - **[GOOGLE]** Zoom 5 Stiching Tiles Borked #8
+- **[BUILD]** pillow_heif doubling compiled executable up to 40MB #19
 ---
 ## 2022.07.28
 ## Changelog
