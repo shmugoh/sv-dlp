@@ -51,7 +51,7 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
             pano_name = pano['oid']
             gen = None
         case 'extractor.apple':
-            pano_name = f"{pano[0]}"
+            pano_name = f"{pano[0]}_{pano[1]}"
             gen = None
         case _:
             pano_name = pano
