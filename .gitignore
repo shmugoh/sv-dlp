@@ -1,6 +1,9 @@
-/env
+/*env
 /japan_gen_1
 *.png
 *.csv
 __pycache__/
 *.py[cod]
+/build
+/dist
+*.spec
