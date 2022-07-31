@@ -1,3 +1,8 @@
+## 2022.07.31
+## Fixed
+- **[APPLE]** Fixed an issue where coordinates were not
+being converted to Panorama IDs correctly
+---
 ## 2022.07.30
 ## New Services
 - **[APPLE]** Implemented Apple Look Around - #16
