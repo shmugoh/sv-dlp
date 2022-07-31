@@ -14,10 +14,11 @@ class urls:
             url = "https://gspe72-ssl.ls.apple.com/mnn_us/"
             pano = pano_id[0]
             regional_id = pano_id[1]
-            panoid_padded = str(pano).zfill(20)
+            panoid_padded = pano.zfill(20)
+            region_id_padded = regional_id.zfill(10)
             panoid_split = [panoid_padded[i:i + 4] for i in range(0, len(panoid_padded), 4)]
             panoid_url = "/".join(panoid_split)
-            url = auth.authenticate_url(url + f"{panoid_url}/{regional_id}/t/{face}/{zoom}")
+            url = auth.authenticate_url(url + f"{panoid_url}/{region_id_padded}/t/{face}/{zoom}")
             return url
 
     def _build_metadata_url(headers) -> requests.PreparedRequest:
@@ -87,7 +88,7 @@ class metadata:
             panos.append(
                 {
                 "pano": tile.panoid,
-                "regional_id": md_raw.unknown13[0].region_id,
+                "regional_id": md_raw.unknown13[tile.region_id_idx].region_id,
                 "lat": lat,
                 "lng": lng,
                 "date": datetime.fromtimestamp(int(tile.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S")
