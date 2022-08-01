@@ -1,7 +1,11 @@
 ## 2022.07.31
 ## Fixed
-- **[APPLE]** Fixed an issue where coordinates were not
-being converted to Panorama IDs correctly
+- **[APPLE]** Fixed an issue where coordinates were not being converted to Panorama IDs correctly
+- **[APPLE]** Last Panorama face is now cropped correctly
+## Known Bugs 
+- **[YANDEX]** Short URL API not working #5 
+- **[GOOGLE]** Zoom 5 Stiching Tiles Borked #8
+- **[BUILD]** pillow_heif doubling compiled executable up to 40MB #19
 ---
 ## 2022.07.30
 ## New Services

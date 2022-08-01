@@ -70,7 +70,7 @@ class apple:
             images.append(img)
 
         TILE_SIZE = round(images[0].width * (256 / 5632))
-        WIDTH_SIZE = round(images[0].width * (768 / 5632))
+        WIDTH_SIZE = round(images[0].width * (1024 / 5632))
         widths, heights = zip(*(i.size for i in images))
         total_width, max_height = (sum(widths)-WIDTH_SIZE), max(heights)
         row_img = Image.new('RGB', (total_width, max_height))
