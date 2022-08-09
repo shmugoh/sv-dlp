@@ -1,23 +1,9 @@
 import math
 from PIL import Image
-import PIL
 import pillow_heif
-# bruh
 
 def stich(row_io_arr):
-    try:
-        images = [Image.open(x) for x in row_io_arr]
-    except PIL.UnidentifiedImageError: # HEIC
-        images = []
-        for i in range(len(row_io_arr)):
-            img = pillow_heif.read_heif(row_io_arr[i])
-            img = Image.frombytes(
-                img.mode,
-                img.size,
-                img.data,
-                "raw",
-            )
-            images.append(img)
+    images = [Image.open(x) for x in row_io_arr]
 
     widths, heights = zip(*(i.size for i in images))
     total_width, max_height = sum(widths), max(heights)
