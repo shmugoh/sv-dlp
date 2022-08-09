@@ -4,7 +4,7 @@ import sys
 import requests
 import urllib.parse
 
-import extractor
+import services
 
 class urls:
     def _build_tile_url(pano_id, zoom=0, x=0, y=0):
@@ -55,7 +55,7 @@ class misc:
                 lat, lng = coords[1], coords[0]
                 pano = get_pano_id(lat, lng)
             except IndexError:
-                raise extractor.ServiceShortURLFound
+                raise services.ServiceShortURLFound
 
         return pano
 
@@ -91,7 +91,7 @@ class metadata:
             pass
         url = urls._build_pano_url(pano_id, 0, 'oid')
         data = requests.get(url).json()
-        if data['status'] != 'success': raise extractor.PanoIDInvalid
+        if data['status'] != 'success': raise services.PanoIDInvalid
         return data
 
     def get_coords(pano_id) -> float:
@@ -125,7 +125,7 @@ class metadata:
         return None
 
     def get_gen(pano_id):
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
 def get_pano_id(lat, lon, mode='ll'):
     try:
@@ -136,7 +136,7 @@ def get_pano_id(lat, lon, mode='ll'):
             "oid": data['data']['Data']['panoramaId']
         }
     except Exception:
-        raise extractor.NoPanoIDAvailable
+        raise services.NoPanoIDAvailable
 
 def get_max_zoom(pano):
     data = metadata.get_metadata(pano)

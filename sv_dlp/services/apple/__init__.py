@@ -3,7 +3,7 @@ import requests
 from .auth import Authenticator
 from .proto import MapTile_pb2
 import math
-import extractor
+import services
 # class extractor: pass
 
 TILE_SIZE = 256
@@ -26,14 +26,14 @@ class urls:
         return prepared_request
 
     def _build_short_url(pano_id) -> str:
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
 class misc:
     def get_pano_from_url(url):
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
     def short_url(pano_id):
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
 class geo:
     def protobuf_tile_offset_to_wgs84(x_offset, y_offset, tile_x, tile_y):
@@ -117,7 +117,7 @@ class metadata:
         return md[0]['lat'], md[0]['lng']
 
     def get_gen(pano_id):
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
 def get_pano_id(lat, lon):
     try:
@@ -125,10 +125,10 @@ def get_pano_id(lat, lon):
         pano = str(md[0]['pano'])
         regional_id = str(md[0]['regional_id'])
         resp = requests.get(urls._build_tile_url([pano, regional_id]))
-        if resp.status_code != 200: raise extractor.NoPanoIDAvailable
+        if resp.status_code != 200: raise services.NoPanoIDAvailable
         return pano, regional_id
     except IndexError:
-        raise extractor.NoPanoIDAvailable
+        raise services.NoPanoIDAvailable
 
 def get_max_zoom(pano_id):
     return 7

@@ -1,5 +1,5 @@
-import extractor
-from extractor import * # yikes
+import services
+from services import * # yikes
 
 import version
 import PIL

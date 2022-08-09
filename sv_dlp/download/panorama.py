@@ -2,7 +2,7 @@ from PIL import Image
 
 def crop(img, service, gen):
     match service:
-        case 'extractor.google':
+        case 'services.google':
             match img.size:
                 case (512, 512): # zoom 0
                     if gen == '1' or '2/3':
@@ -26,7 +26,7 @@ def crop(img, service, gen):
                     if gen == '2/3':
                         img = img.crop((0, 0, 6656, 3328))
 
-        case 'extractor.yandex':
+        case 'services.yandex':
             match img.size:
                 case (18944, 9472):
                     img = img.crop((0, 0, 18944, 6679))

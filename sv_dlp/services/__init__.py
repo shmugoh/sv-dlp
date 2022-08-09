@@ -1,8 +1,8 @@
-import extractor.bing
-import extractor.google
-import extractor.yandex
-import extractor.apple
-import extractor.baidu
+import services.bing
+import services.google
+import services.yandex
+import services.apple
+import services.baidu
 # i don't know why i picked this. i literally can't call extractor.[service]
 # unless if i import them here, and __all__ causes pyinstaller to act very weirdly. too bad!
 

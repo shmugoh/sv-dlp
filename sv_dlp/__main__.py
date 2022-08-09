@@ -8,8 +8,8 @@ from version import __version__
 from pprint import pprint
 import sys
 
-import extractor
-from extractor import * # yikes
+import services
+from services import * # yikes
 from download import download
 
 parser = argparse.ArgumentParser(
@@ -128,7 +128,7 @@ def main(args=None):
     if args.pano == []:
         parser.error(f"You must parse an input such as a pano ID")
     try:
-        service = getattr(extractor, args.service[0])
+        service = getattr(services, args.service[0])
     except AttributeError:
         parser.error("Invalid Service")
     if _is_url(args.pano):
@@ -136,11 +136,11 @@ def main(args=None):
         try:
             pano = service.misc.get_pano_from_url(args.pano[0])
             match service.__name__:
-                case 'extractor.yandex':
+                case 'services.yandex':
                     pass
                 case _:
                     pano = pano[0]
-        except extractor.ServiceNotSupported as error:
+        except services.ServiceNotSupported as error:
             parser.error(error.message)
     elif _is_coord(args.pano):
         try:
@@ -157,28 +157,28 @@ def main(args=None):
         print("Getting Panorama ID...")
         try:
             match service.__name__:
-                case 'extractor.yandex':
+                case 'services.yandex':
                     pano = service.get_pano_id(lat, lng)
-                case 'extractor.google':
+                case 'services.google':
                     pano = service.get_pano_id(lat, lng, args.radius)["pano_id"]
-                case 'extractor.apple':
+                case 'services.apple':
                     pano = service.get_pano_id(lat, lng)
                 case _:
                     pano = service.get_pano_id(lat, lng)["pano_id"]
         except Exception:
-                parser.error(extractor.NoPanoIDAvailable.message)
+                parser.error(services.NoPanoIDAvailable.message)
 
     else:
         # if panorama id is already parsed
         pano = args.pano[0]
         try:
             match service.__name__:
-                case 'extractor.apple':
+                case 'services.apple':
                     if '/' in pano:
                         pano = pano.split('/')
                 case _:
                     md = service.metadata.get_metadata(pano)
-        except extractor.PanoIDInvalid as e: # some services don't have metadata implemented yet
+        except services.PanoIDInvalid as e: # some services don't have metadata implemented yet
             parser.error(e.message)          # but the exception in _is_coord_ will do the job
 
     match args.action:
@@ -217,7 +217,7 @@ def main(args=None):
         case 'short-link':
             try:
                 print(service.misc.short_url(pano))
-            except extractor.ServiceNotSupported as error:
+            except services.ServiceNotSupported as error:
                 parser.error(error.message)
 
 #   --- metadata ---
@@ -228,7 +228,7 @@ def main(args=None):
                 except Exception:
                     data = service.metadata.get_metadata(pano)
                 pprint(data)
-            except extractor.ServiceNotSupported as error:
+            except services.ServiceNotSupported as error:
                 parser.error(error.message)
         case 'get-date':
             try:
@@ -237,7 +237,7 @@ def main(args=None):
                 except Exception:
                     date = service.metadata.get_date(pano)
                 print(date)
-            except extractor.ServiceNotSupported as error:
+            except services.ServiceNotSupported as error:
                 parser.error(error.message)
         case 'get-pano-id':
             print(pano) # lol
@@ -248,13 +248,13 @@ def main(args=None):
                 except Exception: 
                     lat, lng = service.metadata.get_coords(pano)
                 print(f"{lat}, {lng}")
-            except extractor.ServiceNotSupported as error:
+            except services.ServiceNotSupported as error:
                 parser.error(error.message)
         case 'get-gen':
             try:
                 gen = service.metadata.get_gen(pano)
                 print(f"Gen {gen}")
-            except extractor.ServiceNotSupported as error:
+            except services.ServiceNotSupported as error:
                 parser.error(error.message)
 
         # case 'is-trekker':

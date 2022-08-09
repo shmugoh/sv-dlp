@@ -1,7 +1,7 @@
 import requests
 import pyproj
 import math
-import extractor
+import services
 from datetime import datetime
 
 class urls:
@@ -34,10 +34,10 @@ class urls:
 
 class misc:
     def get_pano_from_url(url):
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
     def short_url(pano_id):
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
 class metadata:
     '''
@@ -61,7 +61,7 @@ class metadata:
         return md[1]['la'], md[1]['lo']
 
     def get_gen(**kwargs):
-        raise extractor.ServiceNotSupported
+        raise services.ServiceNotSupported
 
 def _get_bounding_box(lat, lon, radius=25):
     """
@@ -105,7 +105,7 @@ def get_pano_id(lat, lng):
         }
         return bubble
     except Exception:
-        raise extractor.NoPanoIDAvailable
+        raise services.NoPanoIDAvailable
 
 def get_max_zoom(kwargs):
     return 3

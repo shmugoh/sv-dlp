@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import download.tiles
 import download.panorama
-import extractor
+import services
 
 from PIL import Image
 import pillow_heif
@@ -37,20 +37,20 @@ def panorama(pano, zoom, service, save_tiles=False, no_crop=False, folder='./'):
     if is_coord:
         print("Getting Panorama ID...")
         match service.__name__:
-            case 'extractor.yandex':
+            case 'services.yandex':
                 pano = service.get_pano_id(is_coord[0], is_coord[1])
             case _:
                 pano = service.get_pano_id(is_coord[0], is_coord[1])['pano_id']
 
     print("Getting Metadata...")
     match service.__name__:
-        case 'extractor.google':
+        case 'services.google':
             pano_name = pano
             gen = service.metadata.get_gen(pano)
-        case 'extractor.yandex':
+        case 'services.yandex':
             pano_name = pano['oid']
             gen = None
-        case 'extractor.apple':
+        case 'services.apple':
             pano_name = f"{pano[0]}_{pano[1]}"
             gen = None
         case _:
