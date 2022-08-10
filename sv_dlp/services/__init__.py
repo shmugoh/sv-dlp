@@ -23,3 +23,9 @@ class NoPanoIDAvailable(Exception):
 
 class PanoIDInvalid(Exception):
     message = "Invalid Panorama ID. Please input a valid one and try again."
+
+class MetadataPanoIDFound(Exception):
+    message = "Service cannot parse Pano ID to obtain metadata"
+
+class MetadataCoordsFound(Exception):
+    message = "Service cannot parse Pano ID to obtain metadata"
