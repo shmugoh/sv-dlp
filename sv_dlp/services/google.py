@@ -1,7 +1,7 @@
 from datetime import datetime
 from pprint import pprint
 import math
-import services
+import sv_dlp.services
 import requests
 import json as j
 import re
@@ -98,7 +98,7 @@ class metadata:
             image_avail_res = json[1][0][2][3] # obtains all resolutions available
             image_date = json[1][0][6][-1] # [0] for year - [1] for month
         except IndexError:
-            raise services.PanoIDInvalid
+            raise sv_dlp.services.PanoIDInvalid
 
         # coords = re.search('\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?', data)
         # image_size = re.search('\[[0-9],[0-9],\[(.+?),.+?\]', data).group(1)
@@ -173,7 +173,7 @@ def get_pano_id(lat, lon, radius=500) -> dict:
             lat = data[0][1]
             lng = data[0][2]
     except TypeError:
-        return services.NoPanoIDAvailable
+        raise sv_dlp.services.NoPanoIDAvailable
     # pans = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
     # print(url)
 

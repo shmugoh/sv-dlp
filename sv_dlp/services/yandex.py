@@ -1,10 +1,7 @@
 from datetime import datetime
 import re
-import sys
 import requests
-import urllib.parse
-
-import services
+import sv_dlp.services
 
 class urls:
     def _build_tile_url(pano_id, zoom=0, x=0, y=0):
@@ -39,6 +36,7 @@ class urls:
 
         ''' 
         Refer to Issue #5
+        # import urllib.parse
         # url = f'/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}'
         # return urllib.parse.quote(url)
         '''
@@ -55,7 +53,7 @@ class misc:
                 lat, lng = coords[1], coords[0]
                 pano = get_pano_id(lat, lng)
             except IndexError:
-                raise services.ServiceShortURLFound
+                raise sv_dlp.services.ServiceShortURLFound
 
         return pano
 
@@ -91,7 +89,7 @@ class metadata:
             pass
         url = urls._build_pano_url(pano_id, 0, 'oid')
         data = requests.get(url).json()
-        if data['status'] != 'success': raise services.PanoIDInvalid
+        if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
         return data
 
     def get_coords(pano_id) -> float:
@@ -125,7 +123,7 @@ class metadata:
         return None
 
     def get_gen(pano_id):
-        raise services.ServiceNotSupported
+        raise sv_dlp.services.ServiceNotSupported
 
 def get_pano_id(lat, lon, mode='ll'):
     try:
@@ -136,7 +134,7 @@ def get_pano_id(lat, lon, mode='ll'):
             "oid": data['data']['Data']['panoramaId']
         }
     except Exception:
-        raise services.NoPanoIDAvailable
+        raise sv_dlp.services.NoPanoIDAvailable
 
 def get_max_zoom(pano):
     data = metadata.get_metadata(pano)

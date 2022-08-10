@@ -1,7 +1,7 @@
 import re
 import requests
-import services
-import services.baidu.geo as geo
+import sv_dlp.services
+from . import geo
 import urllib.parse
 from datetime import datetime
 
