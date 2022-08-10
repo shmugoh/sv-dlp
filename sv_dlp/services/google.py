@@ -27,7 +27,7 @@ class urls:
             case 'singleimagesearch':
                 url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{lat}!4d{lng}!2d{radius}!3m20!1m1!3b1!2m2!1sen!2sUS!9m1!1e2!11m12!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!1m3!1e10!2b1!3e2!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}"
             case 'satellite':
-                x, y = urls._coordinate_to_tile(lat, lng)
+                x, y = geo._coordinate_to_tile(lat, lng)
                 url = f"https://www.google.com/maps/photometa/ac/v1?pb=!1m1!1smaps_sv.tactile!6m3!1i{x}!2i{y}!3i17!8b1"
         return url
 
@@ -51,6 +51,7 @@ class urls:
         url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{urllib.parse.quote(encoded_input)}'
         return url
     
+class geo:
     def _project(lat, lng, TILE_SIZE=256):
         siny = math.sin((lat * math.pi) / 180)
         siny = min(max(siny, -0.9999), 0.9999)
@@ -58,7 +59,7 @@ class urls:
         y = TILE_SIZE * (0.5 - math.log((1 + siny) / (1 - siny)) / (4 * math.pi)),
         return x[0], y[0]
     def _coordinate_to_tile(lat, lng, tile_size=256, zoom=17):
-        x, y = urls._project(lat, lng)
+        x, y = geo._project(lat, lng)
         zoom = 1 << zoom
         tile_x = math.floor((x * zoom) / tile_size)
         tile_y = math.floor((y * zoom) / tile_size)
