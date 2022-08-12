@@ -1,7 +1,6 @@
 from . import services
 from . import download
 from PIL import Image
-import pillow_heif
 
 from . import version
 __version__ = version.__version__
@@ -10,13 +9,13 @@ class sv_dlp:
     def __init__(self, service="google"):
         self.service = getattr(services, service)
         self.service_str = service
+        self.pano = None
         self.metadata = None
-        self.raw_metadata = None
         pass
     def download_panorama(self, pano=None, zoom=3, lat=None, lng=None) -> Image:
         if lat and lng:
             self.pano = self.get_pano_id(lat, lng)
-        else:
+        elif self.pano is None:
             self.pano = pano
         img = download.panorama(self.pano, zoom, self.service)
         return img
@@ -26,9 +25,11 @@ class sv_dlp:
         return md
     def get_pano_id(self, lat, lng) -> str:
         if self.metadata:
-            return self.metadata["pano_id"]
+            pano = self.metadata["pano_id"]
         else:
-            return self.service.get_pano_id(lat, lng)
+            pano = self.service.get_pano_id(lat, lng)
+        self.pano = pano
+        return pano
     def get_near_panos(self) -> str:
-        # TODO
-        pass
+        sv_dlp.get_metadata(self, pano=None, lat=None, lng=None, with_near_panos=True)
+        return self.metadata['near_panos']
