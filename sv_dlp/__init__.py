@@ -19,8 +19,8 @@ class sv_dlp:
             self.pano = pano
         img = download.panorama(self.pano, zoom, self.service)
         return img
-    def get_metadata(self, pano=None, lat=None, lng=None, with_near_panos=False) -> list:
-        md = self.service.metadata.get_metadata(pano=pano, lat=lat, lng=lng, with_near_panos=with_near_panos)
+    def get_metadata(self, pano=None, lat=None, lng=None) -> list:
+        md = self.service.metadata.get_metadata(pano=pano, lat=lat, lng=lng)
         self.metadata = md
         return md
     def get_pano_id(self, lat, lng) -> str:
@@ -30,6 +30,6 @@ class sv_dlp:
             pano = self.service.get_pano_id(lat, lng)
         self.pano = pano
         return pano
-    def get_near_panos(self) -> str:
-        sv_dlp.get_metadata(self, pano=None, lat=None, lng=None, with_near_panos=True)
-        return self.metadata['near_panos']
+    # def get_linked_panos(self) -> str:
+    #     sv_dlp.get_metadata(self, pano=None, lat=None, lng=None)
+    #     return self.metadata['near_panos']

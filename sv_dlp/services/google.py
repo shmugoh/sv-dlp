@@ -85,61 +85,48 @@ class misc:
         return json[0]
 
 class metadata:
-    def get_metadata(pano_id, lng=None) -> dict:
+    def get_metadata(pano_id) -> dict:
+        raw_md = metadata.get_raw_metadata(pano_id)
+        try:
+            lat, lng = raw_md[1][0][5][0][1][0][2], raw_md[1][0][5][0][1][0][3] 
+            image_size = raw_md[1][0][2][2][0] # obtains highest resolution
+            image_avail_res = raw_md[1][0][2][3] # obtains all resolutions available
+            raw_image_date = raw_md[1][0][6][-1] # [0] for year - [1] for month
+            raw_image_date = f"{raw_image_date[0]}/{raw_image_date[1]}"
+        except IndexError:
+            raise sv_dlp.services.PanoIDInvalid
+
+        date = datetime.strptime(raw_image_date, '%Y/%m')
+        md = {
+            "panoid": pano_id,
+            "lat": float(lat),
+            "lng": float(lng),
+            "date": date,
+            "size": image_size,
+            "max_zoom": len(image_avail_res[0])-1,
+            "misc": {
+                "is_trekker": len(raw_md[1][0][5][0][3][0][0][2]) > 3,
+                "gen": metadata._get_gen(image_size)
+            }
+        }
+        if md['misc']['is_trekker']:
+            md['misc']['trekker_id'] = raw_md[1][0][5][0][3][0][0][2][3][0]
+        return md
+
+    def get_raw_metadata(pano_id) -> dict:
         '''
         Returns panorama ID metadata.
         '''
         url = urls._build_metadata_url(pano_id)
         data = str(requests.get(url).content)[38:-3].replace('\\', '\\\\')
-        json = j.loads(data)
+        raw_md = j.loads(data)
+        return raw_md
 
-        try:
-            lat, lng = json[1][0][5][0][1][0][2], json[1][0][5][0][1][0][3] 
-            image_size = json[1][0][2][2][0] # obtains highest resolution
-            image_avail_res = json[1][0][2][3] # obtains all resolutions available
-            image_date = json[1][0][6][-1] # [0] for year - [1] for month
-        except IndexError:
-            raise sv_dlp.services.PanoIDInvalid
-
-        # coords = re.search('\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?', data)
-        # image_size = re.search('\[[0-9],[0-9],\[(.+?),.+?\]', data).group(1)
-        # image_zoom = re.search('\[[0-9],[0-9],\[.+?,.+?\],\[\[\[(\[.+?)\],null', data).group(1)
-        # image_zoom = ("["*2) + image_zoom
-        # image_date = re.search('\[*(......)\]\],\["https:', data).group(1)
-#       pans = re.search('\[[0-9]+,"(.+?)"\],\[[0-9],[0-9],\[.+?,(.+?)\],.+?\[\[null,null,(-?[0-9]+.[0-9]+),(-?[0-9]+.[0-9]+).+?\[*(......)\]\],\["https:', data).group(5)
-
-        metadata = {
-            "panoid": pano_id,
-            "lat": float(lat),
-            "lng": float(lng),
-            "date": f"{image_date[0]}/{image_date[1]}",
-            "size": image_size,
-            "max_zoom": len(image_avail_res[0])-1,
-            "is_trekker": len(json[1][0][5][0][3][0][0][2]) > 3
-            }
-
-        del url, data, image_size, image_avail_res, image_date
-        return metadata
-
-    def get_date(pano_id) -> str:
-        '''
-        Returns image date from
-        get_metadata()
-        '''
-        md = metadata.get_metadata(pano_id)
-        date = datetime.strptime(md["date"], '%Y/%m')
-        return date
-
-    def _is_trekker(pano_id) -> bool:
-        """
-        Returns if given panorama ID is
-        trekker or not. Might be useful
-        with the planned generator.
-
-        Thank you nur#2584 for guiding me out.
-        """
-        md = metadata.get_metadata(pano_id)
-        return md["is_trekker"]
+    def _get_gen(image_size):
+        match image_size:
+            case 1664: return "1"
+            case 6656: return "2/3"
+            case 8192: return "4"
 
     def get_coords(pano_id) -> float: # lul
         md = metadata.get_metadata(pano_id)

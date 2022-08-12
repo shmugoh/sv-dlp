@@ -82,12 +82,33 @@ class misc:
 
 
 class metadata:
-    def get_metadata(pano_id) -> str:
+    def _get_time(timestamp) -> datetime:
+        date = datetime.fromtimestamp(int(timestamp))
+        return date
+
+    def get_metadata(pano_id) -> list:
+        raw_md = metadata.get_raw_metadata(pano_id)
+        img_size = raw_md['data']['Data']['Images']['Zooms'][0]
+        metadata = {
+            "service": "yandex",
+            "pano_id": [pano_id['oid'], pano_id['pano_id']],
+            "lat": raw_md['data']['Data']['Point']['coordinates'][0],
+            "lng": raw_md['data']['Data']['Point']['coordinates'][1],
+            "date": metadata._get_time(raw_md['data']['Data']['timestamp']), # to be used with datetime
+            "size": [img_size['width'], img_size['height']],
+            "max_zoom": len(raw_md['data']['Data']['Images']['Zooms']) - 1
+        }
+        '''
+        Older Imagery can be found in raw_md['data']['Annotation']['HistoricalPanoramas']
+        '''
+
+    def get_raw_metadata(pano_id) -> list:
         try:
             pano_id = pano_id['oid']
         except TypeError: # pano id already parsed
             pass
         url = urls._build_pano_url(pano_id, 0, 'oid')
+        print(url)
         data = requests.get(url).json()
         if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
         return data

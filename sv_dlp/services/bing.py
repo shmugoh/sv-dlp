@@ -45,10 +45,25 @@ class metadata:
     coordinates from what I know, so
     only way of making this work 
     '''
-    def get_metadata(lat, lng) -> str:
+    def get_metadata(lat, lng) -> list:
+        raw_md = metadata.get_raw_metadata(lat, lng)
+        bubble_id = raw_md[1]["id"]
+        base4_bubbleid = urls._base4(bubble_id)
+        metadata = {
+            "service": "bing",
+            "pano_id": [bubble_id, str(base4_bubbleid).zfill(16)],
+            "lat": raw_md[1]["lo"],
+            "lng": raw_md[1]["la"],
+            "date": datetime.strptime(raw_md[1]['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
+            "size": None,
+            "max_zoom": 3
+        }
+
+    def get_raw_metadata(lat, lng) -> list:
         bounds = _get_bounding_box(lat, lng)
         url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
         json = requests.get(url).json()
+        print(url)
         return json
 
     def get_date(lat, lng) -> str:

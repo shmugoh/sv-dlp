@@ -45,12 +45,30 @@ class misc:
         return resp.json()['url']
 
 class metadata:
-    def get_metadata(pano_id) -> str:
+    def get_metadata(pano_id) -> list:
+        ChangeCoord = geo.ChangeCoord()
+        raw_md = metadata.get_raw_metadata(pano_id)
+        lng, lat = str(raw_md['content'][0]['RX']), str(raw_md['content'][0]['RY'])
+        lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
+
+        metadata = {
+            "service": "baidu",
+            "pano_id": raw_md["content"]["id"],
+            "lat": lat,
+            "lng": lng,
+            "date": datetime.strptime(raw_md['content'][0]['Date'], '%Y%m%d'),
+            "size": None,
+            "max_zoom": raw_md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
+        }
+        '''
+        Older Imagery can be found in raw_md["content"][0]["TimeLine"]
+        '''
+        return metadata
+
+    def get_raw_metadata(pano_id) -> str:
         url = urls._build_metadata_url(pano_id)
         data = requests.get(url).json()
-        # pprint(data)
         return data
-
     def get_date(pano_id) -> str:
         md = metadata.get_metadata(pano_id)
         date = datetime.strptime(md['content'][0]['Date'], '%Y%m%d')
