@@ -30,35 +30,25 @@ def _download_row(urls_arr, pbar) -> list:
 
 def panorama(tile_urls, metadata, no_crop=False):
     print("Downloading Tiles...")
-    img_io = _download_tiles(tile_urls)
+    tiles_io = _download_tiles(tile_urls)
 
     print("Stitching Tiles...")
-    with tqdm(total=len(img_io)) as pbar:
+    with tqdm(total=len(tiles_io)) as pbar:
         match metadata['service']:
             case 'bing':
-                img = tiles.bing.merge(img_io, pbar)
+                img = tiles.bing.merge(tiles_io, pbar)
             case 'apple':
-                img = tiles.apple.stitch(img_io[0])
+                img = tiles.apple.stitch(tiles_io[0])
                 pbar.update(1)
             case _:
-                for row in img_io:
-                    i = img_io.index(row)
-                    img_io[i] = tiles.stitch(row)
+                for row in tiles_io:
+                    i = tiles_io.index(row)
+                    tiles_io[i] = tiles.stitch(row)
                     pbar.update(1)
-                img = tiles.merge(img_io)
+                img = tiles.merge(tiles_io)
                 pbar.update(1)
     if no_crop != True:
         print("Cropping...")
         img = panorama.crop(img, metadata)
 
-    return img
-
-def from_file(arr, zoom, service, save_tiles=False, no_crop=False, folder='./'):
-    i = 0
-    for pano_id in arr:
-        print(f"Downloading {i}/{len(arr) - 1}")
-        panorama(
-            pano_id, zoom, service,
-            save_tiles, no_crop, folder
-        )
-        i += 1
+    return img, tiles_io
