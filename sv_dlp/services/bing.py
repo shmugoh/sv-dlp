@@ -32,6 +32,28 @@ class urls:
         buff = "".join(str(i) for i in buff)
         return buff
 
+class geo:
+    def get_bounding_box(lat, lon, radius=25):
+        """
+        Returns length of latitude and longitude
+        within a square.
+
+        Taken from sk-zk/streetlevel with a few changes.
+        Kudos to him for saving me.
+        """
+        geod = pyproj.Geod(ellps="WGS84")
+        dist_to_corner = math.sqrt(2 * pow(2*radius, 2)) / 2
+        top_left = geod.fwd(lon, lat, 315, dist_to_corner)
+        bottom_right = geod.fwd(lon, lat, 135, dist_to_corner)
+
+        bounds = {
+            "north": top_left[1],
+            "south": bottom_right[1],
+            "east":  bottom_right[0],
+            "west": top_left[0]
+        }
+        return bounds
+
 class misc:
     def get_pano_from_url(url):
         raise sv_dlp.services.ServiceNotSupported
@@ -40,92 +62,40 @@ class misc:
         raise sv_dlp.services.ServiceNotSupported
 
 class metadata:
-    '''
-    Metadata API call only accepts
-    coordinates from what I know, so
-    only way of making this work 
-    '''
-    def get_metadata(lat, lng) -> list:
-        raw_md = metadata.get_raw_metadata(lat, lng)
-        bubble_id = raw_md[1]["id"]
-        base4_bubbleid = urls._base4(bubble_id)
-        metadata = {
-            "service": "bing",
-            "pano_id": [bubble_id, str(base4_bubbleid).zfill(16)],
-            "lat": raw_md[1]["lo"],
-            "lng": raw_md[1]["la"],
-            "date": datetime.strptime(raw_md[1]['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
-            "size": None,
-            "max_zoom": 3
-        }
+    def get_metadata(pano_id=None, lat=None, lng=None) -> list:
+        """
+        Returns closest bubble ID and its metadata
+        with parsed coordinate bounds.
+        """
+        if pano_id: raise sv_dlp.services.MetadataPanoIDParsed
+        try:
+            raw_md = metadata.get_raw_metadata(lat, lng)
+            bubble_id = raw_md[1]["id"]
+            base4_bubbleid = urls._base4(bubble_id)
+            metadata = {
+                "service": "bing",
+                "pano_id": [bubble_id, str(base4_bubbleid).zfill(16)],
+                "lat": raw_md[1]["lo"],
+                "lng": raw_md[1]["la"],
+                "date": datetime.strptime(raw_md[1]['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
+                "size": None,
+                "max_zoom": 3
+            }
+            return metadata
+        except Exception:
+            raise sv_dlp.services.NoPanoIDAvailable
 
     def get_raw_metadata(lat, lng) -> list:
-        bounds = _get_bounding_box(lat, lng)
+        bounds = geo.get_bounding_box(lat, lng)
         url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
         json = requests.get(url).json()
         print(url)
         return json
 
-    def get_date(lat, lng) -> str:
-        md = metadata.get_metadata(lat, lng)
-        date = datetime.strptime(md[1]['cd'], '%m/%d/%Y %I:%M:%S %p')
-        return date
-
-    def get_coords(lat, lng) -> float:
-        md = metadata.get_metadata(lat, lng)
-        return md[1]['la'], md[1]['lo']
-
     def get_gen(**kwargs):
         raise sv_dlp.services.ServiceNotSupported
 
-def _get_bounding_box(lat, lon, radius=25):
-    """
-    Returns length of latitude and longitude
-    within a square.
-
-    Taken from sk-zk/streetlevel with a few changes.
-    Kudos to him for saving me.
-    """
-    geod = pyproj.Geod(ellps="WGS84")
-    dist_to_corner = math.sqrt(2 * pow(2*radius, 2)) / 2
-    top_left = geod.fwd(lon, lat, 315, dist_to_corner)
-    bottom_right = geod.fwd(lon, lat, 135, dist_to_corner)
-
-    bounds = {
-        "north": top_left[1],
-        "south": bottom_right[1],
-        "east":  bottom_right[0],
-        "west": top_left[0]
-    }
-    return bounds
-
-def get_pano_id(lat, lng):
-    """
-    Returns closest bubble ID and its metadata
-    with parsed coordinate bounds.
-    """
-    try:
-        bounds = _get_bounding_box(lat, lng)
-        url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
-        json = requests.get(url).json()
-        bubble_id = json[1]["id"]
-        base4_bubbleid = urls._base4(bubble_id)
-
-        bubble = {
-            "bubble_id": bubble_id,
-            "pano_id": str(base4_bubbleid).zfill(16),
-            "lat": json[1]["lo"],
-            "lon": json[1]["la"],
-            "date": json[1]["cd"]
-        }
-        return bubble
-    except Exception:
-        raise sv_dlp.services.NoPanoIDAvailable
-
-def get_max_zoom(kwargs):
-    return 3
-
-def _build_tile_arr(base4_bubble, zoom):
+def _build_tile_arr(metadata, zoom):
         """
         Returns available tile URLs depending on
         the level of zoom given.
@@ -133,6 +103,7 @@ def _build_tile_arr(base4_bubble, zoom):
         Taken from sk-zk/streetlevel with a few changes.
         Kudos to him.
         """
+        base4_panoid = metadata['pano_id'][1]
         zoom = int(zoom)
         subdivs = pow(4, zoom)
         faces = [ [] for x in range(0, 6) ]
@@ -145,9 +116,6 @@ def _build_tile_arr(base4_bubble, zoom):
                 else:
                     subdiv_base4 = urls._base4(tile).zfill(zoom)
                 tile_pos = f"{tile_id_base4}{subdiv_base4}"
-                url = urls._build_tile_url(base4_bubble, tile_pos)
+                url = urls._build_tile_url(base4_panoid, tile_pos)
                 faces[tile_id].append(url)
         return faces
-
-if __name__ == '__main__':
-    print(get_pano_id(-33.74429348821123, -70.73846604377563))

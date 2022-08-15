@@ -46,12 +46,12 @@ class misc:
         url = requests.get(url).url
         try:
             pano = re.findall(r'5Bid%5D=(.+)&panorama%5Bpoint', url)[0]
-            pano = get_pano_id(pano, '', 'oid')
+            pano = metadata._get_pano_id(pano, '', 'oid')
         except IndexError:
             try:
                 coords = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)', url)[0]
                 lat, lng = coords[1], coords[0]
-                pano = get_pano_id(lat, lng)
+                pano = metadata._get_pano_id(lat, lng)
             except IndexError:
                 raise sv_dlp.services.ServiceShortURLFound
 
@@ -86,8 +86,10 @@ class metadata:
         date = datetime.fromtimestamp(int(timestamp))
         return date
 
-    def get_metadata(pano_id) -> list:
-        raw_md = metadata.get_raw_metadata(pano_id)
+    def get_metadata(pano_id=None, lat=None, lng=None) -> list:
+        if pano_id == None:
+            pano_id = metadata._get_pano_from_coords(lat, lng)
+        raw_md = metadata._get_raw_metadata(pano_id)
         img_size = raw_md['data']['Data']['Images']['Zooms'][0]
         metadata = {
             "service": "yandex",
@@ -102,7 +104,7 @@ class metadata:
         Older Imagery can be found in raw_md['data']['Annotation']['HistoricalPanoramas']
         '''
 
-    def get_raw_metadata(pano_id) -> list:
+    def _get_raw_metadata(pano_id) -> list:
         try:
             pano_id = pano_id['oid']
         except TypeError: # pano id already parsed
@@ -113,63 +115,29 @@ class metadata:
         if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
         return data
 
-    def get_coords(pano_id) -> float:
-        data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
+    def _get_pano_from_coords(lat, lon, mode='ll'):
         try:
-            pano_id = pano_id['oid']
-        except TypeError: # pano id already parsed
-            pass
-
-        for i in data:
-            if i['Connection']['oid'] == pano_id:
-                coords = i['Connection']['Point']['coordinates']
-                lat = coords[1]
-                lng = coords[0]
-                return lat, lng
-        return None
-
-    def get_date(pano_id) -> str:
-        data = metadata.get_metadata(pano_id)['data']['Annotation']['HistoricalPanoramas']
-        try:
-            pano_id = pano_id['oid']
-        except TypeError: # pano id already parsed
-            pass
-
-        for i in data:
-            if i['Connection']['oid'] == pano_id:
-                url = i['Connection']['href']
-                timestamp = re.search(r'connectionsTimestamp=(.+)', url)[1]
-                date = datetime.fromtimestamp(int(timestamp))
-                return date
-        return None
+            url = urls._build_pano_url(lat, lon, mode)
+            data = requests.get(url).json()
+            return {
+                "pano_id": data['data']['Data']['Images']['imageId'],
+                "oid": data['data']['Data']['panoramaId']
+            }
+        except Exception:
+            raise sv_dlp.services.NoPanoIDAvailable
 
     def get_gen(pano_id):
         raise sv_dlp.services.ServiceNotSupported
 
-def get_pano_id(lat, lon, mode='ll'):
-    try:
-        url = urls._build_pano_url(lat, lon, mode)
-        data = requests.get(url).json()
-        return {
-            "pano_id": data['data']['Data']['Images']['imageId'],
-            "oid": data['data']['Data']['panoramaId']
-        }
-    except Exception:
-        raise sv_dlp.services.NoPanoIDAvailable
-
-def get_max_zoom(pano):
-    data = metadata.get_metadata(pano)
-    zooms = data['data']['Data']['Images']['Zooms']
-    return len(zooms) - 1
-
-def _build_tile_arr(pano_id, zoom=2):
-    max_zoom = get_max_zoom(pano_id)
+def _build_tile_arr(metadata, zoom=2):
+    pano_id = metadata['pano_id'][1]
+    max_zoom = metadata['max_zoom']
     zoom = max_zoom - zoom
 
     try:
         pano_id = pano_id['pano_id']
     except TypeError: # pano id already parsed
-        pano_id = get_pano_id(pano_id, 0, 'oid')['pano_id']
+        pano_id = metadata._get_pano_from_coords(pano_id, 0, mode='oid')['pano_id']
 
     arr = []
     x_y = [0, 0]

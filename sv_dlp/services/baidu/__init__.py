@@ -45,12 +45,14 @@ class misc:
         return resp.json()['url']
 
 class metadata:
-    def get_metadata(pano_id) -> list:
+    def get_metadata(pano_id=None, lat=None, lng=None) -> list:
+        if pano_id == None:
+            pano_id = metadata._get_pano_from_coords(lat, lng)
+        raw_md = metadata._get_raw_metadata(pano_id)
+
         ChangeCoord = geo.ChangeCoord()
-        raw_md = metadata.get_raw_metadata(pano_id)
         lng, lat = str(raw_md['content'][0]['RX']), str(raw_md['content'][0]['RY'])
         lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
-
         metadata = {
             "service": "baidu",
             "pano_id": raw_md["content"]["id"],
@@ -65,46 +67,25 @@ class metadata:
         '''
         return metadata
 
-    def get_raw_metadata(pano_id) -> str:
+    def _get_raw_metadata(pano_id) -> str:
         url = urls._build_metadata_url(pano_id)
         data = requests.get(url).json()
         return data
-    def get_date(pano_id) -> str:
-        md = metadata.get_metadata(pano_id)
-        date = datetime.strptime(md['content'][0]['Date'], '%Y%m%d')
-        return date
 
-    def get_coords(pano_id) -> float:
-        ChangeCoord = geo.ChangeCoord()
-        md = metadata.get_metadata(pano_id)
-        lng, lat = str(md['content'][0]['RX']), str(md['content'][0]['RY'])
-        lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
-        return lat, lng
+    def _get_pano_from_coords(lat, lng):
+        try:
+            ChangeCoord = geo.ChangeCoord()
+            lng, lat = ChangeCoord.wgs84_to_bd09(lng, lat)
+            lng, lat = ChangeCoord.bd09_to_bd09mc(lng, lat)
+            url = urls._build_pano_url(lng, lat)
+        except Exception as e:
+            print(e)
+        json = requests.get(url).json()
+        pano_id = json["content"]["id"]
+        return pano_id
 
-def get_pano_id(lat, lng):
-    try:
-        ChangeCoord = geo.ChangeCoord()
-        lng, lat = ChangeCoord.wgs84_to_bd09(lng, lat)
-        lng, lat = ChangeCoord.bd09_to_bd09mc(lng, lat)
-        url = urls._build_pano_url(lng, lat)
-    except Exception as e:
-        print(e)
-    json = requests.get(url).json()
-    pano_id = json["content"]["id"]
-    return {
-        "pano_id": pano_id
-    }
-
-def get_max_zoom(pano_id):
-    """
-    Finds maximum available zoom from given panorama ID.
-    """
-    url = urls._build_metadata_url(pano_id)
-    md = requests.get(url).json()
-    max = md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
-    return max
-
-def _build_tile_arr(pano_id, zoom):
+def _build_tile_arr(metadata, zoom):
+    pano_id = metadata['pano_id']
     arr = []
     x_y = [0, 0]
     i = 0

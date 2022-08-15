@@ -17,14 +17,14 @@ class urls:
         url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={pano_id}&x={x}&y={y}&zoom={zoom}&nbt=1&fover=2"
         return url
 
-    def _build_pano_url(lat, lng, mode='singleimagesearch', radius=500):
+    def _build_pano_url(lat, lng, mode='SingleImageSearch', radius=500):
         """
         Build GeoPhotoService call URL from
         coordinates containing panorama ID and imagery date
         """
         xdc = "_xdc_._" + ''.join([y for x in range(6) if (y := choice(urls.chars)) is not None])
         match mode:
-            case 'singleimagesearch':
+            case 'SingleImageSearch':
                 url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{lat}!4d{lng}!2d{radius}!3m20!1m1!3b1!2m2!1sen!2sUS!9m1!1e2!11m12!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!1m3!1e10!2b1!3e2!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}"
             case 'satellite':
                 x, y = geo._coordinate_to_tile(lat, lng)
@@ -85,8 +85,10 @@ class misc:
         return json[0]
 
 class metadata:
-    def get_metadata(pano_id) -> dict:
-        raw_md = metadata.get_raw_metadata(pano_id)
+    def get_metadata(pano_id=None, lat=None, lng=None) -> dict:
+        if pano_id == None:
+            pano_id = metadata._get_pano_from_coords(lat, lng)
+        raw_md = metadata._get_raw_metadata(pano_id)
         try:
             lat, lng = raw_md[1][0][5][0][1][0][2], raw_md[1][0][5][0][1][0][3] 
             image_size = raw_md[1][0][2][2][0] # obtains highest resolution
@@ -95,13 +97,12 @@ class metadata:
             raw_image_date = f"{raw_image_date[0]}/{raw_image_date[1]}"
         except IndexError:
             raise sv_dlp.services.PanoIDInvalid
-
-        date = datetime.strptime(raw_image_date, '%Y/%m')
+    
         md = {
-            "panoid": pano_id,
+            "pano_id": pano_id,
             "lat": float(lat),
             "lng": float(lng),
-            "date": date,
+            "date": datetime.strptime(raw_image_date, '%Y/%m'),
             "size": image_size,
             "max_zoom": len(image_avail_res[0])-1,
             "misc": {
@@ -113,7 +114,7 @@ class metadata:
             md['misc']['trekker_id'] = raw_md[1][0][5][0][3][0][0][2][3][0]
         return md
 
-    def get_raw_metadata(pano_id) -> dict:
+    def _get_raw_metadata(pano_id) -> dict:
         '''
         Returns panorama ID metadata.
         '''
@@ -122,69 +123,35 @@ class metadata:
         raw_md = j.loads(data)
         return raw_md
 
+    def _get_pano_from_coords(lat, lon, radius=500) -> dict:
+        """
+        Returns closest Google panorama ID to given parsed coordinates.
+        """
+        try:
+            url = urls._build_pano_url(lat, lon, mode='SingleImageSearch', radius=radius)
+            json = requests.get(url).text
+            if "Search returned no images." in json:
+                print("[GOOGLE]: Finding nearest panorama via satellite zoom...")
+                url = urls._build_pano_url(lat, lon, mode='satellite')
+                json = requests.get(url).text
+                data = j.loads(json[4:])
+                pano = data[1][1][0][0][0][1]
+            else:
+                data = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
+                pano = data[0][0]
+        except TypeError:
+            raise sv_dlp.services.NoPanoIDAvailable
+        # pans = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
+        return pano
+
     def _get_gen(image_size):
         match image_size:
             case 1664: return "1"
             case 6656: return "2/3"
             case 8192: return "4"
 
-    def get_coords(pano_id) -> float: # lul
-        md = metadata.get_metadata(pano_id)
-        return md["lat"], md["lng"]
-
-    def get_gen(pano_id):
-        md = metadata.get_metadata(pano_id)
-        size = md["size"]
-        match size:
-            case 1664: return "1"
-            case 6656: return "2/3"
-            case 8192: return "4"
-
-def get_pano_id(lat, lon, radius=500) -> dict:
-    """
-    Returns closest Google panorama ID to given parsed coordinates.
-    """
-    try:
-        url = urls._build_pano_url(lat, lon, 'singleimagesearch', radius)
-        json = requests.get(url).text
-        if "Search returned no images." in json:
-            print("[GOOGLE]: Finding nearest panorama via satellite zoom...")
-            url = urls._build_pano_url(lat, lon, mode='satellite')
-            json = requests.get(url).text
-            data = j.loads(json[4:])
-            pano = data[1][1][0][0][0][1]
-            lat = data[1][1][0][0][2][0][2]
-            lng = data[1][1][0][0][2][0][3]
-        else:
-            data = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
-            pano = data[0][0]
-            lat = data[0][1]
-            lng = data[0][2]
-    except TypeError:
-        raise sv_dlp.services.NoPanoIDAvailable
-    # pans = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
-    # print(url)
-
-    # formatting should be changed soon
-    pan = {
-        "pano_id": pano,
-        "lat": lat,
-        "lon": lng
-    }
-    # when implementing -F command, it shall return various pano ids with the date
-    # though keep in mind duplicates should be fixed and removed
-    return pan
-
-def get_max_zoom(pano_id):
-    """
-    Finds maximum available zoom from given panorama ID.
-    """
-    md = metadata.get_metadata(pano_id)
-    zoom = md['max_zoom']
-    if zoom == 5: zoom -= 1
-    return zoom
-
-def _build_tile_arr(pano_id, zoom=2):
+def _build_tile_arr(metadata, zoom=2):
+    pano_id = metadata['pano_id']
     arr = []
     x_y = [0, 0]
     i = 0
