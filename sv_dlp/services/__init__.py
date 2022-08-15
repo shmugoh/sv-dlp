@@ -19,13 +19,13 @@ class ServiceShortURLFound(Exception):
     pass
 
 class NoPanoIDAvailable(Exception):
-    message = "Panorama ID not available in parsed coordinate."
+    message = "Panorama ID not available in parsed coordinate"
 
 class PanoIDInvalid(Exception):
-    message = "Invalid Panorama ID. Please input a valid one and try again."
+    message = "Invalid Panorama ID. Please input a valid one and try again"
 
-class MetadataPanoIDFound(Exception):
-    message = "Service cannot parse Pano ID to obtain metadata"
+class MetadataPanoIDParsed(Exception):
+    message = "Service cannot parse Panorama ID to obtain metadata"
 
-class MetadataCoordsFound(Exception):
-    message = "Service cannot parse Pano ID to obtain metadata"
+class MetadataCoordsParsed(Exception):
+    message = "Service cannot parse coordinates to obtain metadata"
