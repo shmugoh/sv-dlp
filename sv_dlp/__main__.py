@@ -10,7 +10,7 @@ import sys
 
 import services
 from services import * # yikes
-from download import download
+from sv_dlp import download
 
 parser = argparse.ArgumentParser(
     description='''

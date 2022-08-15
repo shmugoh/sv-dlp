@@ -14,11 +14,13 @@ class sv_dlp:
         pass
 
     def download_panorama(self, pano_id=None, zoom=3, lat=None, lng=None) -> Image:
-        if lat and lng:
-            self.pano_id = self.get_pano_id(lat, lng)
-        elif self.pano_id is None:
-            self.pano_id = pano_id
-        img = download.panorama(self.pano, zoom, self.service)
+        if pano_id != None:
+            self.get_metadata(pano_id=pano_id)
+        elif lat and lng != None:
+            self.get_metadata(lat=lat, lng=lng)
+        
+        tile_arr = self.service._build_tile_arr(self.metadata, zoom)
+        img = download.panorama(tile_arr, self.metadata)
         return img
 
     def get_metadata(self, pano_id=None, lat=None, lng=None) -> list:

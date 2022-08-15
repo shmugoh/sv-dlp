@@ -2,7 +2,7 @@ import math
 from PIL import Image
 import pillow_heif
 
-def stich(row_io_arr):
+def stitch(row_io_arr):
     images = [Image.open(x) for x in row_io_arr]
 
     widths, heights = zip(*(i.size for i in images))
