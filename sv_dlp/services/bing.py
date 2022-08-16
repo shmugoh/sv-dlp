@@ -17,7 +17,7 @@ class urls:
         Build Bing URL containing Bubble ID, coordinates, and date
         from coordinate bounds.
         """
-        url = f"https://t.ssl.ak.tiles.virtualearth.net/tiles/cmd/StreetSideBubbleMetaData?count=1&north={north}&south={south}&east={east}&west={west}"
+        url = f"https://t.ssl.ak.tiles.virtualearth.net/tiles/cmd/StreetSideBubbleMetaData?count=50&north={north}&south={south}&east={east}&west={west}"
         return url
 
     def _base4(i):
@@ -62,7 +62,7 @@ class misc:
         raise sv_dlp.services.ServiceNotSupported
 
 class metadata:
-    def get_metadata(pano_id=None, lat=None, lng=None) -> list:
+    def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         """
         Returns closest bubble ID and its metadata
         with parsed coordinate bounds.
@@ -72,20 +72,40 @@ class metadata:
             raw_md = metadata.get_raw_metadata(lat, lng)
             bubble_id = raw_md[1]["id"]
             base4_bubbleid = urls._base4(bubble_id)
-            metadata = {
+            md = {
                 "service": "bing",
-                "pano_id": [bubble_id, str(base4_bubbleid).zfill(16)],
+                "pano_id": {"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
                 "lat": raw_md[1]["lo"],
                 "lng": raw_md[1]["la"],
                 "date": datetime.strptime(raw_md[1]['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
                 "size": None,
                 "max_zoom": 3
             }
-            return metadata
+            md['historical_panoramas'].update(None)
+            if get_linked_panos == True:
+                linked_panos = raw_md[2:]       # first iteration
+                for panorama in linked_panos:   # is current panorama
+                    md = metadata._parse_panorama(md, panorama)
+            return md
         except Exception:
             raise sv_dlp.services.NoPanoIDAvailable
 
-    def get_raw_metadata(lat, lng) -> list:
+    def _parse_panorama(metadata, panorama_info):
+        bubble_id = panorama_info["id"]
+        base4_bubbleid = urls._base4(bubble_id)
+        metadata["linked_panos"].update(
+            {
+                "pano_id": {"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
+                "lat": panorama_info["lo"],
+                "lng": panorama_info["la"],
+                "date": datetime.strptime(panorama_info['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
+                "size": None,
+                "max_zoom": 3
+            }
+        )
+        return metadata
+
+    def _get_raw_metadata(lat, lng) -> list:
         bounds = geo.get_bounding_box(lat, lng)
         url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
         json = requests.get(url).json()
@@ -103,7 +123,7 @@ def _build_tile_arr(metadata, zoom):
         Taken from sk-zk/streetlevel with a few changes.
         Kudos to him.
         """
-        base4_panoid = metadata['pano_id'][1]
+        base4_panoid = metadata['pano_id']['base4_panoid']
         zoom = int(zoom)
         subdivs = pow(4, zoom)
         faces = [ [] for x in range(0, 6) ]

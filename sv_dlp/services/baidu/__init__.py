@@ -45,7 +45,7 @@ class misc:
         return resp.json()['url']
 
 class metadata:
-    def get_metadata(pano_id=None, lat=None, lng=None) -> list:
+    def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         raw_md = metadata._get_raw_metadata(pano_id)
@@ -62,10 +62,48 @@ class metadata:
             "size": None,
             "max_zoom": raw_md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
         }
-        '''
-        Older Imagery can be found in raw_md["content"][0]["TimeLine"]
-        '''
+
+        historical_panoramas = raw_md["content"][0]["TimeLine"][1:] # first iteration
+        for panorama in historical_panoramas:                       # is current panorama
+            md = metadata._parse_panorama(md, panorama, output="historical_panoramas")
+        if get_linked_panos == True:
+            linked_panos = raw_md['content'][0]['Roads'][0]['Panos']
         return metadata
+
+    def _parse_panorama(metadata, panorama_info, output=""):
+        match output:
+            case "historical_panoramas":
+                '''
+                Historical Imagery can be found
+                in raw_md["content"][0]["TimeLine"]
+                '''
+                metadata["historical_panoramas"].update(
+                    {
+                        "pano_id": panorama_info["ID"],
+                        "date": datetime.strptime(panorama_info['TimeLine'], '%Y%m'),
+                    }
+                )
+            case "linked_panos":
+                '''
+                Linked Panoramas are found
+                in raw_md['content'][0]['Roads'][0]['Panos']
+                '''
+                ChangeCoord = geo.ChangeCoord()
+                lng, lat = str(panorama_info['X']), str(panorama_info['Y'])
+                lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
+                metadata["linked_panos"].update(
+                    {
+                        "pano_id": panorama_info["PID"],
+                        "lat": lat,
+                        "lon": lng,
+                        "date": metadata.get_metadata(pano_id=panorama_info['PID'])['date'] # def scraping this later
+                        # no way of getting date information, unless if
+                        # get_metadata is called by each panorama, which would
+                        # make it a bit slower
+                    }
+                )
+            case _:
+                raise Exception # lol
 
     def _get_raw_metadata(pano_id) -> str:
         url = urls._build_metadata_url(pano_id)

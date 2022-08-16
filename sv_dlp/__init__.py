@@ -15,18 +15,19 @@ class sv_dlp:
         pass
 
     def download_panorama(self, pano_id=None, zoom=3, lat=None, lng=None) -> Image:
-        if pano_id != None:
-            self.get_metadata(pano_id=pano_id)
-        elif lat and lng != None:
-            self.get_metadata(lat=lat, lng=lng)
+        if self.metadata == None:
+            if pano_id != None:
+                self.get_metadata(pano_id=pano_id)
+            elif lat and lng != None:
+                self.get_metadata(lat=lat, lng=lng)
         
         tile_arr = self.service._build_tile_arr(self.metadata, zoom)
-        img, tiles_arr = download.panorama(tile_arr, self.metadata)
-        self.tiles_arr = tiles_arr
+        img, tiles_imgs = download.panorama(tile_arr, self.metadata)
+        self.tiles_imgs = tiles_imgs
         return img
 
-    def get_metadata(self, pano_id=None, lat=None, lng=None) -> list:
-        md = self.service.metadata.get_metadata(pano_id=pano_id, lat=lat, lng=lng)
+    def get_metadata(self, pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
+        md = self.service.metadata.get_metadata(pano_id=pano_id, lat=lat, lng=lng, get_linked_panos=get_linked_panos)
         self.metadata = md
         return md
     def get_pano_id(self, lat, lng) -> str:
@@ -56,9 +57,9 @@ class sv_dlp:
                 pano = metadata['pano_id']
                 match metadata['service']:
                     case 'yandex':
-                        pano_name = pano['oid']
+                        output = pano['oid']
                     case 'apple':
-                        pano_name = f"{pano[0]}_{pano[1]}"
+                        output = f"{pano[0]}_{pano[1]}"
                     case _:
-                        pano_name = pano
-            img.save(f"./{folder}/{pano_name}.png", quality=95)
+                        output = pano
+            img.save(f"./{folder}/{output}.png", quality=95)

@@ -86,23 +86,61 @@ class metadata:
         date = datetime.fromtimestamp(int(timestamp))
         return date
 
-    def get_metadata(pano_id=None, lat=None, lng=None) -> list:
+    def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         raw_md = metadata._get_raw_metadata(pano_id)
+        historical_panoramas = raw_md['data']['Annotation']['HistoricalPanoramas']
+
         img_size = raw_md['data']['Data']['Images']['Zooms'][0]
-        metadata = {
+        md = {
             "service": "yandex",
-            "pano_id": [pano_id['oid'], pano_id['pano_id']],
+            "pano_id": {
+                "oid": pano_id['oid'], 
+                "pano_id": pano_id['pano_id']},
             "lat": raw_md['data']['Data']['Point']['coordinates'][0],
             "lng": raw_md['data']['Data']['Point']['coordinates'][1],
             "date": metadata._get_time(raw_md['data']['Data']['timestamp']), # to be used with datetime
             "size": [img_size['width'], img_size['height']],
             "max_zoom": len(raw_md['data']['Data']['Images']['Zooms']) - 1
         }
-        '''
-        Older Imagery can be found in raw_md['data']['Annotation']['HistoricalPanoramas']
-        '''
+        for panorama in historical_panoramas:
+            md = metadata._parse_panorama(md, panorama, output="historical_panoramas")
+        if get_linked_panos == True:
+            linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
+            for panorama in linked_panos:
+                if panorama['panoid'] == md['pano_id']['oid']: pass
+                else: md = metadata._parse_panorama(md, panorama, output="linked_panos")
+        return md
+            
+    def _parse_panorama(metadata, panorama_info, output=""):
+        match output:
+            case "historical_panoramas":
+                metadata["historical_panoramas"].update(
+                    {
+                        "pano_id": {
+                            "oid": panorama_info['Connection']['oid'], 
+                            "pano_id": None},
+                        "date": metadata.get_time(panorama_info['timestamp'])
+                    }
+                )
+            case "linked_panos":
+                metadata["linked_panos"].update(
+                    {
+                        "pano_id": {
+                            "oid": panorama_info['panoid'], 
+                            "pano_id": None},
+                        "lat": panorama_info['lat'],
+                        "lon": panorama_info['lon'],
+                        "date": metadata.get_metadata(pano_id=panorama_info['panoid'])['date'] # def scrapping this later
+                        # no way of getting date information, unless if
+                        # get_metadata is called by each panorama, which would
+                        # make it a bit slower
+                    }
+                )
+            case _:
+                raise Exception # lol
+        return metadata
 
     def _get_raw_metadata(pano_id) -> list:
         try:
@@ -130,14 +168,9 @@ class metadata:
         raise sv_dlp.services.ServiceNotSupported
 
 def _build_tile_arr(metadata, zoom=2):
-    pano_id = metadata['pano_id'][1]
+    pano_id = metadata['pano_id']['pano_id']
     max_zoom = metadata['max_zoom']
     zoom = max_zoom - zoom
-
-    try:
-        pano_id = pano_id['pano_id']
-    except TypeError: # pano id already parsed
-        pano_id = metadata._get_pano_from_coords(pano_id, 0, mode='oid')['pano_id']
 
     arr = []
     x_y = [0, 0]
