@@ -85,7 +85,7 @@ class misc:
         return json[0]
 
 class metadata:
-    def get_metadata(pano_id=None, lat=None, lng=None) -> dict:
+    def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> dict:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         raw_md = metadata._get_raw_metadata(pano_id)
@@ -95,9 +95,9 @@ class metadata:
             image_avail_res = raw_md[1][0][2][3] # obtains all resolutions available
             raw_image_date = raw_md[1][0][6][-1] # [0] for year - [1] for month
             raw_image_date = f"{raw_image_date[0]}/{raw_image_date[1]}"
+            # def considering parsing this as a protocol buffer instead - this is too messy
         except IndexError:
             raise sv_dlp.services.PanoIDInvalid
-    
         md = {
             "pano_id": pano_id,
             "lat": float(lat),
@@ -112,6 +112,43 @@ class metadata:
         }
         if md['misc']['is_trekker']:
             md['misc']['trekker_id'] = raw_md[1][0][5][0][3][0][0][2][3][0]
+            
+        md = metadata._parse_panorama(md, raw_md, output="historical_panoramas")
+        if get_linked_panos:
+            md = metadata._parse_panorama(md, raw_md, output="linked_panos")
+        return md
+
+    def _parse_panorama(md, raw_md, output=""):
+        linked_panos = raw_md[1][0][5][0][3][0]
+        match output:
+            case "historical_panoramas":
+                historical_panos = {}
+                for pano_info in raw_md[1][0][5][0][8]:
+                    if pano_info == None: break
+                    else:
+                        raw_pano_info = linked_panos[pano_info[0]]
+                        historical_panos.update({
+                            "pano_id": raw_pano_info[0][1],
+                            "lat": raw_pano_info[2][0][-2],
+                            "lng": raw_pano_info[2][0][-1],
+                            "date": datetime.strptime(f"{pano_info[1][0]}/{pano_info[1][1]}", '%Y/%m'),
+                        })
+                md = metadata["historical_panoramas"].update(historical_panos)
+                return md
+            case "linked_panos":
+                buff = {}
+                for pano_info in linked_panos:
+                    pano_id = pano_info[0][1]
+                    if pano_id != raw_md[1][0][1][1]:
+                        date = metadata.get_metadata(pano_id=pano_id)['date']
+                        buff.update({
+                                "pano_id": pano_info[0][1],
+                                "lat": pano_info[2][0][-2],
+                                "lng": pano_info[2][0][-1],
+                                "date": date,
+                        })
+            case _:
+                raise Exception # lol
         return md
 
     def _get_raw_metadata(pano_id) -> dict:
