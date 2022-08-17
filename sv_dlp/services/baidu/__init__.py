@@ -66,18 +66,20 @@ class metadata:
         historical_panoramas = raw_md["content"][0]["TimeLine"][1:] # first iteration
         for panorama in historical_panoramas:                       # is current panorama
             md = metadata._parse_panorama(md, panorama, output="historical_panoramas")
-        if get_linked_panos == True:
+        if get_linked_panos:
             linked_panos = raw_md['content'][0]['Roads'][0]['Panos']
+            for pano_info in linked_panos:
+                md = metadata._parse_panorama(md, pano_info, output="linked_panos")
         return metadata
 
-    def _parse_panorama(metadata, panorama_info, output=""):
+    def _parse_panorama(md, panorama_info, output=""):
         match output:
             case "historical_panoramas":
                 '''
                 Historical Imagery can be found
                 in raw_md["content"][0]["TimeLine"]
                 '''
-                metadata["historical_panoramas"].update(
+                md["historical_panoramas"].update(
                     {
                         "pano_id": panorama_info["ID"],
                         "date": datetime.strptime(panorama_info['TimeLine'], '%Y%m'),
@@ -91,7 +93,7 @@ class metadata:
                 ChangeCoord = geo.ChangeCoord()
                 lng, lat = str(panorama_info['X']), str(panorama_info['Y'])
                 lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
-                metadata["linked_panos"].update(
+                md["linked_panos"].update(
                     {
                         "pano_id": panorama_info["PID"],
                         "lat": lat,
@@ -104,6 +106,7 @@ class metadata:
                 )
             case _:
                 raise Exception # lol
+        return md
 
     def _get_raw_metadata(pano_id) -> str:
         url = urls._build_metadata_url(pano_id)

@@ -106,17 +106,17 @@ class metadata:
         }
         for panorama in historical_panoramas:
             md = metadata._parse_panorama(md, panorama, output="historical_panoramas")
-        if get_linked_panos == True:
+        if get_linked_panos:
             linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
             for panorama in linked_panos:
                 if panorama['panoid'] == md['pano_id']['oid']: pass
                 else: md = metadata._parse_panorama(md, panorama, output="linked_panos")
         return md
             
-    def _parse_panorama(metadata, panorama_info, output=""):
+    def _parse_panorama(md, panorama_info, output=""):
         match output:
             case "historical_panoramas":
-                metadata["historical_panoramas"].update(
+                md["historical_panoramas"].update(
                     {
                         "pano_id": {
                             "oid": panorama_info['Connection']['oid'], 
@@ -125,7 +125,7 @@ class metadata:
                     }
                 )
             case "linked_panos":
-                metadata["linked_panos"].update(
+                md["linked_panos"].update(
                     {
                         "pano_id": {
                             "oid": panorama_info['panoid'], 
@@ -140,7 +140,7 @@ class metadata:
                 )
             case _:
                 raise Exception # lol
-        return metadata
+        return md
 
     def _get_raw_metadata(pano_id) -> list:
         try:

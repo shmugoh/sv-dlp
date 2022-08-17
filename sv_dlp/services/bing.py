@@ -82,7 +82,7 @@ class metadata:
                 "max_zoom": 3
             }
             md['historical_panoramas'].update(None)
-            if get_linked_panos == True:
+            if get_linked_panos:
                 linked_panos = raw_md[2:]       # first iteration
                 for panorama in linked_panos:   # is current panorama
                     md = metadata._parse_panorama(md, panorama)
@@ -90,10 +90,10 @@ class metadata:
         except Exception:
             raise sv_dlp.services.NoPanoIDAvailable
 
-    def _parse_panorama(metadata, panorama_info):
+    def _parse_panorama(md, panorama_info):
         bubble_id = panorama_info["id"]
         base4_bubbleid = urls._base4(bubble_id)
-        metadata["linked_panos"].update(
+        md["linked_panos"].update(
             {
                 "pano_id": {"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
                 "lat": panorama_info["lo"],
@@ -103,7 +103,7 @@ class metadata:
                 "max_zoom": 3
             }
         )
-        return metadata
+        return md
 
     def _get_raw_metadata(lat, lng) -> list:
         bounds = geo.get_bounding_box(lat, lng)
