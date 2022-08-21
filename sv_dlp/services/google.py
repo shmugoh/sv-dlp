@@ -17,21 +17,7 @@ class urls:
         url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={pano_id}&x={x}&y={y}&zoom={zoom}&nbt=1&fover=2"
         return url
 
-    def _build_pano_url(lat, lng, mode='SingleImageSearch', radius=500):
-        """
-        Build GeoPhotoService call URL from
-        coordinates containing panorama ID and imagery date
-        """
-        xdc = "_xdc_._" + ''.join([y for x in range(6) if (y := choice(urls.chars)) is not None])
-        match mode:
-            case 'SingleImageSearch':
-                url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{lat}!4d{lng}!2d{radius}!3m20!1m1!3b1!2m2!1sen!2sUS!9m1!1e2!11m12!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!1m3!1e10!2b1!3e2!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}"
-            case 'satellite':
-                x, y = geo._coordinate_to_tile(lat, lng)
-                url = f"https://www.google.com/maps/photometa/ac/v1?pb=!1m1!1smaps_sv.tactile!6m3!1i{x}!2i{y}!3i17!8b1"
-        return url
-
-    def _build_metadata_url(pano_id):
+    def _build_metadata_url(pano_id=None, lat=None, lng=None, mode='GetMetadata', radius=500):
         '''
         Build GeoPhotoService call URL from
         Pano ID that contains panorama key data 
@@ -39,7 +25,14 @@ class urls:
         date and previous panoramas.
         '''
         xdc = "_xdc_._" + ''.join([y for x in range(6) if (y := choice(urls.chars)) is not None])
-        url = f'https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}'
+        match mode:
+            case 'GetMetadata':
+                url = f'https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}'
+            case 'SingleImageSearch':
+                url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{lat}!4d{lng}!2d{radius}!3m20!1m1!3b1!2m2!1sen!2sUS!9m1!1e2!11m12!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!1m3!1e10!2b1!3e2!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}"
+            case 'SatelliteZoom':
+                x, y = geo._coordinate_to_tile(lat, lng)
+                url = f"https://www.google.com/maps/photometa/ac/v1?pb=!1m1!1smaps_sv.tactile!6m3!1i{x}!2i{y}!3i17!8b1"
         return url
 
     def _build_short_url(pano_id) -> str:
@@ -64,7 +57,6 @@ class geo:
         tile_x = math.floor((x * zoom) / tile_size)
         tile_y = math.floor((y * zoom) / tile_size)
         return tile_x, tile_y
-
 
 class misc:
     def get_pano_from_url(url):
@@ -157,21 +149,21 @@ class metadata:
         '''
         Returns panorama ID metadata.
         '''
-        url = urls._build_metadata_url(pano_id)
+        url = urls._build_metadata_url(pano_id=pano_id, mode='GetMetadata')
         data = str(requests.get(url).content)[38:-3].replace('\\', '\\\\')
         raw_md = j.loads(data)
         return raw_md
 
-    def _get_pano_from_coords(lat, lon, radius=500) -> dict:
+    def _get_pano_from_coords(lat, lng, radius=500) -> dict:
         """
         Returns closest Google panorama ID to given parsed coordinates.
         """
         try:
-            url = urls._build_pano_url(lat, lon, mode='SingleImageSearch', radius=radius)
+            url = urls._build_metadata_url(lat=lat, lng=lng, mode='SingleImageSearch', radius=radius)
             json = requests.get(url).text
             if "Search returned no images." in json:
                 print("[GOOGLE]: Finding nearest panorama via satellite zoom...")
-                url = urls._build_pano_url(lat, lon, mode='satellite')
+                url = urls._build_metadata_url(lat=lat, lng=lng, mode='SatelliteZoom')
                 json = requests.get(url).text
                 data = j.loads(json[4:])
                 pano = data[1][1][0][0][0][1]
@@ -189,8 +181,8 @@ class metadata:
             case 6656: return "2/3"
             case 8192: return "4"
 
-def _build_tile_arr(metadata, zoom=2):
-    pano_id = metadata['pano_id']
+def _build_tile_arr(md, zoom=2):
+    pano_id = md['pano_id']
     arr = []
     x_y = [0, 0]
     i = 0
