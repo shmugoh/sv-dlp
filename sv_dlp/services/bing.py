@@ -83,6 +83,7 @@ class metadata:
             }
             md['historical_panoramas'].update(None)
             if get_linked_panos:
+                md["linked_panos"] = {}
                 linked_panos = raw_md[2:]       # first iteration
                 for panorama in linked_panos:   # is current panorama
                     md = metadata._parse_panorama(md, panorama)
@@ -99,8 +100,6 @@ class metadata:
                 "lat": panorama_info["lo"],
                 "lng": panorama_info["la"],
                 "date": datetime.strptime(panorama_info['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
-                "size": None,
-                "max_zoom": 3
             }
         )
         return md

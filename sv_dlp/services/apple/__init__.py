@@ -93,10 +93,12 @@ class metadata:
                 "lng": lng,
                 "date": datetime.fromtimestamp(int(pano_md.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
                 "size": None,
-                "max_zoom": None
+                "max_zoom": None,
+                "timeline": {}
             }
-        md = md['historical_panoramas'].update(None)
+        md = md['timeline'].update(None)
         if get_linked_panos:
+            md['linked_panos'] = {}
             md = metadata._parse_panorama(md, md_raw, output='linked_panos')
         return md
 
@@ -104,15 +106,13 @@ class metadata:
         raw_md = raw_md[1:]
         match output:
             case 'linked_panos':
-                buff = {}
                 for pano_info in raw_md:
-                    buff.update({
+                    md['linked_panos'].update({
                             "pano_id": {"pano_id": pano_info.panoid, "regional_id": pano_info.unknown13[pano_info.region_id_idx].region_id},
                             "lat": pano_info[2][0][-2],
                             "lng": pano_info[2][0][-1],
                             "date": datetime.fromtimestamp(int(pano_info.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
                     })
-                md = md['linked_panos'].update(buff)
 
     def get_raw_metadata(tile_x, tile_y, session) -> str:
         headers = {

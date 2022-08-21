@@ -53,7 +53,7 @@ class metadata:
         ChangeCoord = geo.ChangeCoord()
         lng, lat = str(raw_md['content'][0]['RX']), str(raw_md['content'][0]['RY'])
         lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
-        metadata = {
+        md = {
             "service": "baidu",
             "pano_id": raw_md["content"]["id"],
             "lat": lat,
@@ -63,23 +63,23 @@ class metadata:
             "max_zoom": raw_md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
         }
 
-        historical_panoramas = raw_md["content"][0]["TimeLine"][1:] # first iteration
-        for panorama in historical_panoramas:                       # is current panorama
-            md = metadata._parse_panorama(md, panorama, output="historical_panoramas")
+        timeline = raw_md["content"][0]["TimeLine"][1:] # first iteration
+        for panorama in timeline:                       # is current panorama
+            md = metadata._parse_panorama(md, panorama, output="timeline")
         if get_linked_panos:
             linked_panos = raw_md['content'][0]['Roads'][0]['Panos']
-            for pano_info in linked_panos:
-                md = metadata._parse_panorama(md, pano_info, output="linked_panos")
-        return metadata
+            for panorama in linked_panos:
+                md = metadata._parse_panorama(md, panorama, output="linked_panos")
+        return md
 
     def _parse_panorama(md, panorama_info, output=""):
         match output:
-            case "historical_panoramas":
+            case "timeline":
                 '''
                 Historical Imagery can be found
                 in raw_md["content"][0]["TimeLine"]
                 '''
-                md["historical_panoramas"].update(
+                md["timeline"].update(
                     {
                         "pano_id": panorama_info["ID"],
                         "date": datetime.strptime(panorama_info['TimeLine'], '%Y%m'),
@@ -114,13 +114,10 @@ class metadata:
         return data
 
     def _get_pano_from_coords(lat, lng):
-        try:
-            ChangeCoord = geo.ChangeCoord()
-            lng, lat = ChangeCoord.wgs84_to_bd09(lng, lat)
-            lng, lat = ChangeCoord.bd09_to_bd09mc(lng, lat)
-            url = urls._build_pano_url(lng, lat)
-        except Exception as e:
-            print(e)
+        ChangeCoord = geo.ChangeCoord()
+        lng, lat = ChangeCoord.wgs84_to_bd09(lng, lat)
+        lng, lat = ChangeCoord.bd09_to_bd09mc(lng, lat)
+        url = urls._build_pano_url(lng, lat)
         json = requests.get(url).json()
         pano_id = json["content"]["id"]
         return pano_id

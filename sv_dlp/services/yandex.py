@@ -11,7 +11,7 @@ class urls:
         url = f"https://pano.maps.yandex.net/{pano_id}/{zoom}.{x}.{y}"
         return url
 
-    def _build_pano_url(lat, lng, mode='ll'):
+    def _build_metadata_url(lat, lng, mode='ll'):
         """
         Build Yandex URL that returns panorama ID and metadata.
 
@@ -90,23 +90,25 @@ class metadata:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         raw_md = metadata._get_raw_metadata(pano_id)
-        historical_panoramas = raw_md['data']['Annotation']['HistoricalPanoramas']
+        timeline = raw_md['data']['Annotation']['HistoricalPanoramas']
 
         img_size = raw_md['data']['Data']['Images']['Zooms'][0]
         md = {
             "service": "yandex",
             "pano_id": {
-                "oid": pano_id['oid'], 
-                "pano_id": pano_id['pano_id']},
+                "pano_id": raw_md['data']['Data']['panoramaId'], 
+                "image_id": raw_md['data']['Data']['Images']['imageId']},
             "lat": raw_md['data']['Data']['Point']['coordinates'][0],
             "lng": raw_md['data']['Data']['Point']['coordinates'][1],
             "date": metadata._get_time(raw_md['data']['Data']['timestamp']), # to be used with datetime
             "size": [img_size['width'], img_size['height']],
-            "max_zoom": len(raw_md['data']['Data']['Images']['Zooms']) - 1
+            "max_zoom": len(raw_md['data']['Data']['Images']['Zooms']) - 1,
+            "timeline": {}
         }
-        for panorama in historical_panoramas:
-            md = metadata._parse_panorama(md, panorama, output="historical_panoramas")
+        for panorama in timeline:
+            md = metadata._parse_panorama(md, panorama, output="timeline")
         if get_linked_panos:
+            md['linked_panos'] = {}
             linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
             for panorama in linked_panos:
                 if panorama['panoid'] == md['pano_id']['oid']: pass
@@ -115,12 +117,12 @@ class metadata:
             
     def _parse_panorama(md, panorama_info, output=""):
         match output:
-            case "historical_panoramas":
-                md["historical_panoramas"].update(
+            case "timeline":
+                md["timeline"].update(
                     {
                         "pano_id": {
-                            "oid": panorama_info['Connection']['oid'], 
-                            "pano_id": None},
+                            "pano_id": panorama_info['Connection']['oid'], 
+                            "image_id": None},
                         "date": metadata.get_time(panorama_info['timestamp'])
                     }
                 )
@@ -128,8 +130,8 @@ class metadata:
                 md["linked_panos"].update(
                     {
                         "pano_id": {
-                            "oid": panorama_info['panoid'], 
-                            "pano_id": None},
+                            "pano_id": panorama_info['panoid'], 
+                            "image_id": None},
                         "lat": panorama_info['lat'],
                         "lon": panorama_info['lon'],
                         "date": metadata.get_metadata(pano_id=panorama_info['panoid'])['date'] # def scrapping this later
@@ -143,11 +145,7 @@ class metadata:
         return md
 
     def _get_raw_metadata(pano_id) -> list:
-        try:
-            pano_id = pano_id['oid']
-        except TypeError: # pano id already parsed
-            pass
-        url = urls._build_pano_url(pano_id, 0, 'oid')
+        url = urls._build_metadata_url(pano_id, 0, 'oid')
         print(url)
         data = requests.get(url).json()
         if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
@@ -155,12 +153,9 @@ class metadata:
 
     def _get_pano_from_coords(lat, lon, mode='ll'):
         try:
-            url = urls._build_pano_url(lat, lon, mode)
+            url = urls._build_metadata_url(lat, lon, mode)
             data = requests.get(url).json()
-            return {
-                "pano_id": data['data']['Data']['Images']['imageId'],
-                "oid": data['data']['Data']['panoramaId']
-            }
+            return data['data']['Data']['panoramaId']
         except Exception:
             raise sv_dlp.services.NoPanoIDAvailable
 
@@ -168,7 +163,7 @@ class metadata:
         raise sv_dlp.services.ServiceNotSupported
 
 def _build_tile_arr(metadata, zoom=2):
-    pano_id = metadata['pano_id']['pano_id']
+    pano_id = metadata['pano_id']['image_id']
     max_zoom = metadata['max_zoom']
     zoom = max_zoom - zoom
 

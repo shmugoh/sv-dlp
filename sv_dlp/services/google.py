@@ -113,7 +113,7 @@ class metadata:
         if md['misc']['is_trekker']:
             md['misc']['trekker_id'] = raw_md[1][0][5][0][3][0][0][2][3][0]
             
-        md = metadata._parse_panorama(md, raw_md, output="historical_panoramas")
+        md = metadata._parse_panorama(md, raw_md, output="timeline")
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output="linked_panos")
         return md
@@ -121,7 +121,8 @@ class metadata:
     def _parse_panorama(md, raw_md, output=""):
         linked_panos = raw_md[1][0][5][0][3][0]
         match output:
-            case "historical_panoramas":
+            case "timeline":
+                md["timeline"] = {}
                 historical_panos = {}
                 for pano_info in raw_md[1][0][5][0][8]:
                     if pano_info == None: break
@@ -133,9 +134,10 @@ class metadata:
                             "lng": raw_pano_info[2][0][-1],
                             "date": datetime.strptime(f"{pano_info[1][0]}/{pano_info[1][1]}", '%Y/%m'),
                         })
-                md = metadata["historical_panoramas"].update(historical_panos)
+                md = md["timeline"].update(historical_panos)
                 return md
             case "linked_panos":
+                md["linked_panos"] = {}
                 buff = {}
                 for pano_info in linked_panos:
                     pano_id = pano_info[0][1]
