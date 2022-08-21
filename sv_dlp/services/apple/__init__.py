@@ -74,26 +74,45 @@ class geo:
         return lat_lon
 
 class metadata:
-    def get_metadata(lat, lng):
+    def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False):
+        if pano_id: raise sv_dlp.services.MetadataPanoIDParsed
+
         session = requests.Session()
         tile_x, tile_y = geo.wgs84_to_tile_coord(lat, lng, 17)
         md_raw = metadata.get_raw_metadata(tile_x, tile_y, session)
-        panos = []
-        for tile in md_raw.pano:
-            lat, lng = geo.protobuf_tile_offset_to_wgs84(
-                tile.unknown4.longitude_offset,
-                tile.unknown4.latitude_offset,
+        pano_md = md_raw.pano[0]
+        lat, lng = geo.protobuf_tile_offset_to_wgs84(
+                pano_md.unknown4.longitude_offset,
+                pano_md.unknown4.latitude_offset,
                 tile_x,
                 tile_y)
-            panos.append(
-                {
-                "pano": tile.panoid,
-                "regional_id": md_raw.unknown13[tile.region_id_idx].region_id,
+        md = {
+                "service": "apple",
+                "pano_id": {"pano_id": pano_md.panoid, "regional_id": md_raw.unknown13[pano_md.region_id_idx].region_id},
                 "lat": lat,
                 "lng": lng,
-                "date": datetime.fromtimestamp(int(tile.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S")
-            })
-        return panos
+                "date": datetime.fromtimestamp(int(pano_md.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
+                "size": None,
+                "max_zoom": None
+            }
+        md = md['historical_panoramas'].update(None)
+        if get_linked_panos:
+            md = metadata._parse_panorama(md, md_raw, output='linked_panos')
+        return md
+
+    def _parse_panorama(md, raw_md, output=''):
+        raw_md = raw_md[1:]
+        match output:
+            case 'linked_panos':
+                buff = {}
+                for pano_info in raw_md:
+                    buff.update({
+                            "pano_id": {"pano_id": pano_info.panoid, "regional_id": pano_info.unknown13[pano_info.region_id_idx].region_id},
+                            "lat": pano_info[2][0][-2],
+                            "lng": pano_info[2][0][-1],
+                            "date": datetime.fromtimestamp(int(pano_info.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
+                    })
+                md = md['linked_panos'].update(buff)
 
     def get_raw_metadata(tile_x, tile_y, session) -> str:
         headers = {
@@ -107,14 +126,6 @@ class metadata:
         tile = MapTile_pb2.MapTile()
         tile.ParseFromString(response.content)
         return tile
-
-    def get_date(lat, lng) -> str:
-        md = metadata.get_metadata(lat, lng)
-        return md[0]['date']
-
-    def get_coords(lat, lng) -> float:
-        md = metadata.get_metadata(lat, lng)
-        return md[0]['lat'], md[0]['lng']
 
     def get_gen(pano_id):
         raise sv_dlp.services.ServiceNotSupported
