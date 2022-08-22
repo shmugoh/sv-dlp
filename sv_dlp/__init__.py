@@ -14,6 +14,10 @@ class sv_dlp:
         self.metadata = None
         pass
 
+    def set_service(self, service):
+        self.service = getattr(services, service)
+        self.service_str = service
+
     def download_panorama(self, pano_id=None, zoom=3, lat=None, lng=None) -> Image:
         if self.metadata == None:
             if pano_id != None:
@@ -36,9 +40,24 @@ class sv_dlp:
         pano_id = self.metadata["pano_id"]
         self.pano_id = pano_id
         return pano_id
-    # def get_linked_panos(self) -> str:
-    #     sv_dlp.get_metadata(self, pano=None, lat=None, lng=None)
-    #     return self.metadata['near_panos']
+
+    def get_available_services(self, pano_id=None, lat=None, lng=None):
+        self.available_services = []
+
+        for service in dir(services)[::-1]:
+            if service != "__spec__":
+                self.set_service(service)
+                try:
+                    if pano_id:
+                        self.get_metadata(pano_id=pano_id)
+                    elif pano_id == None:
+                        self.get_pano_id(lat=lat, lng=lng)
+                    self.available_services.append(service)
+                except Exception:
+                    # input not compatible with service
+                    continue    
+            else: break
+        return self.available_services
 
     class postdownload:
         def save_tiles(tiles_io, metadata, folder='./'):
