@@ -36,12 +36,15 @@ class misc:
         raise sv_dlp.services.ServiceNotSupported
 
 class metadata:
+    _convert_date = lambda raw_date : datetime.fromtimestamp(int(raw_date)) / 1000.0
+
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False):
         if pano_id: raise sv_dlp.services.MetadataPanoIDParsed
-
+    
         session = requests.Session()
         tile_x, tile_y = geo.wgs84_to_tile_coord(lat, lng, 17)
         md_raw = metadata._get_raw_metadata(tile_x, tile_y, session)
+
         pano_md = md_raw.pano[0]
         lat, lng = geo.protobuf_tile_offset_to_wgs84(
                 pano_md.location.longitude_offset,
@@ -50,10 +53,12 @@ class metadata:
                 tile_y)
         md = {
                 "service": "apple",
-                "pano_id": {"pano_id": pano_md.panoid, "regional_id": md_raw.unknown13[pano_md.region_id_idx].region_id},
+                "pano_id": {
+                    "pano_id": pano_md.panoid, 
+                    "regional_id": md_raw.unknown13[pano_md.region_id_idx].region_id},
                 "lat": lat,
                 "lng": lng,
-                "date": datetime.fromtimestamp(int(pano_md.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
+                "date": metadata._convert_date(pano_md.timestamp),
                 "size": None,
                 "max_zoom": None,
                 "misc": {
@@ -62,25 +67,30 @@ class metadata:
                     "raw_elevation": pano_md.location.elevation,
                 },
                 "timeline": {},
-                
             }
-        md = md['timeline'].update(None)
+        md = metadata._parse_panorama(md, md_raw, output='timeline')
         if get_linked_panos:
-            md['linked_panos'] = {}
             md = metadata._parse_panorama(md, md_raw, output='linked_panos')
         return md
 
     def _parse_panorama(md, raw_md, output=''):
-        raw_md = raw_md[1:]
+        buff = []
         match output:
+            case 'timeline':
+                md['timeline'] = None
             case 'linked_panos':
+                raw_md = raw_md[1:]
                 for pano_info in raw_md:
-                    md['linked_panos'].update({
+                    buff.append({
                             "pano_id": {"pano_id": pano_info.panoid, "regional_id": pano_info.unknown13[pano_info.region_id_idx].region_id},
                             "lat": pano_info[2][0][-2],
                             "lng": pano_info[2][0][-1],
                             "date": datetime.fromtimestamp(int(pano_info.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
                     })
+                md['linked_panos'] = buff
+            case _:
+                raise Exception
+        return md
 
     def _get_raw_metadata(tile_x, tile_y, session) -> str:
         headers = {

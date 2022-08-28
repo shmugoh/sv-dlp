@@ -82,16 +82,12 @@ class misc:
 
 
 class metadata:
-    def _get_time(timestamp) -> datetime:
-        date = datetime.fromtimestamp(int(timestamp))
-        return date
+    _convert_date = lambda raw_date : datetime.fromtimestamp(int(raw_date))
 
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         raw_md = metadata._get_raw_metadata(pano_id)
-        timeline = raw_md['data']['Annotation']['HistoricalPanoramas']
-
         img_size = raw_md['data']['Data']['Images']['Zooms'][0]
         md = {
             "service": "yandex",
@@ -100,46 +96,49 @@ class metadata:
                 "image_id": raw_md['data']['Data']['Images']['imageId']},
             "lat": raw_md['data']['Data']['Point']['coordinates'][0],
             "lng": raw_md['data']['Data']['Point']['coordinates'][1],
-            "date": metadata._get_time(raw_md['data']['Data']['timestamp']), # to be used with datetime
+            "date": metadata._convert_date(raw_md['data']['Data']['timestamp']),
             "size": [img_size['width'], img_size['height']],
             "max_zoom": len(raw_md['data']['Data']['Images']['Zooms']) - 1,
             "timeline": {}
         }
-        for panorama in timeline:
-            md = metadata._parse_panorama(md, panorama, output="timeline")
+        md = metadata._parse_panorama(md, raw_md, output="timeline")
         if get_linked_panos:
-            md['linked_panos'] = {}
-            linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
-            for panorama in linked_panos:
-                if panorama['panoid'] == md['pano_id']['oid']: pass
-                else: md = metadata._parse_panorama(md, panorama, output="linked_panos")
+            md = metadata._parse_panorama(md, raw_md, output="linked_panos")
         return md
             
-    def _parse_panorama(md, panorama_info, output=""):
+    def _parse_panorama(md, raw_md, output=""):
+        buff = []
         match output:
             case "timeline":
-                md["timeline"].update(
-                    {
-                        "pano_id": {
-                            "pano_id": panorama_info['Connection']['oid'], 
-                            "image_id": None},
-                        "date": metadata.get_time(panorama_info['timestamp'])
-                    }
-                )
+                timeline = raw_md['data']['Annotation']['HistoricalPanoramas']
+                for pano_info in timeline:
+                    buff.append(
+                        {
+                            "pano_id": {
+                                "pano_id": pano_info['Connection']['oid'], 
+                                "image_id": None},
+                            "date": metadata._convert_date(pano_info['timestamp'])
+                        }
+                    )
+                md['timeline'] = buff
             case "linked_panos":
-                md["linked_panos"].update(
-                    {
-                        "pano_id": {
-                            "pano_id": panorama_info['panoid'], 
-                            "image_id": None},
-                        "lat": panorama_info['lat'],
-                        "lon": panorama_info['lon'],
-                        "date": metadata.get_metadata(pano_id=panorama_info['panoid'])['date'] # def scrapping this later
-                        # no way of getting date information, unless if
-                        # get_metadata is called by each panorama, which would
-                        # make it a bit slower
-                    }
+                linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
+                for pano_info in linked_panos:
+                    if pano_info['panoid'] == md['pano_id']['oid']: pass
+                    buff.append(
+                        {
+                            "pano_id": {
+                                "pano_id": pano_info['panoid'], 
+                                "image_id": None},
+                            "lat": pano_info['lat'],
+                            "lon": pano_info['lon'],
+                            "date": metadata.get_metadata(pano_id=pano_info['panoid'])['date']
+                            # no way of getting date information, unless if
+                            # get_metadata is called by each panorama, which would
+                            # make it a bit slower
+                        }
                 )
+                md['linked_panos'] = buff
             case _:
                 raise Exception # lol
         return md

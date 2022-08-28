@@ -77,6 +77,8 @@ class misc:
         return json[0]
 
 class metadata:
+    _convert_date = lambda raw_date : datetime.strptime(raw_date, '%Y/%m')
+
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> dict:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
@@ -94,17 +96,17 @@ class metadata:
             "pano_id": pano_id,
             "lat": float(lat),
             "lng": float(lng),
-            "date": datetime.strptime(raw_image_date, '%Y/%m'),
+            "date": metadata._convert_date(raw_image_date),
             "size": image_size,
             "max_zoom": len(image_avail_res[0])-1,
             "misc": {
                 "is_trekker": len(raw_md[1][0][5][0][3][0][0][2]) > 3,
                 "gen": metadata._get_gen(image_size)
-            }
+            },
+            "timeline": {},
         }
         if md['misc']['is_trekker']:
             md['misc']['trekker_id'] = raw_md[1][0][5][0][3][0][0][2][3][0]
-            
         md = metadata._parse_panorama(md, raw_md, output="timeline")
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output="linked_panos")
@@ -112,35 +114,34 @@ class metadata:
 
     def _parse_panorama(md, raw_md, output=""):
         linked_panos = raw_md[1][0][5][0][3][0]
+        buff = []
         match output:
             case "timeline":
-                md["timeline"] = {}
-                historical_panos = {}
                 for pano_info in raw_md[1][0][5][0][8]:
                     if pano_info == None: break
                     else:
                         raw_pano_info = linked_panos[pano_info[0]]
-                        historical_panos.update({
+                        buff.append({
                             "pano_id": raw_pano_info[0][1],
                             "lat": raw_pano_info[2][0][-2],
                             "lng": raw_pano_info[2][0][-1],
-                            "date": datetime.strptime(f"{pano_info[1][0]}/{pano_info[1][1]}", '%Y/%m'),
+                            "date": metadata._convert_date(f"{pano_info[1][0]}/{pano_info[1][1]}")
                         })
-                md = md["timeline"].update(historical_panos)
-                return md
+                md["timeline"] = buff
             case "linked_panos":
                 md["linked_panos"] = {}
-                buff = {}
                 for pano_info in linked_panos:
                     pano_id = pano_info[0][1]
                     if pano_id != raw_md[1][0][1][1]:
-                        date = metadata.get_metadata(pano_id=pano_id)['date']
-                        buff.update({
-                                "pano_id": pano_info[0][1],
-                                "lat": pano_info[2][0][-2],
-                                "lng": pano_info[2][0][-1],
-                                "date": date,
-                        })
+                        if pano_id not in [x['pano_id'] for x in md['timeline']]:
+                            date = metadata.get_metadata(pano_id=pano_id)['date']
+                            buff.append({
+                                    "pano_id": pano_info[0][1],
+                                    "lat": pano_info[2][0][-2],
+                                    "lng": pano_info[2][0][-1],
+                                    "date": date,
+                            })
+                md["linked_panos"] = buff
             case _:
                 raise Exception # lol
         return md
@@ -162,7 +163,7 @@ class metadata:
             url = urls._build_metadata_url(lat=lat, lng=lng, mode='SingleImageSearch', radius=radius)
             json = requests.get(url).text
             if "Search returned no images." in json:
-                print("[GOOGLE]: Finding nearest panorama via satellite zoom...")
+                print("[Google]: Finding nearest panorama via satellite zoom...")
                 url = urls._build_metadata_url(lat=lat, lng=lng, mode='SatelliteZoom')
                 json = requests.get(url).text
                 data = j.loads(json[4:])

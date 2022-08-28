@@ -62,6 +62,8 @@ class misc:
         raise sv_dlp.services.ServiceNotSupported
 
 class metadata:
+    _convert_date = lambda raw_date : datetime.strptime(raw_date, '%m/%d/%Y %I:%M:%S %p')
+
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         """
         Returns closest bubble ID and its metadata
@@ -77,31 +79,38 @@ class metadata:
                 "pano_id": {"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
                 "lat": raw_md[1]["lo"],
                 "lng": raw_md[1]["la"],
-                "date": datetime.strptime(raw_md[1]['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
+                "date": metadata._convert_date(raw_md[1]['cd']), # to be used with datetime
                 "size": None,
                 "max_zoom": 3
             }
-            md['historical_panoramas'].update(None)
+            metadata._parse_panorama(md, raw_md, output="timeline")
             if get_linked_panos:
-                md["linked_panos"] = {}
-                linked_panos = raw_md[2:]       # first iteration
-                for panorama in linked_panos:   # is current panorama
-                    md = metadata._parse_panorama(md, panorama)
+                md = metadata._parse_panorama(md, raw_md, output="linked_panos")
             return md
         except Exception:
             raise sv_dlp.services.NoPanoIDAvailable
 
-    def _parse_panorama(md, panorama_info):
-        bubble_id = panorama_info["id"]
-        base4_bubbleid = urls._base4(bubble_id)
-        md["linked_panos"].update(
-            {
-                "pano_id": {"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
-                "lat": panorama_info["lo"],
-                "lng": panorama_info["la"],
-                "date": datetime.strptime(panorama_info['cd'], '%m/%d/%Y %I:%M:%S %p'), # to be used with datetime
-            }
-        )
+    def _parse_panorama(md, raw_md, output=""):
+        buff = []
+        match output:
+            case "timeline":
+                md["timeline"] = None
+            case "linked_panos":
+                linked_panos = raw_md[2:]       # first iteration
+                for pano_info in linked_panos:  # is current panorama
+                    bubble_id = pano_info["id"]
+                    base4_bubbleid = urls._base4(bubble_id)
+                    buff.append(
+                        {
+                            "pano_id": {"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
+                            "lat": pano_info["lo"],
+                            "lng": pano_info["la"],
+                            "date": metadata._convert_date(pano_info['cd']), # to be used with datetime
+                        }
+                    )
+                md["linked_panos"] = buff
+            case _:
+                raise Exception # lol
         return md
 
     def _get_raw_metadata(lat, lng) -> list:

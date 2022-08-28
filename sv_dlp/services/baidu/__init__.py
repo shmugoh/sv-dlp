@@ -63,47 +63,42 @@ class metadata:
             "max_zoom": raw_md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
         }
 
-        timeline = raw_md["content"][0]["TimeLine"][1:] # first iteration
-        for panorama in timeline:                       # is current panorama
-            md = metadata._parse_panorama(md, panorama, output="timeline")
+        md = metadata._parse_panorama(md, raw_md, output="timeline")
         if get_linked_panos:
-            linked_panos = raw_md['content'][0]['Roads'][0]['Panos']
-            for panorama in linked_panos:
-                md = metadata._parse_panorama(md, panorama, output="linked_panos")
+            md = metadata._parse_panorama(md, raw_md, output="linked_panos")
         return md
 
-    def _parse_panorama(md, panorama_info, output=""):
+    def _parse_panorama(md, raw_md, output=""):
+        buff = []
         match output:
             case "timeline":
-                '''
-                Historical Imagery can be found
-                in raw_md["content"][0]["TimeLine"]
-                '''
-                md["timeline"].update(
-                    {
-                        "pano_id": panorama_info["ID"],
-                        "date": datetime.strptime(panorama_info['TimeLine'], '%Y%m'),
-                    }
-                )
+                timeline = raw_md["content"][0]["TimeLine"][1:] # first iteration
+                for pano_info in timeline:                       # is current panorama
+                    buff.append(
+                        {
+                            "pano_id": pano_info["ID"],
+                            "date": datetime.strptime(pano_info['TimeLine'], '%Y%m'),
+                        }
+                    )
+                md["timeline"] = buff
             case "linked_panos":
-                '''
-                Linked Panoramas are found
-                in raw_md['content'][0]['Roads'][0]['Panos']
-                '''
                 ChangeCoord = geo.ChangeCoord()
-                lng, lat = str(panorama_info['X']), str(panorama_info['Y'])
-                lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
-                md["linked_panos"].update(
-                    {
-                        "pano_id": panorama_info["PID"],
-                        "lat": lat,
-                        "lon": lng,
-                        "date": metadata.get_metadata(pano_id=panorama_info['PID'])['date'] # def scraping this later
-                        # no way of getting date information, unless if
-                        # get_metadata is called by each panorama, which would
-                        # make it a bit slower
-                    }
-                )
+                linked_panos = raw_md['content'][0]['Roads'][0]['Panos']
+                for pano_info in linked_panos:
+                    lng, lat = str(pano_info['X']), str(pano_info['Y'])
+                    lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
+                    buff.append(
+                        {
+                            "pano_id": pano_info["PID"],
+                            "lat": lat,
+                            "lon": lng,
+                            "date": metadata.get_metadata(pano_id=pano_info['PID'])['date']
+                            # no way of getting date information, unless if
+                            # get_metadata is called by each panorama, which would
+                            # make it a bit slower
+                        }
+                    )
+                md["linked_panos"] = buff
             case _:
                 raise Exception # lol
         return md
