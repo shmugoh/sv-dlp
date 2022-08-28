@@ -145,7 +145,6 @@ class metadata:
 
     def _get_raw_metadata(pano_id) -> list:
         url = urls._build_metadata_url(pano_id, 0, 'oid')
-        print(url)
         data = requests.get(url).json()
         if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
         return data

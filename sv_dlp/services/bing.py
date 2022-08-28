@@ -71,7 +71,7 @@ class metadata:
         """
         if pano_id: raise sv_dlp.services.MetadataPanoIDParsed
         try:
-            raw_md = metadata.get_raw_metadata(lat, lng)
+            raw_md = metadata._get_raw_metadata(lat, lng)
             bubble_id = raw_md[1]["id"]
             base4_bubbleid = urls._base4(bubble_id)
             md = {
@@ -117,33 +117,32 @@ class metadata:
         bounds = geo.get_bounding_box(lat, lng)
         url = urls._build_pano_url(bounds['north'], bounds['south'], bounds['east'], bounds['west'])
         json = requests.get(url).json()
-        print(url)
         return json
 
     def get_gen(**kwargs):
         raise sv_dlp.services.ServiceNotSupported
 
 def _build_tile_arr(metadata, zoom):
-        """
-        Returns available tile URLs depending on
-        the level of zoom given.
+    """
+    Returns available tile URLs depending on
+    the level of zoom given.
 
-        Taken from sk-zk/streetlevel with a few changes.
-        Kudos to him.
-        """
-        base4_panoid = metadata['pano_id']['base4_panoid']
-        zoom = int(zoom)
-        subdivs = pow(4, zoom)
-        faces = [ [] for x in range(0, 6) ]
+    Taken from sk-zk/streetlevel with a few changes.
+    Kudos to him.
+    """
+    base4_panoid = metadata['pano_id']['base4_panoid']
+    zoom = int(zoom)
+    subdivs = pow(4, zoom)
+    faces = [ [] for x in range(0, 6) ]
 
-        for tile_id in range(0, 6):
-            tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
-            for tile in range(subdivs):
-                if zoom < 1:
-                    subdiv_base4 = ""
-                else:
-                    subdiv_base4 = urls._base4(tile).zfill(zoom)
-                tile_pos = f"{tile_id_base4}{subdiv_base4}"
-                url = urls._build_tile_url(base4_panoid, tile_pos)
-                faces[tile_id].append(url)
-        return faces
+    for tile_id in range(0, 6):
+        tile_id_base4 = urls._base4(tile_id + 1).zfill(2)
+        for tile in range(subdivs):
+            if zoom < 1:
+                subdiv_base4 = ""
+            else:
+                subdiv_base4 = urls._base4(tile).zfill(zoom)
+            tile_pos = f"{tile_id_base4}{subdiv_base4}"
+            url = urls._build_tile_url(base4_panoid, tile_pos)
+            faces[tile_id].append(url)
+    return faces

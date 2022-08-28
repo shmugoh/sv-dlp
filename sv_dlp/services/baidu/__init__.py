@@ -55,7 +55,7 @@ class metadata:
         lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
         md = {
             "service": "baidu",
-            "pano_id": raw_md["content"]["id"],
+            "pano_id": raw_md["content"][0]["ID"],
             "lat": lat,
             "lng": lng,
             "date": datetime.strptime(raw_md['content'][0]['Date'], '%Y%m%d'),
@@ -113,8 +113,12 @@ class metadata:
         lng, lat = ChangeCoord.wgs84_to_bd09(lng, lat)
         lng, lat = ChangeCoord.bd09_to_bd09mc(lng, lat)
         url = urls._build_pano_url(lng, lat)
-        json = requests.get(url).json()
-        pano_id = json["content"]["id"]
+
+        try:
+            json = requests.get(url).json()
+            pano_id = json["content"]["id"]
+        except KeyError:
+            raise sv_dlp.services.NoPanoIDAvailable
         return pano_id
 
 def _build_tile_arr(metadata, zoom):

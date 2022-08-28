@@ -8,8 +8,8 @@ import sv_dlp.services
 class urls:
     def _build_tile_url(pano_id, face=0, zoom=0, auth=auth.Authenticator()) -> str:
             url = "https://gspe72-ssl.ls.apple.com/mnn_us/"
-            pano = pano_id["pano_id"]
-            regional_id = pano_id["regional_id"]
+            pano = str(pano_id["pano_id"])
+            regional_id = str(pano_id["regional_id"])
             panoid_padded = pano.zfill(20)
             region_id_padded = regional_id.zfill(10)
             panoid_split = [panoid_padded[i:i + 4] for i in range(0, len(panoid_padded), 4)]
@@ -32,7 +32,7 @@ class misc:
         raise sv_dlp.services.ServiceNotSupported
 
 class metadata:
-    _convert_date = lambda raw_date : datetime.fromtimestamp(int(raw_date)) / 1000.0
+    _convert_date = lambda raw_date : datetime.fromtimestamp(int(raw_date / 1000.0))
 
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False):
         if pano_id: raise sv_dlp.services.MetadataPanoIDParsed
@@ -40,8 +40,11 @@ class metadata:
         session = requests.Session()
         tile_x, tile_y = geo.wgs84_to_tile_coord(lat, lng, 17)
         md_raw = metadata._get_raw_metadata(tile_x, tile_y, session)
+        try:
+            pano_md = md_raw.pano[0]
+        except IndexError:
+            raise sv_dlp.services.NoPanoIDAvailable
 
-        pano_md = md_raw.pano[0]
         lat, lng = geo.protobuf_tile_offset_to_wgs84(
                 pano_md.location.longitude_offset,
                 pano_md.location.latitude_offset,
@@ -103,17 +106,6 @@ class metadata:
 
     def _get_gen(pano_id):
         raise sv_dlp.services.ServiceNotSupported
-
-    def _get_pano_from_coords(lat, lon):
-        try:
-            md = metadata.get_metadata(lat, lon)
-            pano = str(md[0]['pano'])
-            regional_id = str(md[0]['regional_id'])
-            resp = requests.get(urls._build_tile_url([pano, regional_id]))
-            if resp.status_code != 200: raise sv_dlp.services.NoPanoIDAvailable
-            return pano, regional_id
-        except IndexError:
-            raise sv_dlp.services.NoPanoIDAvailable
 
 def _build_tile_arr(md, zoom=0):
     pano_id = md["pano_id"]
