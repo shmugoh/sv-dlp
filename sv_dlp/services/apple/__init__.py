@@ -4,16 +4,12 @@ from .auth import Authenticator
 from .proto import MapTile_pb2
 from . import geo
 import sv_dlp.services
-# class extractor: pass
-
-TILE_SIZE = 256
 
 class urls:
-    def _build_tile_url(pano_id, face=0, zoom=0) -> str:
-            auth = Authenticator()
+    def _build_tile_url(pano_id, face=0, zoom=0, auth=auth.Authenticator()) -> str:
             url = "https://gspe72-ssl.ls.apple.com/mnn_us/"
-            pano = pano_id[0]
-            regional_id = pano_id[1]
+            pano = pano_id["pano_id"]
+            regional_id = pano_id["regional_id"]
             panoid_padded = pano.zfill(20)
             region_id_padded = regional_id.zfill(10)
             panoid_split = [panoid_padded[i:i + 4] for i in range(0, len(panoid_padded), 4)]
@@ -60,7 +56,7 @@ class metadata:
                 "lng": lng,
                 "date": metadata._convert_date(pano_md.timestamp),
                 "size": None,
-                "max_zoom": None,
+                "max_zoom": 7,
                 "misc": {
                     "is_trekker": md_raw.unknown13[pano_md.region_id_idx].coverage_type,
                     "north_offset": geo.get_north_offset(pano_md.location.north_x, pano_md.location.north_y),
@@ -119,11 +115,9 @@ class metadata:
         except IndexError:
             raise sv_dlp.services.NoPanoIDAvailable
 
-def get_max_zoom(pano_id):
-    return 7
-
-def _build_tile_arr(pano_id, zoom=0):
-    max_zoom = get_max_zoom(pano_id)
+def _build_tile_arr(md, zoom=0):
+    pano_id = md["pano_id"]
+    max_zoom = md["max_zoom"]
     zoom = max_zoom - int(zoom)
 
     auth = Authenticator()
@@ -132,7 +126,7 @@ def _build_tile_arr(pano_id, zoom=0):
     for i in range(4): # sticking to four faces at the moment
                        # cause the last two seem to not
                        # stitch well with the others
-        url = urls._build_tile_url(pano_id, i, zoom)
+        url = urls._build_tile_url(pano_id, i, zoom, auth)
         arr[0].append(url)
     return arr
 
