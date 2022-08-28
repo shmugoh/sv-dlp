@@ -93,6 +93,7 @@ class metadata:
         except IndexError:
             raise sv_dlp.services.PanoIDInvalid
         md = {
+            "service": "google",
             "pano_id": pano_id,
             "lat": float(lat),
             "lng": float(lng),
