@@ -41,43 +41,51 @@ class sv_dlp:
         self.pano_id = pano_id
         return pano_id
 
-    def get_available_services(self, pano_id=None, lat=None, lng=None):
+    def get_available_services(self, lat=None, lng=None):
         self.available_services = []
         for service in dir(services)[::-1]:
             if service != "__spec__":
                 self.set_service(service)
                 try:
+                    pano_id = self.get_pano_id(lat=lat, lng=lng)
                     if pano_id:
-                        self.get_metadata(pano_id=pano_id)
-                    elif pano_id == None:
-                        self.get_pano_id(lat=lat, lng=lng)
-                    self.available_services.append(service)
-                except Exception:
-                    # input not compatible with service
-                    continue    
+                        self.available_services.append(service)
+                        self.metadata = None
+                except services.NoPanoIDAvailable:
+                    self.metadata = None
+                    continue
             else: break
         return self.available_services
 
     class postdownload:
-        def save_tiles(tiles_io, metadata, folder='./'):
-            pano_id = metadata["pano_id"]
-            for row in tiles_io:
-                for tile in row:
-                    if metadata['service'] == 'apple':
-                        img = pillow_heif.read_heif(tile)
-                        img = Image.frombytes(img.mode, img.size, img.data, "raw")
-                    else:
-                        img = Image.open(tile)
-                    i = f'{tiles_io.index(row)}_{row.index(tile)}'
-                    img.save(f"./{folder}/{pano_id}_{i}.png", quality=95)
+        # def save_tiles(tiles_io, metadata, folder='./'):
+        #     tiles_io = tiles_io[1]
+        #     pano_id = metadata["pano_id"]
+        #     for row in tiles_io:
+        #         for tile in row:
+        #             if metadata['service'] == 'apple':
+        #                 img = pillow_heif.read_heif(tile)
+        #                 img = Image.frombytes(img.mode, img.size, img.data, "raw")
+        #             else:
+        #                 img = Image.open(tile)
+        #             i = f'{tiles_io.index(row)}_{row.index(tile)}'
+        #             img.save(f"./{folder}/{pano_id}_{i}.png", quality=95)
+        # TODO: Rework on save_tiles
+
         def save_panorama(img, metadata=None, output=None, folder='./'):
             if output == None and metadata != None:
                 pano = metadata['pano_id']
                 match metadata['service']:
                     case 'yandex':
-                        output = pano['oid']
+                        output = pano['pano_id']
                     case 'apple':
-                        output = f"{pano[0]}_{pano[1]}"
+                        output = "{pano_id}_{regional_id}".format(
+                            pano_id=pano["pano_id"], 
+                            regional_id=pano["regional_id"]
+                        )
+                    case "bing":
+                        output = pano["pano_id"]
                     case _:
                         output = pano
             img.save(f"./{folder}/{output}.png", quality=95)
+            # TODO: Edit EXIF data using /TNThieding/exif/ (GitLab)
