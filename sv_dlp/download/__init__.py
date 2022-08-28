@@ -4,14 +4,14 @@ import concurrent.futures
 from tqdm import tqdm
 
 from . import tiles
-from . import panorama
+from . import postdownload
 
 def _download_tiles(tiles_arr):
     tiles_size = 0
     for tiles_url in tiles_arr: 
         tiles_size += len(tiles_url)
 
-    with tqdm(total=tiles_size) as pbar:
+    with tqdm(total=tiles_size, unit="mb") as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(tiles_arr)) as threads:
             for row in tiles_arr:
                 tiles_arr[tiles_arr.index(row)] = threads.submit(_download_row, row, pbar)
@@ -33,7 +33,7 @@ def panorama(tile_urls, metadata, no_crop=False):
     tiles_io = _download_tiles(tile_urls)
 
     print("Stitching Tiles...")
-    with tqdm(total=len(tiles_io)) as pbar:
+    with tqdm(total=len(tiles_io), unit="img") as pbar:
         match metadata['service']:
             case 'bing':
                 img = tiles.bing.merge(tiles_io, pbar)
@@ -49,6 +49,6 @@ def panorama(tile_urls, metadata, no_crop=False):
                 pbar.update(1)
     if no_crop != True:
         print("Cropping...")
-        img = panorama.crop(img, metadata)
+        img = postdownload.crop(img, metadata)
 
     return img, tiles_io
