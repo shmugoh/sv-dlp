@@ -43,7 +43,6 @@ class sv_dlp:
 
     def get_available_services(self, pano_id=None, lat=None, lng=None):
         self.available_services = []
-
         for service in dir(services)[::-1]:
             if service != "__spec__":
                 self.set_service(service)

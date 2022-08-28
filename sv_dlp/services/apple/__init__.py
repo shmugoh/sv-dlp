@@ -2,7 +2,7 @@ from datetime import datetime
 import requests
 from .auth import Authenticator
 from .proto import MapTile_pb2
-import math
+from . import geo
 import sv_dlp.services
 # class extractor: pass
 
@@ -35,55 +35,17 @@ class misc:
     def short_url(pano_id):
         raise sv_dlp.services.ServiceNotSupported
 
-class geo:
-    def protobuf_tile_offset_to_wgs84(x_offset, y_offset, tile_x, tile_y):
-        """
-        Calculates the absolute position of a pano from the tile offsets returned by the API.
-        :param x_offset: The X coordinate of the raw tile offset returned by the API.
-        :param y_offset: The Y coordinate of the raw tile offset returned by the API.
-        :param tile_x: X coordinate of the tile this pano is on, at z=17.
-        :param tile_y: Y coordinate of the tile this pano is on, at z=17.
-        :return: The WGS84 lat/lon of the pano.
-        """
-        pano_x = tile_x + (x_offset / 64.0) / (TILE_SIZE - 1)
-        pano_y = tile_y + (255 - (y_offset / 64.0)) / (TILE_SIZE - 1)
-        lat, lon = geo.tile_coord_to_wgs84(pano_x, pano_y, 17)
-        return lat, lon
-    def wgs84_to_tile_coord(lat, lon, zoom):
-        scale = 1 << zoom
-        world_coord = geo.wgs84_to_mercator(lat, lon)
-        pixel_coord = (math.floor(world_coord[0] * scale), math.floor(world_coord[1] * scale))
-        tile_coord = (math.floor((world_coord[0] * scale) / TILE_SIZE), math.floor((world_coord[1] * scale) / TILE_SIZE))
-        return tile_coord
-    def wgs84_to_mercator(lat, lon):
-        siny = math.sin((lat * math.pi) / 180.0)
-        siny = min(max(siny, -0.9999), 0.9999)
-        return (
-            TILE_SIZE * (0.5 + lon / 360.0),
-            TILE_SIZE * (0.5 - math.log((1 + siny) / (1 - siny)) / (4 * math.pi))
-        )
-    def mercator_to_wgs84(x, y):
-        lat = (2 * math.atan(math.exp((y - 128) / -(256 / (2 * math.pi)))) - math.pi / 2) / (math.pi / 180)
-        lon = (x - 128) / (256 / 360)
-        return lat, lon
-    def tile_coord_to_wgs84(x, y, zoom):
-        scale = 1 << zoom
-        pixel_coord = (x * TILE_SIZE, y * TILE_SIZE)
-        world_coord = (pixel_coord[0] / scale, pixel_coord[1] / scale)
-        lat_lon = geo.mercator_to_wgs84(world_coord[0], world_coord[1])
-        return lat_lon
-
 class metadata:
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False):
         if pano_id: raise sv_dlp.services.MetadataPanoIDParsed
 
         session = requests.Session()
         tile_x, tile_y = geo.wgs84_to_tile_coord(lat, lng, 17)
-        md_raw = metadata.get_raw_metadata(tile_x, tile_y, session)
+        md_raw = metadata._get_raw_metadata(tile_x, tile_y, session)
         pano_md = md_raw.pano[0]
         lat, lng = geo.protobuf_tile_offset_to_wgs84(
-                pano_md.unknown4.longitude_offset,
-                pano_md.unknown4.latitude_offset,
+                pano_md.location.longitude_offset,
+                pano_md.location.latitude_offset,
                 tile_x,
                 tile_y)
         md = {
@@ -94,7 +56,13 @@ class metadata:
                 "date": datetime.fromtimestamp(int(pano_md.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
                 "size": None,
                 "max_zoom": None,
-                "timeline": {}
+                "misc": {
+                    "is_trekker": md_raw.unknown13[pano_md.region_id_idx].coverage_type,
+                    "north_offset": geo.get_north_offset(pano_md.location.north_x, pano_md.location.north_y),
+                    "raw_elevation": pano_md.location.elevation,
+                },
+                "timeline": {},
+                
             }
         md = md['timeline'].update(None)
         if get_linked_panos:
@@ -114,7 +82,7 @@ class metadata:
                             "date": datetime.fromtimestamp(int(pano_info.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
                     })
 
-    def get_raw_metadata(tile_x, tile_y, session) -> str:
+    def _get_raw_metadata(tile_x, tile_y, session) -> str:
         headers = {
             "maps-tile-style": "style=57&size=2&scale=0&v=0&preflight=2",
             "maps-tile-x": str(tile_x),
@@ -127,19 +95,19 @@ class metadata:
         tile.ParseFromString(response.content)
         return tile
 
-    def get_gen(pano_id):
+    def _get_gen(pano_id):
         raise sv_dlp.services.ServiceNotSupported
 
-def get_pano_id(lat, lon):
-    try:
-        md = metadata.get_metadata(lat, lon)
-        pano = str(md[0]['pano'])
-        regional_id = str(md[0]['regional_id'])
-        resp = requests.get(urls._build_tile_url([pano, regional_id]))
-        if resp.status_code != 200: raise sv_dlp.services.NoPanoIDAvailable
-        return pano, regional_id
-    except IndexError:
-        raise sv_dlp.services.NoPanoIDAvailable
+    def _get_pano_from_coords(lat, lon):
+        try:
+            md = metadata.get_metadata(lat, lon)
+            pano = str(md[0]['pano'])
+            regional_id = str(md[0]['regional_id'])
+            resp = requests.get(urls._build_tile_url([pano, regional_id]))
+            if resp.status_code != 200: raise sv_dlp.services.NoPanoIDAvailable
+            return pano, regional_id
+        except IndexError:
+            raise sv_dlp.services.NoPanoIDAvailable
 
 def get_max_zoom(pano_id):
     return 7
