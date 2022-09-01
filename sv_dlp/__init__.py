@@ -1,7 +1,6 @@
 from . import services
 from . import download
 from PIL import Image
-import pillow_heif
 
 from . import version
 __version__ = version.__version__

@@ -1,8 +1,9 @@
 import platform
 import requests
 from urllib.request import urlretrieve
-from version import __version__
+import version
 
+__version__ = version.__version__
 SYS_OS = platform.system()
 SYS_ARCH = platform.architecture()[0][:2]
 SUFFIX = f"sv-dlp{'_macos' if SYS_OS == 'Darwin' else ''}{'_x86' if SYS_ARCH == '32' else ''}{'.exe' if SYS_OS == 'Windows' else ''}"

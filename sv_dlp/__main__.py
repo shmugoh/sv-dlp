@@ -1,17 +1,7 @@
+import sv_dlp
 import argparse
-import json
 import numbers
-
-import update
-from version import __version__
-
-from pprint import pprint
-import sys
-
-import services
-from services import * # yikes
-from sv_dlp import download
-
+sv_dlp = sv_dlp.sv_dlp()
 parser = argparse.ArgumentParser(
     description='''
     Download Street View panoramas from various services,
@@ -25,17 +15,14 @@ def _is_coord(coords):
     import string
     strings = (string.punctuation + string.ascii_letters)
     false_positives = ['.', ',', '-']
-
     for c in false_positives:
         strings = strings.replace(c, '')
-
     try:
         for coord in coords:
             for s in strings:
                 if s not in coord:
                     continue
                 else: return False
-
             if isinstance(coord, numbers.Integral) is False:
                 return True
     except ValueError:
