@@ -39,3 +39,12 @@ if __name__ == "__main__":
     
     print("Yandex Test...")
     yandex_test()
+
+    print("Short URL test...")
+    pano = sv_dlp.get_pano_id(lat=6.241753550836672, lng=-75.6028728090825)
+    url = sv_dlp.short_url(pano)
+    print(url)
+    print("--------------------------------")
+    print("Get Pano ID from URl test...")
+    url = sv_dlp.get_pano_from_url("https://goo.gl/maps/c1VXwkHcgj5d7sg16")
+    print(url)
