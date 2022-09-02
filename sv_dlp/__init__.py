@@ -37,7 +37,7 @@ class sv_dlp:
                 self.get_metadata(pano_id=pano_id)
             elif lat and lng != None:
                 self.get_metadata(lat=lat, lng=lng)
-        
+
         tile_arr = self.service._build_tile_arr(self.metadata, zoom)
         img, tiles_imgs = download.panorama(tile_arr, self.metadata)
         self.tiles_imgs = tiles_imgs
@@ -78,22 +78,22 @@ class sv_dlp:
         #             img.save(f"./{folder}/{pano_id}_{i}.png", quality=95)
         # TODO: Rework on save_tiles
 
-        def save_panorama(img, metadata=None, output=None, folder='./'):
+        def save_panorama(img, metadata=None, output=None):
             if output == None and metadata != None:
                 pano = metadata['pano_id']
                 match metadata['service']:
                     case 'yandex':
-                        output = pano['pano_id']
+                        output = f"{pano['pano_id']}.png"
                     case 'apple':
-                        output = "{pano_id}_{regional_id}".format(
+                        output = "{pano_id}_{regional_id}.png".format(
                             pano_id=pano["pano_id"], 
                             regional_id=pano["regional_id"]
                         )
                     case "bing":
-                        output = pano["pano_id"]
+                        output = f"{pano['pano_id']}.png"
                     case _:
-                        output = pano
-            img.save(f"./{folder}/{output}.png", quality=95)
+                        output = f"{pano}.png"
+            img.save(f"./{output}", quality=95)
             # TODO: Edit EXIF data using /TNThieding/exif/ (GitLab)
     
 def _pano_in_md(pano_id, md):

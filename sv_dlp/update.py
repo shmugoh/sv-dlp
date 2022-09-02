@@ -1,7 +1,7 @@
 import platform
 import requests
 from urllib.request import urlretrieve
-import version
+from sv_dlp import version
 
 __version__ = version.__version__
 SYS_OS = platform.system()
