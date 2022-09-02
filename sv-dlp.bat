@@ -1,1 +1,1 @@
-@py -bb -Werror -Xdev -m "sv_dlp" %*
+@py -Werror -Xdev -m "sv_dlp" %*
