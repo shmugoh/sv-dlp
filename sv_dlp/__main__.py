@@ -94,7 +94,6 @@ def main(args=None):
         action='store_true',
         help='do not crop blank bar and leave panorama as it is')
     args = parser.parse_args(args=args)
-    print(args)
     if args.binary:
         match args.binary:
             case _:
@@ -112,11 +111,18 @@ def main(args=None):
             pano = sv_dlp.get_pano_from_url(pano)
         elif _is_coord(pano):
             lat, lng = pano
-            pano = None,
+            lat, lng = float(lat), float(lng)
+            pano = None
         else:
             pano = pano
 
-    sv_dlp.get_metadata(pano_id=pano, lat=lat, lng=lng, get_linked_panos=args.linked_panos)
+    print(f"[{service}]: Obtaining Metadata...")
+    try:
+        sv_dlp.get_metadata(pano_id=pano, lat=lat, lng=lng, get_linked_panos=args.linked_panos)
+        if zoom == "max":
+            zoom = sv_dlp.metadata["max_zoom"]
+    except services.NoPanoIDAvailable as e:
+        parser.error(e.message)
     # is stored in sv_dlp.metadata
 
     match args.action:

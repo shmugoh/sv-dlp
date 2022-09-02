@@ -32,12 +32,18 @@ class sv_dlp:
         return self.available_services
 
     def download_panorama(self, pano_id=None, zoom=3, lat=None, lng=None) -> Image:
-        if self.metadata == None or _pano_in_md(pano_id, self.metadata) is False:
+        if self.metadata == None or _pano_in_md(pano_id, self.metadata) is True:
+            print(f"[{self.service_str}]: Obtaining Metadata...")
             if pano_id != None:
                 self.get_metadata(pano_id=pano_id)
             elif lat and lng != None:
                 self.get_metadata(lat=lat, lng=lng)
 
+        if zoom == -1:
+            zoom = self.metadata['max_zoom'] / 2
+            zoom = round(zoom + .1)
+
+        print(f"[{self.service_str}]: Building Tile URLs...")
         tile_arr = self.service._build_tile_arr(self.metadata, zoom)
         img, tiles_imgs = download.panorama(tile_arr, self.metadata)
         self.tiles_imgs = tiles_imgs
@@ -58,8 +64,10 @@ class sv_dlp:
         return pano 
     def short_url(self, pano_id=None, lat=None, lng=None):
         # TODO: Short Pano via Latitude/Longitude only
-        if pano_id == None:
+        if pano_id == None and self.metadata == None:
             pano_id = self.get_pano_id(lat=lng, lng=lng)
+        elif self.metadata:
+            pano_id = self.metadata["pano_id"]
         url = self.service.misc.short_url(pano_id)
         return url
 
@@ -79,6 +87,7 @@ class sv_dlp:
         # TODO: Rework on save_tiles
 
         def save_panorama(img, metadata=None, output=None):
+            print("[pos-download]: Saving Image...")
             if output == None and metadata != None:
                 pano = metadata['pano_id']
                 match metadata['service']:

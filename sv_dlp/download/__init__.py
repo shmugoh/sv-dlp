@@ -29,10 +29,10 @@ def _download_row(urls_arr, pbar) -> list:
     return urls_arr
 
 def panorama(tile_urls, metadata, no_crop=False):
-    print("Downloading Tiles...")
+    print("[download]: Downloading Tiles...")
     tiles_io = _download_tiles(tile_urls)
 
-    print("Stitching Tiles...")
+    print("[download]: Stitching Tiles...")
     with tqdm(total=len(tiles_io), unit="img") as pbar:
         match metadata['service']:
             case 'bing':
@@ -48,7 +48,7 @@ def panorama(tile_urls, metadata, no_crop=False):
                 img = tiles.merge(tiles_io)
                 pbar.update(1)
     if no_crop != True:
-        print("Cropping...")
+        print("[pos-download]: Cropping...")
         img = postdownload.crop(img, metadata)
 
     return img, tiles_io
