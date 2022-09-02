@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+from socketserver import DatagramRequestHandler
 import requests
 import sv_dlp.services
 
@@ -124,7 +125,8 @@ class metadata:
             case "linked_panos":
                 linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
                 for pano_info in linked_panos:
-                    if pano_info['panoid'] == md['pano_id']['oid']: pass
+                    if pano_info['panoid'] == md['pano_id']['pano_id']: pass
+                    date = metadata.get_metadata(pano_id=pano_info["panoid"])['date']
                     buff.append(
                         {
                             "pano_id": {
@@ -132,7 +134,7 @@ class metadata:
                                 "image_id": None},
                             "lat": pano_info['lat'],
                             "lon": pano_info['lon'],
-                            "date": metadata.get_metadata(pano_id=pano_info['panoid'])['date']
+                            "date": date
                             # no way of getting date information, unless if
                             # get_metadata is called by each panorama, which would
                             # make it a bit slower
@@ -145,7 +147,12 @@ class metadata:
 
     def _get_raw_metadata(pano_id) -> list:
         url = urls._build_metadata_url(pano_id, 0, 'oid')
-        data = requests.get(url).json()
+        try:
+            resp = requests.get(url)
+            data = resp.json()
+        except Exception as e:
+            resp = requests.get(url)
+            data = resp.json()
         if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
         return data
 

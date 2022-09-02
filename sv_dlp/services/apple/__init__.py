@@ -1,4 +1,5 @@
 from datetime import datetime
+from pprint import pprint
 import requests
 from .auth import Authenticator
 from .proto import MapTile_pb2
@@ -35,41 +36,41 @@ class metadata:
     _convert_date = lambda raw_date : datetime.fromtimestamp(int(raw_date / 1000.0))
 
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False):
-        if pano_id: raise sv_dlp.services.MetadataPanoIDParsed
+        if pano_id and lat == None: raise sv_dlp.services.MetadataPanoIDParsed
     
         session = requests.Session()
         tile_x, tile_y = geo.wgs84_to_tile_coord(lat, lng, 17)
-        md_raw = metadata._get_raw_metadata(tile_x, tile_y, session)
+        raw_md = metadata._get_raw_metadata(tile_x, tile_y, session)
         try:
-            pano_md = md_raw.pano[0]
+            pano_md = raw_md.pano[0]
         except IndexError:
             raise sv_dlp.services.NoPanoIDAvailable
 
         lat, lng = geo.protobuf_tile_offset_to_wgs84(
                 pano_md.location.longitude_offset,
                 pano_md.location.latitude_offset,
-                tile_x,
-                tile_y)
+                raw_md.tile_coordinate.x,
+                raw_md.tile_coordinate.y)
         md = {
                 "service": "apple",
                 "pano_id": {
                     "pano_id": pano_md.panoid, 
-                    "regional_id": md_raw.unknown13[pano_md.region_id_idx].region_id},
+                    "regional_id": raw_md.unknown13[pano_md.region_id_idx].region_id},
                 "lat": lat,
                 "lng": lng,
                 "date": metadata._convert_date(pano_md.timestamp),
                 "size": None,
                 "max_zoom": 7,
                 "misc": {
-                    "is_trekker": md_raw.unknown13[pano_md.region_id_idx].coverage_type,
+                    "is_trekker": raw_md.unknown13[pano_md.region_id_idx].coverage_type,
                     "north_offset": geo.get_north_offset(pano_md.location.north_x, pano_md.location.north_y),
                     "raw_elevation": pano_md.location.elevation,
                 },
                 "timeline": {},
             }
-        md = metadata._parse_panorama(md, md_raw, output='timeline')
+        md = metadata._parse_panorama(md, raw_md, output='timeline')
         if get_linked_panos:
-            md = metadata._parse_panorama(md, md_raw, output='linked_panos')
+            md = metadata._parse_panorama(md, raw_md, output='linked_panos')
         return md
 
     def _parse_panorama(md, raw_md, output=''):
@@ -78,13 +79,18 @@ class metadata:
             case 'timeline':
                 md['timeline'] = None
             case 'linked_panos':
-                raw_md = raw_md[1:]
-                for pano_info in raw_md:
+                panos = raw_md.pano[1:]
+                for pano_md in panos:
+                    lat, lng = geo.protobuf_tile_offset_to_wgs84(
+                            pano_md.location.longitude_offset,
+                            pano_md.location.latitude_offset,
+                            raw_md.tile_coordinate.x,
+                            raw_md.tile_coordinate.y)
                     buff.append({
-                            "pano_id": {"pano_id": pano_info.panoid, "regional_id": pano_info.unknown13[pano_info.region_id_idx].region_id},
-                            "lat": pano_info[2][0][-2],
-                            "lng": pano_info[2][0][-1],
-                            "date": datetime.fromtimestamp(int(pano_info.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
+                            "pano_id": {"pano_id": pano_md.panoid, "regional_id": raw_md.unknown13[pano_md.region_id_idx].region_id},
+                            "lat": lat,
+                            "lng": lng,
+                            "date": datetime.fromtimestamp(int(pano_md.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
                     })
                 md['linked_panos'] = buff
             case _:
