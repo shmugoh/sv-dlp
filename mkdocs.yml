@@ -22,7 +22,8 @@ plugins:
 
 nav:
   - "Index": index.md
-  - "Module - Getting Started": module_basics.md
-  - "Downloading Process": downloading_process.md
-  - "Command Line Interface - User Guide": cli_guide.md
-  - "Class Documentation": class_documentation.md
+  - "Module - Basics & Getting Started":    module_basics.md
+  - "Command Line Interface - User Guide":  cli_guide.md
+  - "Class Documentation":                  class_documentation.md
+  - "Downloading Process":                  downloading_process.md
+  - "Services - Basics & Getting Started":  add_service.md
