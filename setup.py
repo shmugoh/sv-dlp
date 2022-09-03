@@ -18,6 +18,7 @@ setup(
 
     url='https://github.com/juanpisss/sv-dlp',
     maintainer="juanpisss",
+    maintainer_email="juanpiss@basedtakes.co",
 
     packages=find_packages("sv_dlp"),
     python_requires='>=3.10', # thinking about making it 3.8
