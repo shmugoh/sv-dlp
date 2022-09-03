@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(
     '''
 )
 
-_is_url = lambda url : url[0:4] == 'http'
+_is_url = lambda url : url[0][0:4] == 'http'
 def _is_coord(coords):
     strings = (string.punctuation + string.ascii_letters)
     false_positives = ['.', ',', '-']
@@ -108,13 +108,15 @@ def main(args=None):
     if pano:
         if _is_url(pano):
             print("Getting Panorama ID from URL...")
-            pano = sv_dlp.get_pano_from_url(pano)
+            lat, lng = None, None
+            pano = sv_dlp.get_pano_from_url(pano[0])[0]
         elif _is_coord(pano):
             lat, lng = pano
             lat, lng = float(lat), float(lng)
             pano = None
         else:
-            pano = pano
+            lat, lng = None, None
+            pano = pano[0]
 
     print(f"[{service}]: Obtaining Metadata...")
     try:
