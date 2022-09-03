@@ -6,16 +6,85 @@ from . import version
 __version__ = version.__version__
 
 class sv_dlp:
+    """
+    sv_dlp classes are responsible for the API
+    scrapping of various street view services.  
+    Key data such as Panorama ID, service, and
+    metadata is stored in sv_dlp classes for
+    syntax convience    
+    """
     def __init__(self, service="google"):
+        """
+        Initiates sv_dlp class by setting
+        the service to scrape from, and allocating
+        placeholders for pano_id and metadata
+        
+        Parameters
+        ----------
+        str:    service
+            Input of service to scrape from
+        
+        Returns
+        -------
+        function:           self.service
+            Function of specified service script
+            
+        str:                self.service_str
+            String of given service's name
+            
+        None:               self.pano_id
+            Memory Placeholder for Panorama ID
+            
+        None:               self.metadata
+            Memory placeholder for metadata
+        """
+
         self.service = getattr(services, service)
         self.service_str = service
         self.pano_id = None
         self.metadata = None
         pass
     def set_service(self, service):
+        """
+        Picks service script from available
+        attributes in ``sv_dlp.services``
+        
+        Parameters
+        ----------
+        str:    service
+            Input of service to scrape from
+
+        Returns
+        -------
+        function:       self.service
+            Function of specified service script
+            
+        function:       self.service
+            function of specified service script
+        str:            self.service_str
+            string of service's name
+        """
         self.service = getattr(services, service)
         self.service_str = service
     def get_available_services(self, lat=None, lng=None):
+        """
+        Picks all compatible services
+        from ``sv_dlp.services`` that works
+        with specified latitude and longitude
+        
+        Parameters
+        ----------
+        float:    lat
+            Latitude
+        float:    lng
+            Longitude
+
+        Returns
+        ----------
+        list:   self.available_services
+            Array of services that are
+            compatible with the given input
+        """
         self.available_services = []
         for service in dir(services)[::-1]:
             if service != "__spec__":
@@ -32,6 +101,9 @@ class sv_dlp:
         return self.available_services
 
     def download_panorama(self, pano_id=None, zoom=3, lat=None, lng=None) -> Image:
+        """
+        yea
+        """
         if self.metadata == None or _pano_in_md(pano_id, self.metadata) is True:
             print(f"[{self.service_str}]: Obtaining Metadata...")
             if pano_id != None:

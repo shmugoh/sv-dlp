@@ -1,0 +1,15 @@
+site_name: sv-dlp documentation
+
+theme:
+  name: "material"
+
+plugins:
+- search
+- mkdocstrings
+
+nav:
+  - "Index": index.md
+  - "Module - Getting Started": module_basics.md
+  - "Downloading Process": downloading_process.md
+  - "Command Line Interface - User Guide": cli_guide.md
+  - "Class Documentation": class_documentation.md
