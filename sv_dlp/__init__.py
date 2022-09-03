@@ -129,7 +129,7 @@ class sv_dlp:
             in a PIL.Image format
         """
 
-        if self.metadata == None or _pano_in_md(pano_id, self.metadata) is True:
+        if self.metadata == None or _pano_in_md(pano_id, self.metadata) is False:
             print(f"[{self.service_str}]: Obtaining Metadata...")
             if pano_id != None:
                 self.get_metadata(pano_id=pano_id)
@@ -247,7 +247,7 @@ class sv_dlp:
         str:    pano_id
             Panorama ID from given URL
         """
-        pano = self.service.misc.get_pano_from_url(url)
+        pano = self.service.misc.get_pano_from_url(url)[0]
         return pano 
     def short_url(self, pano_id=None, lat=None, lng=None):
         """
