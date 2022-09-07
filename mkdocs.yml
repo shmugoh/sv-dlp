@@ -26,4 +26,6 @@ nav:
   - "Command Line Interface - User Guide":  cli_guide.md
   - "Class Documentation":                  class_documentation.md
   - "Downloading Process":                  downloading_process.md
-  - "Services - Basics & Getting Started":  add_service.md
+  - Services:
+    - "Supported Services":  supported_services.md
+    - "Contributing - Getting Started":  contributing_services.md
