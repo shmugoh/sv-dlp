@@ -14,5 +14,5 @@ pywin32-ctypes==0.2.0
 requests==2.28.1
 tqdm==4.64.0
 urllib3==1.26.11
-protobuf==4.21.4
+protobuf==4.21.6
 pycryptodome==3.15.0
