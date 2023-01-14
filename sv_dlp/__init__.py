@@ -70,9 +70,10 @@ class sv_dlp:
         self.service_str = service
     def get_available_services(self, lat=None, lng=None):
         """
-        Picks all compatible services
-        from ``sv_dlp.services`` that works
-        with specified latitude and longitude
+        Returns all services available
+        for sv_dlp. Will only return
+        a specified amount if coordinates
+        are parsed
         
         Parameters
         ----------
@@ -91,16 +92,20 @@ class sv_dlp:
         self.available_services = []
         for service in dir(services)[::-1]:
             if service != "__spec__":
-                self.set_service(service)
-                try:
-                    pano_id = self.get_pano_id(lat=lat, lng=lng)
-                    if pano_id:
-                        self.available_services.append(service)
+                if lat != None and lng != None: # :/
+                    self.set_service(service)
+                    try:
+                        pano_id = self.get_pano_id(lat=lat, lng=lng)
+                        if pano_id:
+                            self.available_services.append(service)
+                            self.metadata = None
+                    except services.NoPanoIDAvailable:
                         self.metadata = None
-                except services.NoPanoIDAvailable:
-                    self.metadata = None
-                    continue
+                        continue
+                else: # if coords aren't parsed
+                    self.available_services.append(service)
             else: break
+        self.available_services.sort()
         return self.available_services
 
     def download_panorama(self, pano_id=None, lat=None, lng=None, zoom=3) -> Image:
@@ -350,3 +355,4 @@ def _pano_in_md(pano_id, md) -> bool:
         return True
     else:
         return False
+        

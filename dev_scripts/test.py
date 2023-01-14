@@ -1,25 +1,10 @@
-'''
+"""
 Shall be ran under parent directory
 with python -m dev_scripts.test
-'''
+"""
 import sv_dlp
 from pprint import pprint
 sv_dlp = sv_dlp.sv_dlp()
-
-def west_test():
-    lat, lng = 37.77499382574212, -122.47185699855395 # Apple, Bing & Google
-    available_services = sv_dlp.get_available_services(lat, lng)
-
-    for service in available_services:
-        _test(lat=lat, lng=lng, service=service)
-
-def baidu_test():
-    lat, lng = 39.90802391019931, 116.3403752455185
-    _test(lat=lat, lng=lng, service="baidu")
-
-def yandex_test():
-    lat, lng = 55.76550473786485, 37.54340745542864
-    _test(lat=lat, lng=lng, service="yandex")
 
 def _test(lat, lng, service=""):
     print(service)
@@ -35,14 +20,19 @@ def _test(lat, lng, service=""):
     print("--------------------------------")
 
 if __name__ == "__main__":
-    print("West Services Test...")
-    west_test()
+    west_services = ["apple", "bing", "google"]
 
-    print("Baidu Service Test...")
-    baidu_test()
-    
-    print("Yandex Test...")
-    yandex_test()
+    available_services = sv_dlp.get_available_services()
+    for service in available_services:
+        if service in west_services:
+            lat, lng = 37.77499382574212, -122.47185699855395
+            _test(lat=lat, lng=lng, service=service)
+        elif service == "baidu":
+            lat, lng = 39.90802391019931, 116.3403752455185
+            _test(lat=lat, lng=lng, service="baidu")
+        elif "yandex":
+            lat, lng = 55.76550473786485, 37.54340745542864
+            _test(lat=lat, lng=lng, service="yandex")
 
     print("Short URL test...")
     sv_dlp.set_service("google")
