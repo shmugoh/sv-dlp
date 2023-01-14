@@ -117,6 +117,9 @@ def main(args=None):
         else:
             lat, lng = None, None
             pano = pano[0]
+    else: 
+        parser.print_help()
+        parser.exit(1)
 
     print(f"[{service}]: Obtaining Metadata...")
     try:
@@ -132,8 +135,34 @@ def main(args=None):
             img = sv_dlp.download_panorama(pano_id=pano, lat=lat, lng=lng, zoom=zoom)
             sv_dlp.postdownload.save_panorama(img, sv_dlp.metadata, output=args.output)
         case "download-file":
-            # TODO
-            pass
+            try:
+                import json
+                data = json.loads(open(pano).read())
+                try:
+                    pano_list = [x['panoId'] for x in data[next(iter(data))]]
+                except TypeError:
+                    try:
+                        pano_list = [x['panoId'] for x in data['customCoordinates']]
+                        if None in pano_list: pano_list.remove(None)
+                    except TypeError: # if obtaind from maps-links
+                        pano_list = []
+                        for pano in data:
+                            pano_list.append(pano)
+                    # whoops
+            except json.decoder.JSONDecodeError:
+                del json
+                csv = open(pano).read()
+                pano_list = csv.split('\n')
+                pano_list = [x for x in pano_list if x != '']
+            
+            for pano in pano_list:
+                if _is_coord(pano):
+                    pano = pano.split(',')
+                    lat, lng = float(pano[0]), float(pano[1].strip)
+                    pano = None
+                img = sv_dlp.download_panorama(pano_id=pano, lat=lat, lng=lng, zoom=zoom)
+                sv_dlp.postdownload.save_panorama(img, sv_dlp.metadata, output=args.output)
+
         case "short-link":
             try:
                 print(sv_dlp.short_url(pano_id=pano, lat=lat, lng=lng))
