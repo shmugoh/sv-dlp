@@ -65,7 +65,7 @@ class misc:
         if pano_id == []:
             # https://www.google.com/maps/@?api=1&map_action=pano&pano=p1yAMqbHsH7sgAGIJWwBpw&shorturl=1
             pano_id = re.findall(r'pano=(.+)&shorturl=1', url)
-        return pano_id
+        return pano_id[0]
 
     def short_url(pano_id):
         """
@@ -164,7 +164,7 @@ class metadata:
             url = urls._build_metadata_url(lat=lat, lng=lng, mode='SingleImageSearch', radius=radius)
             json = requests.get(url).text
             if "Search returned no images." in json:
-                print("[Google]: Finding nearest panorama via satellite zoom...")
+                print("[google]: Finding nearest panorama via satellite zoom...")
                 url = urls._build_metadata_url(lat=lat, lng=lng, mode='SatelliteZoom')
                 json = requests.get(url).text
                 data = j.loads(json[4:])

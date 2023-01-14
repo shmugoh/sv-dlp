@@ -109,10 +109,10 @@ def main(args=None):
         if _is_url(pano):
             print("Getting Panorama ID from URL...")
             lat, lng = None, None
-            pano = sv_dlp.get_pano_from_url(pano[0])[0]
+            pano = sv_dlp.get_pano_from_url(pano[0])
         elif _is_coord(pano):
             lat, lng = pano
-            lat, lng = float(lat), float(lng)
+            lat, lng = float(lat[:-1]), float(lng)
             pano = None
         else:
             lat, lng = None, None

@@ -252,7 +252,7 @@ class sv_dlp:
         str:    pano_id
             Panorama ID from given URL
         """
-        pano = self.service.misc.get_pano_from_url(url)[0]
+        pano = self.service.misc.get_pano_from_url(url)
         return pano 
     def short_url(self, pano_id=None, lat=None, lng=None):
         """
