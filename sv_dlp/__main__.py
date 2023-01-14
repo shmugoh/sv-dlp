@@ -121,7 +121,6 @@ def main(args=None):
         parser.print_help()
         parser.exit(1)
 
-    print(f"[{service}]: Obtaining Metadata...")
     try:
         sv_dlp.get_metadata(pano_id=pano, lat=lat, lng=lng, get_linked_panos=args.linked_panos)
         if zoom == "max":
