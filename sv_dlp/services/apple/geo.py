@@ -53,3 +53,12 @@ def tile_coord_to_wgs84(x, y, zoom):
     world_coord = (pixel_coord[0] / scale, pixel_coord[1] / scale)
     lat_lon = mercator_to_wgs84(world_coord[0], world_coord[1])
     return lat_lon
+def min_distance(x, y, iterable):
+    list_of_distances = list(map(lambda t: math.sqrt(pow(t[0]-x,2)+pow(t[1]-y,2)),iterable))
+    min_res = min(list_of_distances)
+    index_of_min = list_of_distances.index(min_res)
+    return iterable[index_of_min]
+
+# A = [(26, 63), (25, 63), (24, 63), (23, 63), (22, 63),(21, 63), (20, 63), (22, 62), (27, 63)]
+# a = min_distance(0, 238, A)
+# print(a)
