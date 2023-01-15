@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 from socketserver import DatagramRequestHandler
+import sys
 import requests
 import sv_dlp.services
 
@@ -12,25 +13,25 @@ class urls:
         url = f"https://pano.maps.yandex.net/{pano_id}/{zoom}.{x}.{y}"
         return url
 
-    def _build_metadata_url(lat, lng, mode='ll'):
+    def _build_metadata_url(pano_id=None, lat=None, lng=None, mode='coords') -> str:
         """
         Build Yandex URL that returns panorama ID and metadata.
 
-        Supported modes: ll and oid
+        Supported modes are 'coords' & 'pano' (must be OID)
         """
         # can also be used as the metadata url
 
         match mode:
-            case 'll':
-                url = f"https://api-maps.yandex.ru/services/panoramas/1.x/?l=stv&lang=en_RU&{mode}={lng}%2C{lat}&origin=userAction&provider=streetview"
-            case 'oid':
-                url = f"https://api-maps.yandex.ru/services/panoramas/1.x/?l=stv&lang=en_RU&{mode}={lat}&origin=userAction&provider=streetview"
+            case 'coords':
+                url = f"https://api-maps.yandex.ru/services/panoramas/1.x/?l=stv&lang=en_RU&ll={lng}%2C{lat}&origin=userAction&provider=streetview"
+            case 'pano':
+                url = f"https://api-maps.yandex.ru/services/panoramas/1.x/?l=stv&lang=en_RU&oid={pano_id}&origin=userAction&provider=streetview"
         return url
 
     def _build_short_url(pano) -> str:
         """
         Build URL that shorts panorama
-        from given OID.
+        from given Panorama ID (OID).
         """
         url = f'https://yandex.com/maps/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}'
         return url
@@ -46,13 +47,13 @@ class misc:
     def get_pano_from_url(url):
         url = requests.get(url).url
         try:
-            pano = re.findall(r'5Bid%5D=(.+)&panorama%5Bpoint', url)[0]
-            pano = metadata._get_pano_id(pano, '', 'oid')
+            pano = re.findall(r'panorama%5Bid%5D=(.+)&', url)
+            pano = metadata.get_metadata(pano_id=pano)['pano_id']['pano_id']
         except IndexError:
             try:
-                coords = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)', url)[0]
+                coords = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)&panorama', url)[0]
                 lat, lng = coords[1], coords[0]
-                pano = metadata._get_pano_id(lat, lng)
+                pano = metadata.get_metadata(lat=lat, lng=lng)['pano_id']['pano_id']
             except IndexError:
                 raise sv_dlp.services.ServiceShortURLFound
 
@@ -60,7 +61,7 @@ class misc:
 
     def short_url(pano_id):
         try:
-            pano_id = pano_id['oid']
+            pano_id = pano_id['pano_id']
         except TypeError:
             # if pano id already parsed
             pass
@@ -88,6 +89,12 @@ class metadata:
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
+        elif type(pano_id) is list:
+            try:
+                pano_id = pano_id['pano_id']
+            except Exception: # if oid already in list
+                pano_id = pano_id[0]
+        
         raw_md = metadata._get_raw_metadata(pano_id)
         img_size = raw_md['data']['Data']['Images']['Zooms'][0]
         md = {
@@ -95,8 +102,8 @@ class metadata:
             "pano_id": {
                 "pano_id": raw_md['data']['Data']['panoramaId'], 
                 "image_id": raw_md['data']['Data']['Images']['imageId']},
-            "lat": raw_md['data']['Data']['Point']['coordinates'][0],
-            "lng": raw_md['data']['Data']['Point']['coordinates'][1],
+            "lat": raw_md['data']['Data']['Point']['coordinates'][1],
+            "lng": raw_md['data']['Data']['Point']['coordinates'][0],
             "date": metadata._convert_date(raw_md['data']['Data']['timestamp']),
             "size": [img_size['width'], img_size['height']],
             "max_zoom": len(raw_md['data']['Data']['Images']['Zooms']) - 1,
@@ -146,7 +153,7 @@ class metadata:
         return md
 
     def _get_raw_metadata(pano_id) -> list:
-        url = urls._build_metadata_url(pano_id, 0, 'oid')
+        url = urls._build_metadata_url(pano_id=pano_id, mode='pano')
         try:
             resp = requests.get(url)
             data = resp.json()
@@ -156,9 +163,9 @@ class metadata:
         if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
         return data
 
-    def _get_pano_from_coords(lat, lon, mode='ll'):
+    def _get_pano_from_coords(lat, lon):
         try:
-            url = urls._build_metadata_url(lat, lon, mode)
+            url = urls._build_metadata_url(lat=lat, lng=lon, mode='coords')
             data = requests.get(url).json()
             return data['data']['Data']['panoramaId']
         except Exception:

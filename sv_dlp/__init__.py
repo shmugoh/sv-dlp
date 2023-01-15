@@ -276,10 +276,8 @@ class sv_dlp:
             Shortened URL from given panorama ID
         """
         # TODO: Short Pano via Latitude/Longitude only
-        if pano_id == None and self.metadata == None:
-            pano_id = self.get_pano_id(lat=lng, lng=lng)
-        elif self.metadata:
-            pano_id = self.metadata["pano_id"]
+        if pano_id == None:
+            pano_id = self.get_pano_id(lat=lat, lng=lng)
         url = self.service.misc.short_url(pano_id)
         return url
 

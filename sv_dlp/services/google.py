@@ -64,7 +64,7 @@ class misc:
         pano_id = re.findall(r'1s(.+)!2e', url)
         if pano_id == []:
             # https://www.google.com/maps/@?api=1&map_action=pano&pano=p1yAMqbHsH7sgAGIJWwBpw&shorturl=1
-            pano_id = re.findall(r'pano=(.+)&shorturl=1', url)
+            pano_id = re.findall(r'pano=([^&]+)', url)
         return pano_id[0]
 
     def short_url(pano_id):
@@ -82,6 +82,8 @@ class metadata:
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> dict:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
+        elif type(pano_id) is list:
+            pano_id = pano_id[0]
         raw_md = metadata._get_raw_metadata(pano_id)
         try:
             lat, lng = raw_md[1][0][5][0][1][0][2], raw_md[1][0][5][0][1][0][3] 

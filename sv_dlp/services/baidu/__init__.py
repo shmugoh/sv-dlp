@@ -38,7 +38,7 @@ class misc:
     def get_pano_from_url(url):
         new_url = requests.get(url).url
         pano_id = re.findall('panoid=(.*)&panotype', new_url)
-        return pano_id
+        return pano_id[0]
 
     def short_url(pano_id):
         resp = requests.get(urls._build_short_url(pano_id))
@@ -48,6 +48,8 @@ class metadata:
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
+        elif type(pano_id) is list:
+            pano_id = pano_id[0]
         raw_md = metadata._get_raw_metadata(pano_id)
 
         ChangeCoord = geo.ChangeCoord()

@@ -9,7 +9,7 @@ class urls:
         """
         Build Bing StreetSide Tile URL.
         """
-        url = f"https://t.ssl.ak.tiles.virtualearth.net/tiles/hs{bubble}{tile_pos}.jpg?g=11898"
+        url = f"https://t.ssl.ak.tiles.virtualearth.net/tiles/hs{bubble}{tile_pos}.jpg?g=0"
         return url
 
     def _build_pano_url(north, south, east, west):
