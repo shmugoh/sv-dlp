@@ -7,7 +7,7 @@ DESCRIPTION = '''
 Download Street View panoramas, obtain metadata and short panorama URLs
 from various services
 '''
-LONG_DESCRIPTION = read_file('README.md').splitlines()
+LONG_DESCRIPTION = read_file('README.md')
 
 setup(
     name='sv-dlp',
@@ -20,7 +20,7 @@ setup(
     maintainer="juanpisss",
     maintainer_email="juanpiss@basedtakes.co",
 
-    packages=find_packages("sv_dlp"),
+    packages=find_packages(exclude=('dev_scripts')),
     python_requires='>=3.10', # thinking about making it 3.8
     install_requires=REQUIREMENTS,
 )
