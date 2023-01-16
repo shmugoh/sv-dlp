@@ -4,8 +4,6 @@
     </b>
 </h1>
 
-![](https://github.com/juanpisss/sv-dlp/actions/workflows/test.yml/badge.svg)
-
 sv-dlp is a panorama scraper for various street view platforms that can download, 
 obtain metadata and short URLs.
 
