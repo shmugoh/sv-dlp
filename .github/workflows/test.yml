@@ -27,7 +27,7 @@ jobs:
     - name: Build & Install
       run: |
         python setup.py sdist bdist_wheel
-        python -m pip install -r requirements.txt
+        python setup.py install
 
     - name: Test
       run: |
