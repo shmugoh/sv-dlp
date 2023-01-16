@@ -65,7 +65,9 @@ jobs:
         architecture: 'x64'
         
     - name: Build Package
-      run: python setup.py sdist bdist_wheel
+      run: |
+        python -m pip install setuptools
+        python setup.py sdist bdist_wheel
         
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
@@ -93,13 +95,13 @@ jobs:
         run: python -m venv env || ./env/bin/activate
 
       - name: Install Required System Libraries
-        run: sudo apt-get install libaom0 libde265-0 libx265-179 libwebp6 liblzma5 libjpeg8 libjpeg9 libxau6 libnghttp2-14 libsqlite3-0 libtiff5 python3-libtiff libcurl4 python3-pycurl
+        run: sudo apt-get install libde265-0 liblzma5 libjpeg8 libjpeg9 libxau6 libnghttp2-14 libsqlite3-0 libtiff5 python3-libtiff libcurl4 python3-pycurl
 
       - name: Install Required Modules
         run: python -m pip install -r requirements.txt
 
       - name: Build - Linux x64 Binary
-        run: python build.py
+        run: python build_cli.py
 
       - name: Upload - Linux x64 Binary
         id: upload-linux_amd64
@@ -140,7 +142,7 @@ jobs:
         run: python -m pip install -r requirements.txt
 
       - name: Build - Windows x64 Binary
-        run: python build.py
+        run: python build_cli.py
 
       - name: Upload - Windows x64 Binary
         id: upload-win_amd64
@@ -176,7 +178,7 @@ jobs:
         run: python -m pip install -r requirements.txt
 
       - name: Build - macOS Binary
-        run: python build.py
+        run: python build_cli.py
 
       - name: Upload - macOS Binary
         id: upload-darwin
