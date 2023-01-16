@@ -30,11 +30,6 @@ jobs:
     - name: Get Changelog
       run: sed '/## '${{ steps.version.outputs.sv-dlp_version }}'/d;/'---'/Q' CHANGELOG.md >> changelog_body
 
-    - name: Push Changes
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: '[${{ steps.version.outputs.sv-dlp_version }}] Bump Version & Changelog'
-
     - name: Create Release
       id: release
       uses: actions/create-release@master
@@ -46,6 +41,15 @@ jobs:
         body_path: ./changelog_body
         draft: true
         prerelease: ${{ github.event.inputs.pre_release }}
+          
+    
+    - name: Remove changelog_body
+      run: rm changelog_body
+
+    - name: Push Changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: '[${{ steps.version.outputs.sv-dlp_version }}] Bump Version & Changelog'
 
   build-publish-pypi:
     name: "Build & Publish to PyPi"
