@@ -23,6 +23,8 @@ smoothly for all supported services.
 This project has been made for educational purposes and all content scraped from
 is owned by their respective authors.
 
+For detailed documentation and usage examples, please refer to the [official documentation](https://juanpisss.github.io/sv-dlp/).
+
 ## **Features**
 - Download Panoramas
     - A panorama ID, a coordinate or a short URL can be parsed
