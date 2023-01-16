@@ -1,0 +1,13 @@
+## Changelog
+The functionality of sv-dlp's back-end can now be utilized as a constructor in other scripts, providing developers to 
+easily incorporate the functionality of sv-dlp into their own projects. This makes it possible to access the various 
+features and capabilities of sv-dlp, such as the ease of metadata scrapping between different services,
+panorama download & stitching, etc.
+
+## Added
+- **[SERVICES]** All metadata is now returned in an unique readable format.
+- **[SERVICES]** Historical Panorama & Linked Panoramas now appear in metadata.
+- **[SERVICES]** Service can now be determined from input (`get_available_services`).
+- **[DOWNLOAD]** TQDM Download is now properly formatted.
+## Fixed
+- **[BING]** Fixed Bing not downloading tiles properly
