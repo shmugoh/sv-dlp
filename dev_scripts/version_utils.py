@@ -68,4 +68,3 @@ UPDATE_HINT = None
 
     write_file('sv_dlp/version.py', VERSION_FILE)
     print(f'::set-output name=sv-dlp_version::{VERSION}')
-    print(f'\nVersion = {VERSION}, Git HEAD = {GIT_HEAD}')

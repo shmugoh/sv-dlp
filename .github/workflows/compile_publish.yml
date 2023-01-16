@@ -10,11 +10,12 @@ on:
 
 jobs:
   create-release:
-    name: "Create Release"
+    name: "Preparations"
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.release.outputs.upload_url }}
       id: ${{ steps.release.outputs.id }}
+      version: ${{ steps.version.outputs.sv-dlp_version }}
 
     steps:
     - name: Switch Branch
@@ -22,12 +23,17 @@ jobs:
       with:
         ref: 'master'
 
-    - name: Generate Version
-      id: ver
-      run: echo "::set-output name=ver::$(sed -e "s#.*=\(\)#\1#;s/'//g" sv-dlp/version.py)"
+    - name: Bump version
+      id: version
+      run: python dev_scripts/update-version.py
 
     - name: Get Changelog
-      run: sed '/## '${{ steps.ver.outputs.ver }}'/d;/'---'/Q' CHANGELOG.md >> changelog_body
+      run: sed '/## '${{ steps.version.outputs.sv-dlp_version }}'/d;/'---'/Q' CHANGELOG.md >> changelog_body
+
+    - name: Push Changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: '[${{ steps.version.outputs.sv-dlp_version }}] Bump Version & Changelog'
 
     - name: Create Release
       id: release
@@ -35,11 +41,36 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.ver.outputs.ver }}
-        release_name: ${{ steps.ver.outputs.ver }}
+        tag_name: ${{ steps.version.outputs.sv-dlp_version }}
+        release_name: ${{ steps.version.outputs.sv-dlp_version }}
         body_path: ./changelog_body
         draft: true
         prerelease: ${{ github.event.inputs.pre_release }}
+
+  build-publish-pypi:
+    name: "Build & Publish to PyPi"
+    needs: create-release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Switch Branch
+      uses: actions/checkout@v2
+      with:
+        ref: 'master'
+        
+    - name: Set up Python 3.10.5
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10.5'
+        architecture: 'x64'
+        
+    - name: Build Package
+      run: python setup.py sdist bdist_wheel
+        
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
 
   compile-linux:
       name: "Compile Linux"
