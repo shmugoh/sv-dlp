@@ -38,9 +38,8 @@ Bing   |95%   |Misc features not implemented; can only obtain metadata by coords
 ## **Installation**
 ### Automatic
 ```bash
-$ python3 -m pip install sv_dlp
-# Make sure Python is in PATH
-# if you plan on using its CLI
+$ python3 -m pip install sv-dlp
+$ python3 -m sv_dlp
 ```
 ### Manual
 If you prefer using a binary instead, check out the binaries [here](https://github.com/juanpisss/sv-dlp/releases/latest)
@@ -56,7 +55,7 @@ Depending on how accesible it is scraping-wise, yes.
 ### **I'm a developer and I want to add X service or improve the code. Can I?**
 Sure! You're welcome to submit in a pull request as long as its to improve
 this program, such as improving performance, fixing a bug, adding a service, etc.
-For those who want to add a service, check out [the documentation for it](https://github.com/juanpisss/sv-dlp/blob/master/extractor/README.md).
+For those who want to add a service, check out [the documentation for it](https://juanpisss.github.io/sv-dlp/contributing_services/).
 
 ## **License**
 [MIT](https://raw.githubusercontent.com/juanpisss/sv-dlp/master/LICENSE)
