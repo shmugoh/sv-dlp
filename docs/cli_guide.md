@@ -10,7 +10,7 @@
 4. [Commands / Flags](https://github.com/juanpisss/sv-dlp/wiki/Command-Line-Interface---User-Guide#commands--flags)
 
 # Installation
-To install sv-dlp, you download it via PIP (if Python >3.10 is installed) or by adding the binaries found in [the release page](https://github.com/juanpisss/sv-dlp/releases) to PATH.
+To install sv-dlp, you download it via PIP (if Python >3.10 is installed) and using `py -m sv_dlp` or by adding the binaries found in [the release page](https://github.com/juanpisss/sv-dlp/releases) to PATH.
 
 # Getting Started - The Basics
 sv-dlp allocates arguments in various ways, the most common being:

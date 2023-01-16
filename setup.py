@@ -4,8 +4,7 @@ from dev_scripts.version_utils import read_file, read_version
 VERSION = read_version()
 REQUIREMENTS = read_file('requirements.txt').splitlines()
 DESCRIPTION = '''
-Download Street View panoramas, obtain metadata and short panorama URLs
-from various services
+Obtain Street View panoramas, scrape metadata, and generate short URLs for panoramas from multiple Street View services
 '''
 LONG_DESCRIPTION = read_file('README.md')
 
