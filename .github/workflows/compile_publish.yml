@@ -25,7 +25,7 @@ jobs:
 
     - name: Bump version
       id: version
-      run: python dev_scripts/update-version.py
+      run: python dev_scripts/version_utils.py
 
     - name: Get Changelog
       run: sed '/## '${{ steps.version.outputs.sv-dlp_version }}'/d;/'---'/Q' CHANGELOG.md >> changelog_body
