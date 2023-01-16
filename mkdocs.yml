@@ -24,8 +24,6 @@ nav:
   - "Index": index.md
   - "Module - Basics & Getting Started":    module_basics.md
   - "Command Line Interface - User Guide":  cli_guide.md
+  - "Supported Services":  supported_services.md
+  - "Contributing - Getting Started":  contributing_services.md
   - "Class Documentation":                  class_documentation.md
-  - "Downloading Process":                  downloading_process.md
-  - Services:
-    - "Supported Services":  supported_services.md
-    - "Contributing - Getting Started":  contributing_services.md
