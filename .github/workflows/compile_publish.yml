@@ -51,6 +51,21 @@ jobs:
       with:
         commit_message: '[${{ steps.version.outputs.sv-dlp_version }}] Bump Version & Changelog'
 
+  publish-docs:
+    name: Deploy Docs
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v2
+
+      - name: Deploy docs
+        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONFIG_FILE: mkdocs.yml
+          REQUIREMENTS: wiki_reqs.txt
+
   build-publish-pypi:
     name: "Build & Publish to PyPi"
     needs: create-release
