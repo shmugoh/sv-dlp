@@ -4,42 +4,16 @@ import requests
 import sv_dlp.services
 
 class urls:
-    def _build_tile_url(pano_id, zoom=0, x=0, y=0):
+    def _build_tile_url(pano_id, zoom=0, block="", x=0, y=0):
         """
         Build Navae Tile URL.
         """
-        
-        url = f"https://panorama.pstatic.net/image/{pano_id}/512/L/l/{x}/{y}"
-        '''
-        seems like 0 equals to 4 in all axes,
-        therefore must start from 1
-        
-        Zooms:
-        P - Full Low-Res Pano; does not require zoom 
-        M - Medium
-        L - Large
-        
-        6 blocks
-        /L/l/ = 1
-        /L/f/ = 2
-        /L/r/ = 3
-        /L/b/ = 4
-        /L/d/ = 5
-        /L/u/ = 6
-        
-        https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/P
-        https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/L/l/3/2
-        '''
-        
-        match zoom:
-            case 0:
-                zoom = "P"
-            case 1:
-                zoom = "M"
-            case 2:
-                zoom = "L"
-        # just to have an idea
-        
+        if zoom == 0:
+            url = f"https://panorama.pstatic.net/image/{pano_id}/512/P"
+        else:
+            zoom_map = {0: "P", 1: "M", 2: "L"}
+            zoom = zoom_map.get(zoom, "M")
+            url = f"https://panorama.pstatic.net/image/{pano_id}/512/{zoom}/{block}/{x}/{y}"
         return url
 
     def _build_metadata_url(pano_id=None, lat=None, lng=None, mode='coords') -> str:
@@ -165,34 +139,56 @@ class metadata:
         raise sv_dlp.services.ServiceNotSupported
 
 def _build_tile_arr(metadata, zoom=2):
-    pano_id = metadata['pano_id']['image_id']
-    max_zoom = metadata['max_zoom']
-    zoom = max_zoom - zoom
+    '''
+    seems like 0 equals to 4 in all axes,
+    therefore must start from 1
+    
+    Zooms:
+    P - Full Low-Res Pano; does not require zoom 
+    M - Medium
+    L - Large
+    
+    6 blocks
+    /L/l/ = 1
+    /L/f/ = 2
+    /L/r/ = 3
+    /L/b/ = 4
+    /L/d/ = 5
+    /L/u/ = 6
+    
+    https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/P
+    https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/L/l/3/2
+    '''
+    block_map = {0: 'l', 1: 'f', 2: 'r', 3: 'b', 4: 'd', 5: 'u'}
+    pano_id = metadata['pano_id']
 
     arr = []
-    x_y = [0, 0]
+    x_y = [0, 0] # per block
     i = 0
 
-    while True:
-        if i >= 2:
-            break
-
-        if i == 0: url = urls._build_tile_url(pano_id, zoom, x_y[0], 0)
-        else: url = urls._build_tile_url(pano_id, zoom, 0, x_y[1])
-
-        r = requests.get(url).status_code
-        match r:
-            case 200:
-                x_y[i] += 1
-            case _:
-                i += 1
-                continue
-
-    for y in range(int(x_y[1])):
-        arr.append([])
-        for x in range(x_y[0]):
-            url = urls._build_tile_url(pano_id, zoom, x, y)
-            arr[y].insert(x, url)
+    if zoom == 0:
+        url = urls._build_tile_url(pano_id=pano_id, zoom=0)
+        arr.append([url])
+    else:
+        while True:
+            if i >= 2:
+                break
+            if i == 0: url = urls._build_tile_url(pano_id, zoom, block="l", x=x_y[0], y=0)
+            else: url = urls._build_tile_url(pano_id, zoom, block="l", x=0, y=x_y[1])
+            response = requests.get(url).status_code
+            match response:
+                case 200:
+                    x_y[i] += 1
+                case _:
+                    i += 1
+                    continue
+    
+            for y in range(int(x_y[1])):
+                arr.append([])
+                for z in range(len(block_map)):
+                    for x in range(int(x_y[0])):
+                        url = urls._build_tile_url(pano_id, zoom, block=block_map.get(z), x=x, y=y)
+                        arr[y].insert(x, url)
     return arr
 
 # if __name__ == '__main__':
