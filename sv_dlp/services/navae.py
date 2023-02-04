@@ -87,6 +87,7 @@ class metadata:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         
         raw_md = metadata._get_raw_metadata(pano_id)['basic']
+        raw_timeline = metadata._get_raw_metadata(pano_id)
         # timeline is in separate page
         
         md = {
@@ -99,7 +100,7 @@ class metadata:
             "max_zoom": 2,  # maybe i'll include it idk
             "timeline": {}
         }
-        md = metadata._parse_panorama(md, raw_md, output="timeline") 
+        md = metadata._parse_panorama(md, raw_timeline, output="timeline") 
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output="linked_panos")
         return md
@@ -108,14 +109,12 @@ class metadata:
         buff = []
         match output:
             case "timeline":
-                timeline = raw_md['data']['Annotation']['HistoricalPanoramas']
-                for pano_info in timeline:
+                timeline = raw_md['timeline']['panoramas']
+                for pano_info in timeline[1:]:
                     buff.append(
                         {
-                            "pano_id": {
-                                "pano_id": pano_info['Connection']['oid'], 
-                                "image_id": None},
-                            "date": metadata._convert_date(pano_info['timestamp'])
+                            "pano_id": pano_info[0],
+                            "date": pano_info[3]
                         }
                     )
                 md['timeline'] = buff
@@ -142,22 +141,23 @@ class metadata:
                 raise Exception # lol
         return md
 
-    def _get_raw_metadata(pano_id) -> list:
-        url = urls._build_metadata_url(pano_id=pano_id, mode='pano')
-        try:
-            resp = requests.get(url)
-            data = resp.json()
-        except Exception as e:
-            resp = requests.get(url)
-            data = resp.json()
-        if data['status'] != 'success': raise sv_dlp.services.PanoIDInvalid
+    def _get_raw_metadata(pano_id, mode="metadata") -> list:
+        match mode:
+            case "metadata":
+                url = urls._build_metadata_url(pano_id=pano_id, mode='pano')
+            case "timeline":
+                url = urls._build_metadata_url(pano_id=pano_id, mode='timeline')
+        resp = requests.get(url)
+        data = resp.json()
+        if data['status']: # ['status'] only appears if pano is invalid 
+            raise sv_dlp.services.PanoIDInvalid
         return data
 
     def _get_pano_from_coords(lat, lon):
         try:
             url = urls._build_metadata_url(lat=lat, lng=lon, mode='coords')
             data = requests.get(url).json()
-            return data['data']['Data']['panoramaId']
+            return data['features'][0]['properties']['id']
         except Exception:
             raise sv_dlp.services.NoPanoIDAvailable
 
