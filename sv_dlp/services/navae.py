@@ -1,7 +1,9 @@
 from datetime import datetime
+from pprint import pprint
 import re
 import requests
 import sv_dlp.services
+import sv_dlp.download
 
 class urls:
     def _build_tile_url(pano_id, zoom=0, block="", x=0, y=0):
@@ -60,8 +62,8 @@ class metadata:
         if pano_id == None:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         
-        raw_md = metadata._get_raw_metadata(pano_id)['basic']
-        raw_timeline = metadata._get_raw_metadata(pano_id)
+        raw_md = metadata._get_raw_metadata(pano_id, mode="metadata")['basic']
+        raw_timeline = metadata._get_raw_metadata(pano_id, mode="timeline")
         # timeline is in separate page
         
         md = {
@@ -123,9 +125,11 @@ class metadata:
                 url = urls._build_metadata_url(pano_id=pano_id, mode='timeline')
         resp = requests.get(url)
         data = resp.json()
-        if data['status']: # ['status'] only appears if pano is invalid 
-            raise sv_dlp.services.PanoIDInvalid
-        return data
+        try:
+            if data['status']: # ['status'] only appears if pano is invalid 
+                raise sv_dlp.services.PanoIDInvalid
+        except KeyError:
+            return data
 
     def _get_pano_from_coords(lat, lon):
         try:
@@ -159,40 +163,44 @@ def _build_tile_arr(metadata, zoom=2):
     https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/P
     https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/L/l/3/2
     '''
-    block_map = {0: 'l', 1: 'f', 2: 'r', 3: 'b', 4: 'd', 5: 'u'}
     pano_id = metadata['pano_id']
-
-    arr = []
-    x_y = [0, 0] # per block
-    i = 0
 
     if zoom == 0:
         url = urls._build_tile_url(pano_id=pano_id, zoom=0)
-        arr.append([url])
+        arr = [[url]]
     else:
+        x_y = [1, 1] # per block
+        block_map = {0: 'l', 1: 'f', 2: 'r', 3: 'b', 4: 'd', 5: 'u'}
+        i = 0
+        
         while True:
             if i >= 2:
                 break
-            if i == 0: url = urls._build_tile_url(pano_id, zoom, block="l", x=x_y[0], y=0)
-            else: url = urls._build_tile_url(pano_id, zoom, block="l", x=0, y=x_y[1])
-            response = requests.get(url).status_code
-            match response:
+            if i == 0: url = urls._build_tile_url(pano_id, zoom, block="l", x=x_y[0]+1, y=1)
+            else: url = urls._build_tile_url(pano_id, zoom, block="l", x=1, y=x_y[1]+1)
+            response = requests.get(url)
+            match response.status_code:
                 case 200:
                     x_y[i] += 1
                 case _:
                     i += 1
                     continue
-    
-            for y in range(int(x_y[1])):
-                arr.append([])
-                for z in range(len(block_map)):
-                    for x in range(int(x_y[0])):
-                        url = urls._build_tile_url(pano_id, zoom, block=block_map.get(z), x=x, y=y)
-                        arr[y].insert(x, url)
+                    
+        arr = [[] for _ in range(x_y[1])]
+        for y in range(x_y[1]):
+            for z in range(len(block_map)):
+                for x in range(x_y[0]):
+                    # url = f"Block: {block_map.get(z)} ({z}) X: {x + 1} Y: {y + 1}"
+                    url = urls._build_tile_url(pano_id, zoom, block=block_map.get(z), x=x+1, y=y+1)
+                    arr[y].append(url)
     return arr
 
-# if __name__ == '__main__':
-#     try:
-#         x = misc.get_pano_from_url('https://yandex.com/maps/-/CCUBqKHekA')
-#     except extractor.ServiceShortURLFound as e:
-#         print(e.message)
+if __name__ == '__main__':
+    pano = "wC7zT2RszClsKfYvh4Zcfg"
+    print("Getting Metadata...")
+    md = metadata.get_metadata(pano_id=pano)
+    print("Building Tile Array...")
+    tile_arr = _build_tile_arr(md, zoom=0)
+    pprint(tile_arr)
+    img, tiles_imgs = sv_dlp.download.panorama(tile_arr, md)
+    img.save("test0.png", quality=95)
