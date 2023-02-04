@@ -54,9 +54,9 @@ class misc:
         url = urls._build_short_url(pano_id)
         return url
 
-
 class metadata:
     # https://codebeautify.org/jsonviewer/y2325fba3
+    _convert_date = lambda raw_date : datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S.%f") if "." in raw_date else datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S")
 
     def get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False) -> list:
         if pano_id == None:
@@ -71,7 +71,7 @@ class metadata:
             "pano_id": raw_md["id"],
             "lat": raw_md['latitude'],
             "lng": raw_md['longitude'],
-            "date": raw_md['photodate'], # must parse it to datetime
+            "date": metadata._convert_date(raw_md['photodate']),
             "size": None,   # raw_md['image'] has tile_size and segment
             "max_zoom": 2,  # maybe i'll include it idk
             "timeline": {}
@@ -90,23 +90,21 @@ class metadata:
                     buff.append(
                         {
                             "pano_id": pano_info[0],
-                            "date": pano_info[3]
+                            "date": metadata._convert_date(pano_info[3])
                         }
                     )
                 md['timeline'] = buff
             case "linked_panos":
-                linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
-                for pano_info in linked_panos:
-                    if pano_info['panoid'] == md['pano_id']['pano_id']: pass
-                    date = metadata.get_metadata(pano_id=pano_info["panoid"])['date']
+                linked_panos = raw_md['links']
+                for pano_info in linked_panos[1:]:
+                    pano_id = pano_info[0]
+                    linked_md = metadata.get_metadata(pano_id)
                     buff.append(
                         {
-                            "pano_id": {
-                                "pano_id": pano_info['panoid'], 
-                                "image_id": None},
-                            "lat": pano_info['lat'],
-                            "lon": pano_info['lon'],
-                            "date": date
+                            "pano_id": pano_info[0],
+                            "lat": linked_md['lat'],
+                            "lon": linked_md['lng'],
+                            "date": linked_md['date']
                             # no way of getting date information, unless if
                             # get_metadata is called by each panorama, which would
                             # make it a bit slower
@@ -197,10 +195,5 @@ def _build_tile_arr(metadata, zoom=2):
 
 if __name__ == '__main__':
     pano = "wC7zT2RszClsKfYvh4Zcfg"
-    print("Getting Metadata...")
-    md = metadata.get_metadata(pano_id=pano)
-    print("Building Tile Array...")
-    tile_arr = _build_tile_arr(md, zoom=0)
-    pprint(tile_arr)
-    img, tiles_imgs = sv_dlp.download.panorama(tile_arr, md)
-    img.save("test0.png", quality=95)
+    md = metadata.get_metadata(pano_id=pano, get_linked_panos=True)
+    pprint(md, sort_dicts=False)
