@@ -19,7 +19,7 @@ def _pano_test(pano_id, service):
     sv_dlp.postdownload.save_panorama(img, md)
 
 def _ll_test(lat, lng, service):
-    print(f"\n{service} download/metadata coordinate test")
+    print(f"\n{service} coordinate test")
     sv_dlp.set_service(service)
 
     md = sv_dlp.get_metadata(lat=lat, lng=lng)
@@ -49,8 +49,14 @@ if __name__ == "__main__":
         elif "yandex":
             lat, lng = 55.76550473786485, 37.54340745542864
             pano_id = "1298034314_672832338_23_1528540830"
+            _ll_test(lat=lat, lng=lng, service="yandex")
             _pano_test(pano_id=pano_id, service="yandex")
-    
+        if "navae":
+            lat, lng = 37.5077677, 126.9400753
+            pano_id = "wC7zT2RszClsKfYvh4Zcfg"
+            _ll_test(lat=lat, lng=lng, service="navae")
+            _pano_test(pano_id=pano_id, service="navae")
+
     print("\nURL <-> Coordinates Test")
     for service in available_services:
         match service:
@@ -69,6 +75,11 @@ if __name__ == "__main__":
                 sv_dlp.set_service(service)
                 url = "https://yandex.com/maps/213/moscow/?l=stv%2Csta&ll=37.600082%2C55.790894&mode=search&panorama%5Bdirection%5D=286.651637%2C-5.390625&panorama%5Bfull%5D=true&panorama%5Bid%5D=1298034314_672832338_23_1528540830&panorama%5Bpoint%5D=37.599959%2C55.790842&panorama%5Bspan%5D=105.239256%2C60.000000&sll=37.600050%2C55.790854&text=55.790854%2C37.600050&z=20"
                 lat, lng = 41.3432002141999, 69.2646005452
+            case 'navae':
+                print("\nNavae URL Test")
+                sv_dlp.set_service(service)
+                url = "https://naver.me/5nPJ8YmO"
+                lat, lng = 37.51939426170934, 126.96017727550505
             case _:
                 continue
             

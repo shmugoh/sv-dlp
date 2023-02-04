@@ -39,8 +39,16 @@ class urls:
         encoded_input = f'https://map.naver.com/v5/?p={pano},0,0,0,Float'        
         return encoded_input
         
-        # url = f'https://me2do.naver.com/common/requestJsonpV2?_callback=window.spi_774030659&svcCode=0022&url={urllib.parse.quote(encoded_input)}'
+        ''' 
+        Refer to Issue #30
+        # encoded_input = f'https://map.naver.com/v5/?p={pano},0,0,0,Float'
+        # url = (
+        #     https://me2do.naver.com/common/requestJsonpV2?" +
+        #     "_callback=window.spi_774030659" +
+        #     "&svcCode=0022" +
+        #     f"&url={urllib.parse.quote(encoded_input)})
         # return url
+        '''
 
 class misc:
     def get_pano_from_url(url):
