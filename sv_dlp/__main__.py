@@ -169,7 +169,7 @@ def main(args=None):
                 parser.error(error.message)
 
         case "get-metadata":
-            pprint(sv_dlp.metadata, sort_dicts=False)
+            pprint(sv_dlp.metadata.dict(), sort_dicts=False)
         case "get-date":
             print(sv_dlp.metadata["date"])
         case "get-pano-id":

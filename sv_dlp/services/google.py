@@ -84,6 +84,7 @@ class metadata:
             pano_id = metadata._get_pano_from_coords(lat, lng)
         elif type(pano_id) is list:
             pano_id = pano_id[0]
+            
         raw_md = metadata._get_raw_metadata(pano_id)
         try:
             lat, lng = raw_md[1][0][5][0][1][0][2], raw_md[1][0][5][0][1][0][3] 
@@ -94,22 +95,22 @@ class metadata:
             # def considering parsing this as a protocol buffer instead - this is too messy
         except IndexError:
             raise sv_dlp.services.PanoIDInvalid
-        md = {
-            "service": "google",
-            "pano_id": pano_id,
-            "lat": float(lat),
-            "lng": float(lng),
-            "date": metadata._convert_date(raw_image_date),
-            "size": image_size,
-            "max_zoom": len(image_avail_res[0])-1,
-            "misc": {
+
+        md = sv_dlp.services.MetadataStructure(
+            service="google",
+            pano_id=pano_id,
+            lat=float(lat),
+            lng=float(lng),
+            date=metadata._convert_date(raw_image_date),
+            max_zoom=len(image_avail_res[0])-1,
+            misc={
                 "is_trekker": len(raw_md[1][0][5][0][3][0][0][2]) > 3,
                 "gen": metadata._get_gen(image_size)
-            },
-            "timeline": {},
-        }
-        if md['misc']['is_trekker']:
-            md['misc']['trekker_id'] = raw_md[1][0][5][0][3][0][0][2][3][0]
+            }
+        )
+        if md.misc['is_trekker']:
+            md.misc['trekker_id'] = raw_md[1][0][5][0][3][0][0][2][3][0]
+        
         md = metadata._parse_panorama(md, raw_md, output="timeline")
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output="linked_panos")
@@ -130,7 +131,7 @@ class metadata:
                             "lng": raw_pano_info[2][0][-1],
                             "date": metadata._convert_date(f"{pano_info[1][0]}/{pano_info[1][1]}")
                         })
-                md["timeline"] = buff
+                md.timeline = buff
             case "linked_panos":
                 md["linked_panos"] = {}
                 for pano_info in linked_panos:
@@ -144,7 +145,7 @@ class metadata:
                                     "lng": pano_info[2][0][-1],
                                     "date": date,
                             })
-                md["linked_panos"] = buff
+                md.linked_panos = buff
             case _:
                 raise Exception # lol
         return md

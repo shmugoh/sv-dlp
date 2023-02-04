@@ -233,7 +233,7 @@ class sv_dlp:
             Panorama ID of given coordinates
         """
         self.get_metadata(lat=lat, lng=lng)
-        pano_id = self.metadata["pano_id"]
+        pano_id = self.metadata.pano_id
         self.pano_id = pano_id
         return pano_id
 

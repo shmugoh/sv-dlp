@@ -51,20 +51,18 @@ class metadata:
         elif type(pano_id) is list:
             pano_id = pano_id[0]
         raw_md = metadata._get_raw_metadata(pano_id)
-
         ChangeCoord = geo.ChangeCoord()
         lng, lat = str(raw_md['content'][0]['RX']), str(raw_md['content'][0]['RY'])
         lng, lat = ChangeCoord.bd09mc_to_wgs84(lng, lat)
-        md = {
-            "service": "baidu",
-            "pano_id": raw_md["content"][0]["ID"],
-            "lat": lat,
-            "lng": lng,
-            "date": datetime.strptime(raw_md['content'][0]['Date'], '%Y%m%d'),
-            "size": None,
-            "max_zoom": raw_md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
-        }
-
+        
+        md = sv_dlp.services.MetadataStructure(
+            service="baidu",
+            pano_id=raw_md["content"][0]["ID"],
+            lat=lat,
+            lng=lng,
+            date=datetime.strptime(raw_md['content'][0]['Date'], '%Y%m%d'),
+            max_zoom=raw_md["content"][0]["ImgLayer"][-1]["ImgLevel"] + 1
+            )
         md = metadata._parse_panorama(md, raw_md, output="timeline")
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output="linked_panos")
@@ -82,7 +80,7 @@ class metadata:
                             "date": datetime.strptime(pano_info['TimeLine'], '%Y%m'),
                         }
                     )
-                md["timeline"] = buff
+                md.timeline = buff
             case "linked_panos":
                 ChangeCoord = geo.ChangeCoord()
                 linked_panos = raw_md['content'][0]['Roads'][0]['Panos']
@@ -100,7 +98,7 @@ class metadata:
                             # make it a bit slower
                         }
                     )
-                md["linked_panos"] = buff
+                md.linked_panos = buff
             case _:
                 raise Exception # lol
         return md

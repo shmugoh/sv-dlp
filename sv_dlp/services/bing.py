@@ -74,15 +74,14 @@ class metadata:
             raw_md = metadata._get_raw_metadata(lat, lng)
             bubble_id = raw_md[1]["id"]
             base4_bubbleid = urls._base4(bubble_id)
-            md = {
-                "service": "bing",
-                "pano_id": {"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
-                "lat": raw_md[1]["lo"],
-                "lng": raw_md[1]["la"],
-                "date": metadata._convert_date(raw_md[1]['cd']), # to be used with datetime
-                "size": None,
-                "max_zoom": 3
-            }
+            md = sv_dlp.services.MetadataStructure(
+                service="bing",
+                pano_id={"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
+                lat=raw_md[1]["lo"],
+                lng=raw_md[1]["la"],
+                date=metadata._convert_date(raw_md[1]['cd']),
+                max_zoom=3,
+            )
             metadata._parse_panorama(md, raw_md, output="timeline")
             if get_linked_panos:
                 md = metadata._parse_panorama(md, raw_md, output="linked_panos")
@@ -94,7 +93,7 @@ class metadata:
         buff = []
         match output:
             case "timeline":
-                md["timeline"] = None
+                md.timeline = None
             case "linked_panos":
                 linked_panos = raw_md[2:]       # first iteration
                 for pano_info in linked_panos:  # is current panorama
@@ -108,7 +107,7 @@ class metadata:
                             "date": metadata._convert_date(pano_info['cd']), # to be used with datetime
                         }
                     )
-                md["linked_panos"] = buff
+                md.linked_panos = buff
             case _:
                 raise Exception # lol
         return md

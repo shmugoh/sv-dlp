@@ -1,4 +1,5 @@
 from datetime import datetime
+from pprint import pprint
 import re
 from socketserver import DatagramRequestHandler
 import sys
@@ -48,7 +49,7 @@ class misc:
         url = requests.get(url).url
         try:
             pano = re.findall(r'panorama%5Bid%5D=(.+)&', url)
-            pano = metadata.get_metadata(pano_id=pano)['pano_id']['pano_id']
+            pano = metadata.get_metadata(pano_id=pano).pano_id['pano_id']
         except IndexError:
             try:
                 coords = re.findall(r'panorama%5Bpoint%5D=(.+)%2C(.+)&panorama', url)[0]
@@ -96,19 +97,17 @@ class metadata:
                 pano_id = pano_id[0]
         
         raw_md = metadata._get_raw_metadata(pano_id)
-        img_size = raw_md['data']['Data']['Images']['Zooms'][0]
-        md = {
-            "service": "yandex",
-            "pano_id": {
+        md = sv_dlp.services.MetadataStructure(
+            service="yandex",
+            pano_id={
                 "pano_id": raw_md['data']['Data']['panoramaId'], 
                 "image_id": raw_md['data']['Data']['Images']['imageId']},
-            "lat": raw_md['data']['Data']['Point']['coordinates'][1],
-            "lng": raw_md['data']['Data']['Point']['coordinates'][0],
-            "date": metadata._convert_date(raw_md['data']['Data']['timestamp']),
-            "size": [img_size['width'], img_size['height']],
-            "max_zoom": len(raw_md['data']['Data']['Images']['Zooms']) - 1,
-            "timeline": {}
-        }
+            lat=raw_md['data']['Data']['Point']['coordinates'][1],
+            lng=raw_md['data']['Data']['Point']['coordinates'][0],
+            date=metadata._convert_date(raw_md['data']['Data']['timestamp']),
+            size = raw_md['data']['Data']['Images']['Zooms'][0],
+            max_zoom=len(raw_md['data']['Data']['Images']['Zooms']) - 1,
+        )
         md = metadata._parse_panorama(md, raw_md, output="timeline")
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output="linked_panos")
@@ -128,7 +127,7 @@ class metadata:
                             "date": metadata._convert_date(pano_info['timestamp'])
                         }
                     )
-                md['timeline'] = buff
+                md.timeline = buff
             case "linked_panos":
                 linked_panos = raw_md['data']['Annotation']['Graph']['Nodes']
                 for pano_info in linked_panos:
@@ -147,7 +146,7 @@ class metadata:
                             # make it a bit slower
                         }
                 )
-                md['linked_panos'] = buff
+                md.linked_panos = buff
             case _:
                 raise Exception # lol
         return md

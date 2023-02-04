@@ -74,16 +74,14 @@ class metadata:
         raw_timeline = metadata._get_raw_metadata(pano_id, mode="timeline")
         # timeline is in separate page
         
-        md = {
-            "service": "navae",
-            "pano_id": raw_md["id"],
-            "lat": raw_md['latitude'],
-            "lng": raw_md['longitude'],
-            "date": metadata._convert_date(raw_md['photodate']),
-            "size": None,   # raw_md['image'] has tile_size and segment
-            "max_zoom": 2,  # maybe i'll include it idk
-            "timeline": {}
-        }
+        md = sv_dlp.services.MetadataStructure(
+            service="navae",
+            pano_id=raw_md["id"],
+            lat=raw_md['latitude'],
+            lng=raw_md['longitude'],
+            date=metadata._convert_date(raw_md['photodate']),
+            max_zoom=2,
+        )
         md = metadata._parse_panorama(md, raw_timeline, output="timeline") 
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output="linked_panos")
@@ -101,7 +99,7 @@ class metadata:
                             "date": metadata._convert_date(pano_info[3])
                         }
                     )
-                md['timeline'] = buff
+                md.timeline = buff
             case "linked_panos":
                 linked_panos = raw_md['links']
                 for pano_info in linked_panos[1:]:
@@ -118,7 +116,7 @@ class metadata:
                             # make it a bit slower
                         }
                 )
-                md['linked_panos'] = buff
+                md.linked_panos = buff
             case _:
                 raise Exception # lol
         return md
