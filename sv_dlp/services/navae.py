@@ -56,7 +56,7 @@ class misc:
         # https://map.naver.com/v5/?c=15.71,0,0,1,dh&p=SYL0YBLy6kvNTQfTsvXjeg,4.53,3.89,47.75,Float
         url = requests.get(url).url
         pano = re.findall(r'p=(\w+)', url)
-        return pano
+        return pano[0]
 
     def short_url(pano_id):
         url = urls._build_short_url(pano_id)
