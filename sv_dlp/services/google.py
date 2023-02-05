@@ -35,12 +35,12 @@ class urls:
                 url = f"https://www.google.com/maps/photometa/ac/v1?pb=!1m1!1smaps_sv.tactile!6m3!1i{x}!2i{y}!3i17!8b1"
         return url
 
-    def _build_short_url(pano_id) -> str:
+    def _build_short_url(pano_id, heading=0, pitch=0, zoom=90) -> str:
         """
         Build API call URL that shorts an encoded URL.
         Useful for shortening panorama IDs.
         """
-        encoded_input = f"https://www.google.com/maps/@?api=1&map_action=pano&pano={pano_id}"
+        encoded_input = f"https://www.google.com/maps/@?api=1&map_action=pano&pano={pano_id}&heading={heading}&pitch={pitch}&fov={zoom}"
         url = f'https://www.google.com/maps/rpc/shorturl?pb=!1s{urllib.parse.quote(encoded_input)}'
         return url
     
@@ -67,12 +67,12 @@ class misc:
             pano_id = re.findall(r'pano=([^&]+)', url)
         return pano_id[0]
 
-    def short_url(pano_id):
+    def short_url(pano_id, heading=0, pitch=0, zoom=90):
         """
         Shorts panorama ID by using the
         share function found on Google Maps
         """
-        url = urls._build_short_url(pano_id)
+        url = urls._build_short_url(pano_id, heading=heading, pitch=pitch, zoom=zoom)
         json = j.loads(requests.get(url).content[5:])
         return json[0]
 
@@ -187,7 +187,7 @@ class metadata:
             case 8192: return "4"
 
 def _build_tile_arr(md, zoom=2):
-    pano_id = md['pano_id']
+    pano_id = md.pano_id
     arr = []
     x_y = [0, 0]
     i = 0

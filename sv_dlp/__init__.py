@@ -142,7 +142,7 @@ class sv_dlp:
                 self.get_metadata(lat=lat, lng=lng)
 
         if zoom == -1:
-            zoom = self.metadata['max_zoom'] / 2
+            zoom = self.metadata.max_zoom / 2
             zoom = round(zoom + .1)
 
         print(f"[{self.service_str}]: Building Tile URLs...")
@@ -254,7 +254,7 @@ class sv_dlp:
         """
         pano = self.service.misc.get_pano_from_url(url)
         return pano 
-    def short_url(self, pano_id=None, lat=None, lng=None):
+    def short_url(self, pano_id=None, lat=None, lng=None, heading=0, pitch=0, zoom=90):
         """
         Short URLs with parsed input using Internal API calls 
         from specified service.
@@ -269,6 +269,12 @@ class sv_dlp:
             Latitude
         float:  lng
             Longitude
+        int:    heading 
+            Heading (must be around -360 - 360)
+        int:    pitch
+            Pitch (must be around -90 - 90)
+        int:    zoom
+            Zoom 
 
         Returns
         ----------
@@ -278,7 +284,11 @@ class sv_dlp:
         # TODO: Short Pano via Latitude/Longitude only
         if pano_id == None:
             pano_id = self.get_pano_id(lat=lat, lng=lng)
-        url = self.service.misc.short_url(pano_id)
+        
+        if -360 <= heading <= 360 or -90 <= pitch <= 90:
+            url = self.service.misc.short_url(pano_id, heading=heading, pitch=pitch, zoom=zoom)
+        else:
+            raise services.ExceededMaxHeadingPitch
         return url
 
     class postdownload:
@@ -317,8 +327,8 @@ class sv_dlp:
             """
             print("[pos-download]: Saving Image...")
             if output == None and metadata != None:
-                pano = metadata['pano_id']
-                match metadata['service']:
+                pano = metadata.pano_id
+                match metadata.service:
                     case 'yandex':
                         output = f"{pano['pano_id']}.png"
                     case 'apple':
@@ -349,7 +359,7 @@ def _pano_in_md(pano_id, md) -> bool:
     bool:    bool
         self-explanatory 
     """
-    if md["pano_id"] == pano_id:
+    if md.pano_id == pano_id:
         return True
     else:
         return False

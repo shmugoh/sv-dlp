@@ -40,8 +40,9 @@ class misc:
         pano_id = re.findall('panoid=(.*)&panotype', new_url)
         return pano_id[0]
 
-    def short_url(pano_id):
-        resp = requests.get(urls._build_short_url(pano_id))
+    def short_url(pano_id, heading=0, pitch=0, zoom=0):
+        url = urls._build_short_url(pano_id, heading=heading, pitch=pitch)
+        resp = requests.get(url)
         return resp.json()['url']
 
 class metadata:

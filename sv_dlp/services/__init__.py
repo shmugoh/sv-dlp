@@ -74,3 +74,6 @@ class MetadataPanoIDParsed(Exception):
 
 class MetadataCoordsParsed(Exception):
     message = "Service cannot parse coordinates to obtain metadata"
+
+class ExceededMaxHeadingPitch(Exception):
+    message = "Max Heading/Pitch Level Exceeded"

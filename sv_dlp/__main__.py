@@ -93,6 +93,12 @@ def main(args=None):
     parser.add_argument('--no-crop',
         action='store_true',
         help='do not crop blank bar and leave panorama as it is')
+    parser.add_argument('--heading',
+        metavar='', default=0,
+        help='sets heading level for short url - default is 0')
+    parser.add_argument('--pitch',
+        metavar='', default=0,
+        help='sets pitch level for short url - default is 0')
     args = parser.parse_args(args=args)
     if args.binary:
         match args.binary:
@@ -124,7 +130,7 @@ def main(args=None):
     try:
         sv_dlp.get_metadata(pano_id=pano, lat=lat, lng=lng, get_linked_panos=args.linked_panos)
         if zoom == "max":
-            zoom = sv_dlp.metadata["max_zoom"]
+            zoom = sv_dlp.metadata.max_zoom
     except services.NoPanoIDAvailable as e:
         parser.error(e.message)
     # is stored in sv_dlp.metadata
@@ -164,23 +170,25 @@ def main(args=None):
 
         case "short-link":
             try:
-                print(sv_dlp.short_url(pano_id=pano, lat=lat, lng=lng))
+                heading = args.heading
+                pitch = args.pitch
+                print(sv_dlp.short_url(pano_id=pano, lat=lat, lng=lng, heading=heading, pitch=pitch, zoom=zoom))
             except services.ServiceNotSupported as error:
                 parser.error(error.message)
 
         case "get-metadata":
             pprint(sv_dlp.metadata.dict(), sort_dicts=False)
         case "get-date":
-            print(sv_dlp.metadata["date"])
+            print(sv_dlp.metadata.date)
         case "get-pano-id":
-            print(sv_dlp.metadata["pano_id"])
+            print(sv_dlp.metadata.pano_id)
         case "get-coords":
-            lat = sv_dlp.metadata["lat"]
-            lng = sv_dlp.metadata["lng"]
+            lat = sv_dlp.metadata.lat
+            lng = sv_dlp.metadata.lng
             print(lat, lng)
         case "get-gen":
             try:
-                print(sv_dlp.metadata["misc"]["gen"])
+                print(sv_dlp.metadata.misc["gen"])
             except KeyError:
                 parser.error(services.ServiceNotSupported.message)
 

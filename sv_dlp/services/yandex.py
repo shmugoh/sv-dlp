@@ -29,12 +29,12 @@ class urls:
                 url = f"https://api-maps.yandex.ru/services/panoramas/1.x/?l=stv&lang=en_RU&oid={pano_id}&origin=userAction&provider=streetview"
         return url
 
-    def _build_short_url(pano) -> str:
+    def _build_short_url(pano, heading=0, pitch=0) -> str:
         """
         Build URL that shorts panorama
         from given Panorama ID (OID).
         """
-        url = f'https://yandex.com/maps/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}'
+        url = f'https://yandex.com/maps/?panorama%5Bpoint%5D=0%2C0&panorama%5Bid%5D={pano}&panorama%5Bdirection%5D={heading}%2C{pitch}'
         return url
 
         ''' 
@@ -60,13 +60,13 @@ class misc:
 
         return pano
 
-    def short_url(pano_id):
+    def short_url(pano_id, heading=0, pitch=0, zoom=0):
         try:
             pano_id = pano_id['pano_id']
         except TypeError:
             # if pano id already parsed
             pass
-        url = urls._build_short_url(pano_id)
+        url = urls._build_short_url(pano_id, heading=heading, pitch=pitch)
         return url
 
         ''' 
@@ -174,8 +174,8 @@ class metadata:
         raise sv_dlp.services.ServiceNotSupported
 
 def _build_tile_arr(metadata, zoom=2):
-    pano_id = metadata['pano_id']['image_id']
-    max_zoom = metadata['max_zoom']
+    pano_id = metadata.pano_id['image_id']
+    max_zoom = metadata.max_zoom
     zoom = max_zoom - zoom
 
     arr = []

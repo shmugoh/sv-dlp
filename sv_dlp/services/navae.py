@@ -31,12 +31,12 @@ class urls:
                 url = f"https://panorama.map.naver.com/metadata/timeline/{pano_id}"
         return url
 
-    def _build_short_url(pano) -> str:
+    def _build_short_url(pano, heading=0, pitch=0, zoom=0) -> str:
         """
         Build URL that shorts panorama
         from given Panorama ID.
         """
-        encoded_input = f'https://map.naver.com/v5/?p={pano},0,0,0,Float'        
+        encoded_input = f'https://map.naver.com/v5/?p={pano},{heading},{pitch},{zoom},Float'        
         return encoded_input
         
         ''' 
@@ -58,8 +58,8 @@ class misc:
         pano = re.findall(r'p=(\w+)', url)
         return pano[0]
 
-    def short_url(pano_id):
-        url = urls._build_short_url(pano_id)
+    def short_url(pano_id, heading=0, pitch=0, zoom=0):
+        url = urls._build_short_url(pano_id, heading, pitch, zoom)
         return url
 
 class metadata:
@@ -167,7 +167,7 @@ def _build_tile_arr(metadata, zoom=2):
     https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/P
     https://panorama.pstatic.net/image/wC7zT2RszClsKfYvh4Zcfg/512/L/l/3/2
     '''
-    pano_id = metadata['pano_id']
+    pano_id = metadata.pano_id
 
     if zoom == 0:
         url = urls._build_tile_url(pano_id=pano_id, zoom=0)
