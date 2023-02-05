@@ -13,10 +13,10 @@ def _pano_test(pano_id, service):
 
     md = sv_dlp.get_metadata(pano_id)
     print(f"{md}\n{pano_id}")
-    # print("Downloading...")
-    # img = sv_dlp.download_panorama(pano_id=pano_id)
-    # print("Saving...")
-    # sv_dlp.postdownload.save_panorama(img, md)
+    print("Downloading...")
+    img = sv_dlp.download_panorama(pano_id=pano_id)
+    print("Saving...")
+    sv_dlp.postdownload.save_panorama(img, md)
 
 def _ll_test(lat, lng, service):
     print(f"\n{service} coordinate test")
@@ -25,28 +25,28 @@ def _ll_test(lat, lng, service):
     md = sv_dlp.get_metadata(lat=lat, lng=lng)
     pano = sv_dlp.get_pano_id(lat, lng)
     print(f"{md}\n{pano}")
-    # print("Downloading...")
-    # img = sv_dlp.download_panorama(pano_id=pano)
-    # print("Saving...")
-    # sv_dlp.postdownload.save_panorama(img, md)
+    print("Downloading...")
+    img = sv_dlp.download_panorama(pano_id=pano)
+    print("Saving...")
+    sv_dlp.postdownload.save_panorama(img, md)
 
 if __name__ == "__main__":
     available_services = sv_dlp.get_available_services()
-    # print(available_services)
-    # services_test_info = {
-    #     "apple": (37.77499382574212, -122.47185699855395, None),
-    #     "bing": (37.77499382574212, -122.47185699855395, None),
-    #     "google": (37.77499382574212, -122.47185699855395, "YV7i9WYmvPqT5nEtFLq3SA"),
-    #     "baidu": (39.90802391019931, 116.3403752455185, "09026600011611300908478628V"),
-    #     "yandex": (55.76550473786485, 37.54340745542864, "1298034314_672832338_23_1528540830"),
-    #     "navae": (37.5077677, 126.9400753, "wC7zT2RszClsKfYvh4Zcfg")
-    # }
+    print(available_services)
+    services_test_info = {
+        "apple": (37.77499382574212, -122.47185699855395, None),
+        "bing": (37.77499382574212, -122.47185699855395, None),
+        "google": (37.77499382574212, -122.47185699855395, "YV7i9WYmvPqT5nEtFLq3SA"),
+        "baidu": (39.90802391019931, 116.3403752455185, "09026600011611300908478628V"),
+        "yandex": (55.76550473786485, 37.54340745542864, "1298034314_672832338_23_1528540830"),
+        "navae": (37.5077677, 126.9400753, "wC7zT2RszClsKfYvh4Zcfg")
+    }
 
-    # for service in available_services:
-    #     lat, lng, pano_id = services_test_info.get(service, (None, None, None))
-    #     _ll_test(lat=lat, lng=lng, service=service)
-    #     if pano_id:
-    #         _pano_test(pano_id=pano_id, service=service)
+    for service in available_services:
+        lat, lng, pano_id = services_test_info.get(service, (None, None, None))
+        _ll_test(lat=lat, lng=lng, service=service)
+        if pano_id:
+            _pano_test(pano_id=pano_id, service=service)
 
 
     print("\nURL <-> Coordinates Test")
