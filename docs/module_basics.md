@@ -38,13 +38,22 @@ pano_img = sv_dlp.download_panorama(pano_id)
 sv_dlp.postdownload.save_panorama(pano_img, sv_dlp.metadata)
 ```
 
-To download panorama directly from metadata
+To download panorama directly from metadata:
 ```python
 metadata = sv_dlp.get_metadata(lat=6.603079535799973, lng=-73.99819681137278)
 
 pano_img = sv_dlp.download_panorama(metadata.pano_id, zoom=max)
 sv_dlp.postdownload.save_panorama(pano_img, metadata)
 ```
+
+To download tiles individually:
+```python
+pano, tiles = sv_dlp.download_panorama("YV7i9WYmvPqT5nEtFLq3SA")
+sv_dlp.postdownload.save_tiles(tiles, sv_dlp.metadata)
+```
+You can also pass a single variable to `sv_dlp.download_panorama`,
+as postdownload will automatically determine 
+if it holds the panorama and tiles.
 
 ## Metadata Tinkering
 To obtain older and linked panoramas from given location:

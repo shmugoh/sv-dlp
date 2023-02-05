@@ -133,6 +133,9 @@ class sv_dlp:
         Image:  tile_imgs
             List of Tile Images where each element is stored
             in a PIL.Image format
+        Tuple:  tuple
+            A tuple is returned if only one
+            variable is assigned
         """
 
         if self.metadata == None or _pano_in_md(pano_id, self.metadata) is False:
@@ -323,7 +326,7 @@ class sv_dlp:
         Inner class that is responsible for tinkering
         with given panorama Image obtained from `self.download_panorama`.
         """
-        def save_tiles(tiles_io, metadata, output='./'):
+        def save_tiles(tiles_io, metadata, output=None):
             """
             Saves tiles individually from 
             `self.download_panorama.tile_imgs`.
@@ -340,13 +343,16 @@ class sv_dlp:
                 & service for essential requirements
             str:                    output
                 Folder to be saved onto
-            """            
+            """   
+            print("[pos-download]: Saving Tiles...")
+            
             if isinstance(tiles_io[1], list):
                 tiles_io = tiles_io[1]
             else:
                 raise services.InstanceNotTuple
             
             pano_id = metadata.pano_id
+            if output is None: output = './'
             for row in tiles_io:
                 if metadata.service == 'apple':
                         import pillow_heif

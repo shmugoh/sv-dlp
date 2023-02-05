@@ -139,6 +139,8 @@ def main(args=None):
         case "download":
             img = sv_dlp.download_panorama(pano_id=pano, lat=lat, lng=lng, zoom=zoom)
             sv_dlp.postdownload.save_panorama(img, sv_dlp.metadata, output=args.output)
+            if args.save_tiles:
+                sv_dlp.postdownload.save_tiles(img, sv_dlp.metadata, output=args.output)
         case "download-file":
             try:
                 import json
