@@ -1,6 +1,8 @@
 import requests
 from io import BytesIO
 import concurrent.futures
+import copy
+
 from tqdm import tqdm
 
 from . import tiles
@@ -38,17 +40,18 @@ def panorama(tile_urls, metadata, no_crop=False):
             case 'bing':
                 img = tiles.bing.merge(tiles_io, pbar)
             case 'apple':
-                img = tiles.apple.stitch(tiles_io[0])
+                tiles_io = tiles_io[0]
+                img = tiles.apple.stitch(tiles_io)
                 pbar.update(1)
             case _:
-                for row in tiles_io:
-                    i = tiles_io.index(row)
-                    tiles_io[i] = tiles.stitch(row)
+                tiles_buff = copy.deepcopy(tiles_io)
+                for row in tiles_buff:
+                    i = tiles_buff.index(row)
+                    tiles_buff[i] = tiles.stitch(row)
                     pbar.update(1)
-                img = tiles.merge(tiles_io)
+                img = tiles.merge(tiles_buff)
                 pbar.update(1)
-    if no_crop != True:
+    if not no_crop:
         print("[pos-download]: Cropping...")
         img = postdownload.crop(img, metadata)
-
     return img, tiles_io

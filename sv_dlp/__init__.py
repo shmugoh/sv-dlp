@@ -347,19 +347,18 @@ class sv_dlp:
                 raise services.InstanceNotTuple
             
             pano_id = metadata.pano_id
-            i = 0
             for row in tiles_io:
-                # for tile in row:
                 if metadata.service == 'apple':
-                    import pillow_heif
-                    img = pillow_heif.read_heif(row)
-                    img = Image.frombytes(img.mode, img.size, img.data, "raw")
+                        import pillow_heif
+                        img = pillow_heif.read_heif(row)
+                        img = Image.frombytes(img.mode, img.size, img.data, "raw")
+                        i = f'{tiles_io.index(row)}'
+                        img.save(f"./{output}/{pano_id['pano_id']}_{pano_id['regional_id']}_{i}.png", quality=95)
                 else:
-                    # img = Image.open(tile)
-                    img = row
-                # i = f'{tiles_io.index(row)}_{row.index(row)}
-                img.save(f"./{output}/{pano_id}_{i}.png", quality=95)
-                i += 1
+                    for tile in row:
+                            img = Image.open(tile)
+                            i = f'{tiles_io.index(row)}_{row.index(tile)}'
+                            img.save(f"./{output}/{pano_id}_{i}.png", quality=95)
 
         def save_panorama(img, metadata, output=None):
             """
