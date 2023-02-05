@@ -77,3 +77,5 @@ Refer to this [page]() for compatible services.
 | `--get-coords`       |         |                                                                 |
 | `--get-pano-id`      |         |                                                                 |
 | `--get-gen`          |         |                                                                 |
+| `--heading`          |         | Sets Heading Level for shortening panorama to URL               |
+| `--pitch`            |         | Sets Pitch Level for shortening panorama to URL                 |

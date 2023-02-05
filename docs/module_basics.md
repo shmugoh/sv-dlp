@@ -18,6 +18,8 @@ to Panorama ID, `self.get_metadata()` is called within that function, therefore 
 allocated in `self.metadata`. If you plan on tinkering with the metadata,
 it is is recommended to call `self_get_metadata()` first 
 before calling any other function for syntax readibility.
+- Metadata is returned as a `MetadataStructure` object. If you wish to use
+a dictionary instead, consider using the `.dict()` method
 - If you wish to call a function with a different service than google, please use
 `self.set_service()` first before doing anything - input **must be lowercase**
 
@@ -40,7 +42,7 @@ To download panorama directly from metadata
 ```python
 metadata = sv_dlp.get_metadata(lat=6.603079535799973, lng=-73.99819681137278)
 
-pano_img = sv_dlp.download_panorama(metadata['pano_id'], zoom=max)
+pano_img = sv_dlp.download_panorama(metadata.pano_id, zoom=max)
 sv_dlp.postdownload.save_panorama(pano_img, metadata)
 ```
 
@@ -49,9 +51,9 @@ To obtain older and linked panoramas from given location:
 ```python
 metadata = sv_dlp.get_metadata(lat=6.603079535799973, lng=-73.99819681137278, get_linked_panos=True)
 
-for pano in metadata["timeline"]:
+for pano in metadata.timeline:
     print(pano)
-for pano in metadata["linked_panos"]:
+for pano in metadata.linked_panos:
     print(pano)
 ```
 
@@ -59,6 +61,6 @@ To obtain a panorama's date:
 ```python
 metadata = sv_dlp.get_metadata(lat=6.603079535799973, lng=-73.99819681137278)
 
-date = metadata["date"]
+date = metadata.date
 print(date)
 ```

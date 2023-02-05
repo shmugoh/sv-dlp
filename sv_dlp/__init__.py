@@ -151,23 +151,48 @@ class sv_dlp:
         self.tiles_imgs = tiles_imgs
         return img
 
-    def get_metadata(self, pano_id=None, lat=None, lng=None, get_linked_panos=False) -> dict:
+    def get_metadata(self, pano_id=None, lat=None, lng=None, get_linked_panos=False) -> services.MetadataStructure:
         """
         Calls allocated service's `get_metadata()` function to obtain metadata
         with given input, and store it to class and variable.
         
+        Metadata is returned in a `MetadataStructure` object, providing
+        the developer a more structured and organized way to handle 
+        metadata information with various attributes.
+        Additionally, the `.dict()` method returns the attributes of 
+        each instance of the MetadataStructure class in the form of a 
+        dictionary, allowing for easy access and manipulation of the 
+        metadata information.
+        
         sv_dlp's metadata structure is designed with compatibility in mind, 
         allowing developers to tinker with it no matter the service picked. 
         An example of the returned metadata is the one below:
+        ```python
+        metadata = MetadataStructure(
+            service=service, 
+            pano_id=pano_id, 
+            lat=lat, 
+            lng=lng, 
+            date=datetime.datetime(), 
+            size=image_size, 
+            max_zoom=max_zoom, 
+            timeline=[{'pano_id': 'pano_id', 'date': datetime.datetime()}], 
+            linked_panos={{'pano_id': pano_id, 'lat': lat, 'lng': lng, 'date': datetime.datetime()}}, 
+            misc={}
+        )
+        ```
+        
+        Additionally, the developer has the option to access the metadata 
+        in dictionary form by calling the `.dict()` method. An example is:
         ```python
         metadata = {
             "service": service,
             "pano_id": pano_id,
             "lat": lat,
             "lng": lng,
-            "date": date, # returned as a datetime object
+            "date": datetime.datetime(),
             "size": image_size,
-            "max_zoom": len(image_avail_res[0])-1,
+            "max_zoom": max_zoom,
             "misc": { # Only use with exclusive service features
                 "is_trekker": len(json[1][0][5][0][3][0][0][2]) > 3,
                 "gen": gen,
@@ -201,10 +226,12 @@ class sv_dlp:
 
         Returns
         ----------
-        dict:  metadata
+        MetadataStructure:  metadata
             Metadata of given input
-        dict:  self.metadata
+        MetadataStructure:  self.metadata
             Stores metadata in class
+        func:               .dict()
+            Function inside object that translates `MetadataStructure` object to dictionary
         """
         md = self.service.metadata.get_metadata(pano_id=pano_id, lat=lat, lng=lng, get_linked_panos=get_linked_panos)
         self.metadata = md
