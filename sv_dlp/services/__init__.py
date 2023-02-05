@@ -77,3 +77,9 @@ class MetadataCoordsParsed(Exception):
 
 class ExceededMaxHeadingPitch(Exception):
     message = "Max Heading/Pitch Level Exceeded"
+
+class InstanceNotPanorama(Exception):
+    message = " Specified instance of panorama list not of type PIL.Image.Image"
+    
+class InstanceNotTuple(Exception):
+    message = " Specified instance of panorama list not of tuple"

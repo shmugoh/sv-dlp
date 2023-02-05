@@ -18,12 +18,13 @@ class sv_dlp:
         """
         Initiates sv_dlp class by setting
         the service to scrape from, and allocating
-        placeholders for pano_id and metadata
+        placeholders for pano_id and metadata.
         
         Parameters
         ----------
         str:    service
-            Input of service to scrape from
+            Input of service to scrape from.
+            Default is Google
         
         Returns
         -------
@@ -129,7 +130,7 @@ class sv_dlp:
         ----------
         Image:  img
             Stitched Panorama Image in PIL.Image format
-        Image:  self.tile_imgs
+        Image:  tile_imgs
             List of Tile Images where each element is stored
             in a PIL.Image format
         """
@@ -148,8 +149,7 @@ class sv_dlp:
         print(f"[{self.service_str}]: Building Tile URLs...")
         tile_arr = self.service._build_tile_arr(self.metadata, zoom)
         img, tiles_imgs = download.panorama(tile_arr, self.metadata)
-        self.tiles_imgs = tiles_imgs
-        return img
+        return img, tiles_imgs
 
     def get_metadata(self, pano_id=None, lat=None, lng=None, get_linked_panos=False) -> services.MetadataStructure:
         """
@@ -323,36 +323,73 @@ class sv_dlp:
         Inner class that is responsible for tinkering
         with given panorama Image obtained from `self.download_panorama`.
         """
-        # def save_tiles(tiles_io, metadata, folder='./'):
-        #     tiles_io = tiles_io[1]
-        #     pano_id = metadata["pano_id"]
-        #     for row in tiles_io:
-        #         for tile in row:
-        #             if metadata['service'] == 'apple':
-        #                 img = pillow_heif.read_heif(tile)
-        #                 img = Image.frombytes(img.mode, img.size, img.data, "raw")
-        #             else:
-        #                 img = Image.open(tile)
-        #             i = f'{tiles_io.index(row)}_{row.index(tile)}'
-        #             img.save(f"./{folder}/{pano_id}_{i}.png", quality=95)
-        # TODO: Rework on save_tiles
+        def save_tiles(tiles_io, metadata, output='./'):
+            """
+            Saves tiles individually from 
+            `self.download_panorama.tile_imgs`.
+            
+            If 
+            
+            Parameters
+            ----------
+            Image:                  tiles_io
+                List of Tile Images where each element 
+                is stored in a PIL.Image format
+            MetadataStructure:      metadata
+                Metadata, required for Panorama ID
+                & service for essential requirements
+            str:                    output
+                Folder to be saved onto
+            """            
+            if isinstance(tiles_io[1], list):
+                tiles_io = tiles_io[1]
+            else:
+                raise services.InstanceNotTuple
+            
+            pano_id = metadata.pano_id
+            i = 0
+            for row in tiles_io:
+                # for tile in row:
+                if metadata.service == 'apple':
+                    import pillow_heif
+                    img = pillow_heif.read_heif(row)
+                    img = Image.frombytes(img.mode, img.size, img.data, "raw")
+                else:
+                    # img = Image.open(tile)
+                    img = row
+                # i = f'{tiles_io.index(row)}_{row.index(row)}
+                img.save(f"./{output}/{pano_id}_{i}.png", quality=95)
+                i += 1
 
-        def save_panorama(img, metadata=None, output=None):
+        def save_panorama(img, metadata, output=None):
             """
             Saves Panorama ID on local drive with
-            metadata-related information (EXIF tinkering soon)
+            metadata-related information.
+            
+            `pano_id` must be parsed as a `PIL.Image.Image`
+            object. If a list is parsed, `save_panorama` will
+            treat the first element of the list as the
+            panorama.
     
             Parameters
             ----------
-            Image:  pano_id
-                Panorama ID
-            dict:   metadata
-                Metadata
-            str:    output
-                Location (and filename) to be saved with
+            Image:                  img
+                Panorama
+            MetadataStructure:      metadata
+                Metadata, required for Panorama ID
+                & service for essential requirements
+            str:                    output
+                Location (and filename) to be saved to
     
             """
             print("[pos-download]: Saving Image...")
+            
+            if isinstance(img, tuple):
+                if isinstance(img[0], Image.Image): 
+                    img = img[0]
+                else:
+                    raise services.FirstInstanceNotPanorama
+            
             if output == None and metadata != None:
                 pano = metadata.pano_id
                 match metadata.service:
@@ -376,9 +413,9 @@ def _pano_in_md(pano_id, md) -> bool:
     with allocated metadata in class
     Parameters
     ----------
-    str:    pano_id
+    str:                    pano_id
         Panorama ID
-    dict:   md
+    MetadataStructure:      metadata
         Allocated Metadata in class
 
     Returns
