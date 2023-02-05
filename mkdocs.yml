@@ -1,5 +1,8 @@
 site_name: sv-dlp documentation
 
+repo_name: juanpisss/sv-dlp
+repo_url: https://github.com/juanpisss/sv-dlp
+
 theme:
   name: "material"
   palette:

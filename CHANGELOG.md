@@ -18,7 +18,7 @@
     - `pillow [9.3.0]`:  Pillow subject to DoS via SAMPLESPERPIXEL tag #2
     - `protobuf [4.21.6]`: protobuf-cpp and protobuf-python have potential Denial of Service issue #1
     - `certifi [2022.12.07]`: Certifi removing TrustCor root certificate #3
-
+---
 ## 2023.01.16
 ## Changelog
 The functionality of sv-dlp's back-end can now be utilized as a constructor in other scripts, providing developers to 
