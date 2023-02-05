@@ -34,7 +34,7 @@ def panorama(tile_urls, metadata, no_crop=False):
 
     print("[download]: Stitching Tiles...")
     with tqdm(total=len(tiles_io), unit="img") as pbar:
-        match metadata['service']:
+        match metadata.service:
             case 'bing':
                 img = tiles.bing.merge(tiles_io, pbar)
             case 'apple':

@@ -112,8 +112,8 @@ class metadata:
         raise sv_dlp.services.ServiceNotSupported
 
 def _build_tile_arr(md, zoom=0):
-    pano_id = md["pano_id"]
-    max_zoom = md["max_zoom"]
+    pano_id = md.pano_id
+    max_zoom = md.max_zoom
     zoom = max_zoom - int(zoom)
 
     auth = Authenticator()

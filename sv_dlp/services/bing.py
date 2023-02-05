@@ -129,7 +129,7 @@ def _build_tile_arr(metadata, zoom):
     Taken from sk-zk/streetlevel with a few changes.
     Kudos to him.
     """
-    base4_panoid = metadata['pano_id']['base4_panoid']
+    base4_panoid = metadata.pano_id['base4_panoid']
     zoom = int(zoom)
     subdivs = pow(4, zoom)
     faces = [ [] for x in range(0, 6) ]
