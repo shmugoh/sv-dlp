@@ -8,16 +8,19 @@
     - Panorama's date information
     - Panorama's coordinates
     - Panorama's camera model information
+- **[DOCS]** Implement versioning for MkDocs documentation
 ## Changed
 - **[SERVICES]** Metadata is now class-based. Use `sv_dlp.metadata.dict` for dictionary equivalent
+- **[GOOGLE, BAIDU, YANDEX]** Optimized download times by 45%
 - **[DOCS]** Improved grammar on documentation
 ## Fixed
 - **[APPLE]** Fixed input coordinate accuracy
+## Security
 - **[BUILD]** Updated various libraries to patch certain vulnerabilities
-    - `future [0.18.3]`: Python Charmers Future denial of service vulnerability #4
-    - `pillow [9.3.0]`:  Pillow subject to DoS via SAMPLESPERPIXEL tag #2
-    - `protobuf [4.21.6]`: protobuf-cpp and protobuf-python have potential Denial of Service issue #1
-    - `certifi [2022.12.07]`: Certifi removing TrustCor root certificate #3
+    - `future [0.18.3]`: Python Charmers Future denial of service vulnerability
+    - `pillow [9.3.0]`:  Pillow subject to DoS via `SAMPLESPERPIXEL` tag
+    - `protobuf [4.21.6]`: protobuf-cpp and protobuf-python have potential Denial of Service issue
+    - `certifi [2022.12.07]`: Certifi removing TrustCor root certificate
 ---
 ## 2023.01.16
 ## Changelog
