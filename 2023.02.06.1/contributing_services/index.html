@@ -1,0 +1,676 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.2">
+    
+    
+      
+        <title>Contributing - Basics & Getting Started - sv-dlp documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.69437709.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="light-green" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contributing-getting-started" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="sv-dlp documentation" class="md-header__button md-logo" aria-label="sv-dlp documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sv-dlp documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Contributing - Basics & Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="light-green" data-md-color-accent=""  aria-label="Dark Mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Dark Mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="green" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 1 3 3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3m0-4.5c5 0 9.27 3.11 11 7.5-1.73 4.39-6 7.5-11 7.5S2.73 16.39 1 12c1.73-4.39 6-7.5 11-7.5M3.18 12a9.821 9.821 0 0 0 17.64 0 9.821 9.821 0 0 0-17.64 0Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/juanpisss/sv-dlp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    juanpisss/sv-dlp
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="sv-dlp documentation" class="md-nav__button md-logo" aria-label="sv-dlp documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    sv-dlp documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/juanpisss/sv-dlp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    juanpisss/sv-dlp
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../module_basics/" class="md-nav__link">
+        Module - Basics & Getting Started
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli_guide/" class="md-nav__link">
+        Command Line Interface - User Guide
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supported_services/" class="md-nav__link">
+        Supported Services
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Contributing - Basics & Getting Started
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Contributing - Basics & Getting Started
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#required-classesfunctions" class="md-nav__link">
+    Required Classes/Functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-metadata" class="md-nav__link">
+    Building Metadata
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-array-of-tiles-urls" class="md-nav__link">
+    Building array of Tiles URLs
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-scrapping" class="md-nav__link">
+    Post-Scrapping
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class_documentation/" class="md-nav__link">
+        Class Documentation
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#required-classesfunctions" class="md-nav__link">
+    Required Classes/Functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-metadata" class="md-nav__link">
+    Building Metadata
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-array-of-tiles-urls" class="md-nav__link">
+    Building array of Tiles URLs
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-scrapping" class="md-nav__link">
+    Post-Scrapping
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/juanpisss/sv-dlp/edit/master/docs/contributing_services.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="contributing-getting-started">Contributing - Getting Started</h1>
+<p>The primary function of the service script is to acquire and scrape 
+metadata information, as well as construct arrays of Tile URLs 
+to be downloaded later. </p>
+<p>These are the fundamental steps in integrating a service into <code>sv_dlp</code>. 
+It is strongly suggested to study the scripts of the pre-written services to 
+gain a comprehensive understanding of their functioning.</p>
+<h2 id="required-classesfunctions">Required Classes/Functions</h2>
+<ul>
+<li>
+<p><code>urls</code>
+    Used for building single URLs. Useful for loops.</p>
+<ul>
+<li><code>_build_tile_url(pano_id, zoom=3, x=0, y=0)</code></li>
+<li><code>_build_metadata_url(pano_id=None, lat=None, lng=None, mode="pano/ll")</code></li>
+<li><code>_build_short_url(pano_id, heading=0, pitch=0, zoom=90))</code></li>
+</ul>
+</li>
+<li>
+<p><code>misc</code>
+    Miscellaneous features, mostly for:</p>
+<ul>
+<li><code>get_pano_from_url(url)</code></li>
+<li><code>short_url(pano_id, heading=0, pitch=0, zoom=90))</code></li>
+</ul>
+<p>Although cool to have, some services don't fully support it.
+If that is the case or want to implement it later, 
+<code>raise sv_dlp.services.ServiceNotSupported</code>.</p>
+</li>
+<li>
+<p><code>metadata</code></p>
+<ul>
+<li><code>get_metadata(pano_id=None, lat=None, lng=None, get_linked_panos=False)</code></li>
+<li><code>_parse_panorama(md, raw_md, output="")</code></li>
+<li><code>_get_raw_metadata(pano_id)</code></li>
+<li><code>_get_pano_from_coords(lat, lng)</code></li>
+<li><code>get_gen(metadata/image_size/etc)</code>
+Obligatory to include; raise <code>raise sv_dlp.services.ServiceNotSupported</code>
+if metadata doesn't included info about gen.</li>
+</ul>
+</li>
+</ul>
+<h2 id="building-metadata">Building Metadata</h2>
+<ul>
+<li><code>.urls._build_metadata_url</code></li>
+<li><code>.metadata.get_metadata</code></li>
+<li><code>.metadata.get_raw_metadata</code></li>
+<li><code>.get_pano_from_coords.</code></li>
+<li><code>_parse_panorama(md, raw_md, output="")</code></li>
+</ul>
+<p>sv_dlp's metadata structure is vastly dissimilar than the choosen service's raw_metadata; 
+designed with compatibility in mind, it allows developers to tinker with the data
+no matter the service picked. </p>
+<p>sv_dlp's metadata is returned as a <code>MetadataStructure</code> object, providing
+the developer a more struictured and organized way to handle and
+manipualte metadata information by the means of attributes.
+An example of metadata in the form of a <code>MetadataStructure</code> object is:</p>
+<pre><code class="language-python">metadata = MetadataStructure(
+    service=service, 
+    pano_id=pano_id, 
+    lat=lat, 
+    lng=lng, 
+    date=datetime.datetime(), 
+    size=image_size, 
+    max_zoom=max_zoom, 
+    timeline=[{'pano_id': 'pano_id', 'date': datetime.datetime()}], 
+    linked_panos={{'pano_id': pano_id, 'lat': lat, 'lng': lng, 'date': datetime.datetime()}}, 
+    misc={}
+)
+</code></pre>
+<p>Additionally, the <code>.dict()</code> method returns the attributes of 
+each instance of the MetadataStructure class in the form of a 
+dictionary, allowing for easy access and manipulation of the 
+metadata information.</p>
+<p>An example of sv_dlp's metadata in the form of a dictionary is the one below:</p>
+<pre><code class="language-python">metadata = {
+    &quot;service&quot;: service,
+    &quot;pano_id&quot;: raw_md['pano_id']
+        &quot;&quot;&quot;
+        If raw metadata returns two key IDs (which are necessary for a download), 
+        a list must be allocated inside of it like this:
+        &quot;&quot;&quot;
+        {
+            &quot;pano_id&quot;: pano_id, 
+            &quot;image_id&quot;: image_id
+        }
+    &quot;lat&quot;: raw_md['coordinates']['lat'],
+    &quot;lng&quot;: raw_md['coordinates']['lng'],
+    &quot;date&quot;: date # must be returned as a datetime object,
+    &quot;size&quot;: [raw_md['image']['width'], raw_md['image']['height']],
+    &quot;max_zoom&quot;: len(raw_md['image']['zooms']) - 1,
+    &quot;misc&quot;: { # only use with exclusive service features
+        &quot;gen&quot;: gen,
+    },
+    &quot;timeline&quot;: {
+        [{'pano_id'}: pano_id, &quot;date&quot;: date}],
+        [{'pano_id'}: pano_id, &quot;date&quot;: date}],
+        [{'pano_id'}: pano_id, &quot;date&quot;: date}],
+        # and so on...
+    }
+    &quot;linked_panos&quot;: {
+        '''
+        Only if get_linked_panos is set to true
+        '''
+        [{'pano_id'}: pano_id, &quot;date&quot;: date, &quot;lat&quot;: lat, &quot;lng&quot; lng}],
+        [{'pano_id'}: pano_id, &quot;date&quot;: date, &quot;lat&quot;: lat, &quot;lng&quot; lng}],
+        [{'pano_id'}: pano_id, &quot;date&quot;: date, &quot;lat&quot;: lat, &quot;lng&quot; lng}],
+        # and so on... 
+    },
+}
+</code></pre>
+<p>In order to begin extracting the metadata, <code>raw_metadata</code> initiates a call to the 
+appropriate API obtained from <code>urls._build_metadata_url</code>. If coordinates are parsed,
+<code>get_pano_from_coords</code> is first called to obtain the correct Panorama ID. </p>
+<p>However, this may vary depending on the service being worked on; some services only get raw_metadata
+from Panorama ID, while others with coordinates. To avoid any confusion, it is highly recommended
+to <code>raise</code> <code>sv_dlp.services.MetadataPanoIDParsed</code> or <code>sv_dlp.services.MetadataCoordsParsed</code>.</p>
+<p>If raw_metadata contains data related to <code>timeline</code> or <code>linked_panos</code>, 
+<code>_parse_panorama</code> can be used in a for in loop to correctly parse each panorama
+within its respective segment (<code>timeline</code> or <code>linked_panos</code>).</p>
+<h2 id="building-array-of-tiles-urls">Building array of Tiles URLs</h2>
+<ul>
+<li><code>.urls._build_tile_url</code></li>
+<li><code>.build_tile_arr</code></li>
+</ul>
+<p>When metadata is parsed, sv_dlp executes the <code>_build_tile_arr</code> function, which creates an array
+of all tiles based on the <code>pano_id</code> foudn in the given metadata; each tile is done individually using 
+the <code>_build_tile_url</code> function found in the <code>urls</code> class.</p>
+<p>In the array, each column and row represents its x and y position respectfully on the panorama, 
+such as the one shown below.</p>
+<p><img alt="Column/Row Array - Credit to GeeksforGeeks" src="https://media.geeksforgeeks.org/wp-content/uploads/two-d.png" /></p>
+<p>After building the array, a <code>ThreadPoolExecutor</code> (multi-threading) object is called; threads are generated 
+based on the length of the y axis; each thread downloads its respectful row and stores it
+into a Tile IO array with its respectful axis position.</p>
+<p>A big benefit of using multi-threading is time. If downloading a panorama with a lower zoom level 
+difference isn't that much, but within my own testings downloading larger zoom levels take huge amounts of seconds 
+(45s w/o multithreading -&gt; 5s w/ multithreading). </p>
+<p>Once the downloading process is complete, all rows get stitched separately then all columns
+are merged into one single image.</p>
+<h2 id="post-scrapping">Post-Scrapping</h2>
+<p>After obtaining the metadata &amp; building the array of Tile URLs sv-dlp will take
+charge of the post-process, such as downloading or returning the data.
+If you want to add/change something in the post-process, feel free to check
+out <code>sv_dlp.download</code>.</p>
+
+
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../supported_services/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Supported Services" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Supported Services
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../class_documentation/" class="md-footer__link md-footer__link--next" aria-label="Next: Class Documentation" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Class Documentation
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9c69f0bc.min.js"></script>
+      
+    
+  </body>
+</html>
