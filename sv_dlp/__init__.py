@@ -366,7 +366,7 @@ class sv_dlp:
                             i = f'{tiles_io.index(row)}_{row.index(tile)}'
                             img.save(f"./{output}/{pano_id}_{i}.png", quality=95)
 
-        def save_panorama(img, metadata, output=None):
+        def save_panorama(img, metadata, edit_exif=True, output=None):
             """
             Saves Panorama ID on local drive with
             metadata-related information.
@@ -383,6 +383,11 @@ class sv_dlp:
             MetadataStructure:      metadata
                 Metadata, required for Panorama ID
                 & service for essential requirements
+            bool:                   edit_exif
+                Sets if EXIF Data shall be edited. This
+                edits the datetime, coordinates and
+                camera information (last one varying)
+                on the service.
             str:                    output
                 Location (and filename) to be saved to
     
@@ -409,7 +414,12 @@ class sv_dlp:
                         output = f"{pano['pano_id']}.png"
                     case _:
                         output = f"{pano}.png"
-            img.save(f"./{output}", quality=95)
+            
+            if edit_exif:
+                exif_data = download.postdownload.dump_exif(metadata)
+            else:
+                exif_data = {}
+            img.save(f"./{output}", quality=95, exif=exif_data)
             # TODO: Edit EXIF data using /TNThieding/exif/ (GitLab)
     
 def _pano_in_md(pano_id, md) -> bool:
