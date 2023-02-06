@@ -75,7 +75,7 @@ jobs:
       - name: Deploy Docs
         run: |
           pip install -r wiki_reqs.txt
-          mike deploy --push --update-aliases ${{ steps.version.outputs.sv-dlp_version }} latest
+          mike deploy --push --update-aliases ${{ needs.create-release.outputs.version }} latest
           mike set-default --push latest
 
   build-publish-pypi:
