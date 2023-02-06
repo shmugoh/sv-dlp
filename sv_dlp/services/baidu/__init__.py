@@ -123,7 +123,7 @@ class metadata:
         return pano_id
 
 def _build_tile_arr(metadata, zoom):
-    pano_id = metadata['pano_id']
+    pano_id = metadata.pano_id
     arr = []
     x_y = [0, 0]
     i = 0

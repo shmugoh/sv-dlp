@@ -77,8 +77,8 @@ class metadata:
             md = sv_dlp.services.MetadataStructure(
                 service="bing",
                 pano_id={"pano_id": bubble_id, "base4_panoid": str(base4_bubbleid).zfill(16)},
-                lat=raw_md[1]["lo"],
-                lng=raw_md[1]["la"],
+                lat=raw_md[1]["la"],
+                lng=raw_md[1]["lo"],
                 date=metadata._convert_date(raw_md[1]['cd']),
                 max_zoom=3,
             )
