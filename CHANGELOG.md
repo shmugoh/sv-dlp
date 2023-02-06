@@ -1,4 +1,4 @@
-## 2023.02.XX
+## 2023.02.06
 ## Changelog
 ## Added
 - **[NAVAE]** Implemented Navae Support - #29
@@ -13,8 +13,6 @@
 - **[SERVICES]** Metadata is now class-based. Use `sv_dlp.metadata.dict` for dictionary equivalent
 - **[GOOGLE, BAIDU, YANDEX]** Optimized download times by 45%
 - **[DOCS]** Improved grammar on documentation
-## Fixed
-- **[APPLE]** Fixed input coordinate accuracy
 ## Security
 - **[BUILD]** Updated various libraries to patch certain vulnerabilities
     - `future [0.18.3]`: Python Charmers Future denial of service vulnerability
