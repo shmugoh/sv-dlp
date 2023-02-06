@@ -3,7 +3,7 @@ repo_name: juanpisss/sv-dlp
 repo_url: https://github.com/juanpisss/sv-dlp
 
 nav:
-  - "Index": index.md
+  - "Index":                                    index.md
   - "Module - Basics & Getting Started":        module_basics.md
   - "Command Line Interface - User Guide":      cli_guide.md
   - "Supported Services":                       supported_services.md
@@ -13,23 +13,27 @@ nav:
 theme:
   name: "material"
   palette:
-    # Palette toggle for light mode
+    # Dark Mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: light green
       toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    # Palette toggle for dark mode
+        icon: material/eye
+        name: Dark Mode
+        
+    # Light Mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: green
       toggle:
-        icon: material/brightness-4
+        icon: material/eye-outline
         name: Switch to light mode
 
 plugins:
 - search
 - mkdocstrings
 - include-markdown
+- mike
 
 extra:
   version:
