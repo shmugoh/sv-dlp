@@ -40,8 +40,8 @@ For detailed documentation and usage examples, please refer to the [official doc
 ## **Services**
 Service|Status|Notes
 :------|:-----|:----
-Google |100%  |Zoom 5 only obtains a portion of the face, but that might be Google's problem.
-Baidu  |99%   |Downloading might be slow depending on how far you are from Baidu's servers; translation between BD09MC and WGS84 is innacurate.
+Google |100%  |Zoom 5 only obtains a portion of the face.
+Baidu  |99%   |Translation between BD09MC and WGS84 is innacurate.
 Navae  |99%   |Short Link function does not use its appropiate API call.
 Yandex |99%   |Short Link function does not use the `shortenPath` API call.
 Apple  |95%   |Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/juanpisss/sv-dlp/blob/master/CREDITS)
@@ -129,14 +129,17 @@ print(date)
 ```
 
 ## **FAQ**
-### **Why aren't all my coordinates from .csv downloading?**
+## **Metadata is being returned as a `MetadataStrucutre` object. Any other way to access it?**
+Yes! You can use the `.dict()` method to retrieve the metadata as a dictionary
+instead.
+## **Why aren't all my coordinates from .csv downloading?**
 Depending on how close the given coordinates are, it'll download the same panorama ID 
 no matter the difference. It's recommended to use .json or .csv with panorama IDs instead.
 ## **Can X Service be added?**
 Depending on how accesible it is scraping-wise, yes.
 **Feel free to submit in an issue** about the specific service and I'll gladly see 
 what I can do about it. If you're a developer though, refer to the next question.
-### **I'm a developer and I want to add X service or improve the code. Can I?**
+## **I'm a developer and I want to add X service or improve the code. Can I?**
 Sure! You're welcome to submit in a pull request as long as its to improve
 this program, such as improving performance, fixing a bug, adding a service, etc.
 For those who want to add a service, check out [the documentation for it](https://juanpisss.github.io/sv-dlp/contributing_services/).
