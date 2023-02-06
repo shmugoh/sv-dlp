@@ -75,7 +75,6 @@ jobs:
       - name: Deploy Docs
         run: |
           pip install -r wiki_reqs.txt
-          git fetch origin gh-pages
           mike deploy --push --update-aliases ${{ steps.version.outputs.sv-dlp_version }} latest
           mike set-default --push latest
 
