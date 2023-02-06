@@ -1,4 +1,4 @@
-# Command Line Interface User GUide
+# Command Line Interface User Guide
 
 # Contents
 1. [Installation](https://github.com/juanpisss/sv-dlp/wiki/Command-Line-Interface---User-Guide#installation)
@@ -10,14 +10,20 @@
 4. [Commands / Flags](https://github.com/juanpisss/sv-dlp/wiki/Command-Line-Interface---User-Guide#commands--flags)
 
 # Installation
-To install sv-dlp, you download it via PIP (if Python >3.10 is installed) and using `py -m sv_dlp` or by adding the binaries found in [the release page](https://github.com/juanpisss/sv-dlp/releases) to PATH.
+To install sv-dlp, you download it via PIP (if Python >3.10 is installed) 
+and using `py -m sv_dlp` or by adding the binaries found in 
+[the release page](https://github.com/juanpisss/sv-dlp/releases) to PATH.
 
 # Getting Started - The Basics
 sv-dlp allocates arguments in various ways, the most common being:
 ```
 sv-dlp [INPUT] [FLAGS]
 ```
-Where `INPUT` can be a Panorama ID, Latitude and Longitude, or URL (if such service supports it); flags are described [here](https://github.com/juanpisss/sv-dlp/wiki/Command-Line-Interface---User-Guide#commands--flags), although the most common ones are ``--service``, where its default is google, and ``--zoom``, where its default is half of max zoom.
+Where `INPUT` can be a Panorama ID, Latitude and Longitude, or URL (which automatically
+obtains the Panorama ID, as long as such service supports it); flags are described 
+[here](https://github.com/juanpisss/sv-dlp/wiki/Command-Line-Interface---User-Guide#commands--flags), 
+although the most common ones are ``--service``, where its default is google, 
+and ``--zoom``, where its default is half of max zoom.
 A quick example of such behaviour is:
 ```bash
 sv-dlp 55.76550473786485, 37.54340745542864 --zoom max --service yandex
@@ -37,6 +43,11 @@ And if an URL is available:
 sv-dlp https://goo.gl/maps/MfDjHx8jimButM5u6
 ```
 And so on...
+
+You can also download tiles individually, by using:
+```bash
+sv-dlp "YV7i9WYmvPqT5nEtFLq3SA" --save-tiles
+```
 
 ## Common Flags
 If you wish to set the zoom level, leave the ``--zoom`` flag after the [INPUT], such like this:
@@ -77,3 +88,5 @@ Refer to this [page]() for compatible services.
 | `--get-coords`       |         |                                                                 |
 | `--get-pano-id`      |         |                                                                 |
 | `--get-gen`          |         |                                                                 |
+| `--heading`          |         | Sets Heading Level for shortening panorama to URL               |
+| `--pitch`            |         | Sets Pitch Level for shortening panorama to URL                 |

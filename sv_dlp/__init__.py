@@ -18,12 +18,13 @@ class sv_dlp:
         """
         Initiates sv_dlp class by setting
         the service to scrape from, and allocating
-        placeholders for pano_id and metadata
+        placeholders for pano_id and metadata.
         
         Parameters
         ----------
         str:    service
-            Input of service to scrape from
+            Input of service to scrape from.
+            Default is Google
         
         Returns
         -------
@@ -129,9 +130,12 @@ class sv_dlp:
         ----------
         Image:  img
             Stitched Panorama Image in PIL.Image format
-        Image:  self.tile_imgs
+        Image:  tile_imgs
             List of Tile Images where each element is stored
             in a PIL.Image format
+        Tuple:  tuple
+            A tuple is returned if only one
+            variable is assigned
         """
 
         if self.metadata == None or _pano_in_md(pano_id, self.metadata) is False:
@@ -142,32 +146,56 @@ class sv_dlp:
                 self.get_metadata(lat=lat, lng=lng)
 
         if zoom == -1:
-            zoom = self.metadata['max_zoom'] / 2
+            zoom = self.metadata.max_zoom / 2
             zoom = round(zoom + .1)
 
         print(f"[{self.service_str}]: Building Tile URLs...")
         tile_arr = self.service._build_tile_arr(self.metadata, zoom)
         img, tiles_imgs = download.panorama(tile_arr, self.metadata)
-        self.tiles_imgs = tiles_imgs
-        return img
+        return img, tiles_imgs
 
-    def get_metadata(self, pano_id=None, lat=None, lng=None, get_linked_panos=False) -> dict:
+    def get_metadata(self, pano_id=None, lat=None, lng=None, get_linked_panos=False) -> services.MetadataStructure:
         """
         Calls allocated service's `get_metadata()` function to obtain metadata
         with given input, and store it to class and variable.
         
+        Metadata is returned in a `MetadataStructure` object, providing
+        the developer a more structured and organized way to handle 
+        metadata information with various attributes.
+        Additionally, the `.dict()` method returns the attributes of 
+        each instance of the MetadataStructure class in the form of a 
+        dictionary, allowing for easy access and manipulation of the 
+        metadata information.
+        
         sv_dlp's metadata structure is designed with compatibility in mind, 
         allowing developers to tinker with it no matter the service picked. 
         An example of the returned metadata is the one below:
+        ```python
+        metadata = MetadataStructure(
+            service=service, 
+            pano_id=pano_id, 
+            lat=lat, 
+            lng=lng, 
+            date=datetime.datetime(), 
+            size=image_size, 
+            max_zoom=max_zoom, 
+            timeline=[{'pano_id': 'pano_id', 'date': datetime.datetime()}], 
+            linked_panos={{'pano_id': pano_id, 'lat': lat, 'lng': lng, 'date': datetime.datetime()}}, 
+            misc={}
+        )
+        ```
+        
+        Additionally, the developer has the option to access the metadata 
+        in dictionary form by calling the `.dict()` method. An example is:
         ```python
         metadata = {
             "service": service,
             "pano_id": pano_id,
             "lat": lat,
             "lng": lng,
-            "date": date, # returned as a datetime object
+            "date": datetime.datetime(),
             "size": image_size,
-            "max_zoom": len(image_avail_res[0])-1,
+            "max_zoom": max_zoom,
             "misc": { # Only use with exclusive service features
                 "is_trekker": len(json[1][0][5][0][3][0][0][2]) > 3,
                 "gen": gen,
@@ -201,10 +229,12 @@ class sv_dlp:
 
         Returns
         ----------
-        dict:  metadata
+        MetadataStructure:  metadata
             Metadata of given input
-        dict:  self.metadata
+        MetadataStructure:  self.metadata
             Stores metadata in class
+        func:               .dict()
+            Function inside object that translates `MetadataStructure` object to dictionary
         """
         md = self.service.metadata.get_metadata(pano_id=pano_id, lat=lat, lng=lng, get_linked_panos=get_linked_panos)
         self.metadata = md
@@ -233,7 +263,7 @@ class sv_dlp:
             Panorama ID of given coordinates
         """
         self.get_metadata(lat=lat, lng=lng)
-        pano_id = self.metadata["pano_id"]
+        pano_id = self.metadata.pano_id
         self.pano_id = pano_id
         return pano_id
 
@@ -254,7 +284,7 @@ class sv_dlp:
         """
         pano = self.service.misc.get_pano_from_url(url)
         return pano 
-    def short_url(self, pano_id=None, lat=None, lng=None):
+    def short_url(self, pano_id=None, lat=None, lng=None, heading=0, pitch=0, zoom=90):
         """
         Short URLs with parsed input using Internal API calls 
         from specified service.
@@ -269,6 +299,12 @@ class sv_dlp:
             Latitude
         float:  lng
             Longitude
+        int:    heading 
+            Heading (must be around -360 - 360)
+        int:    pitch
+            Pitch (must be around -90 - 90)
+        int:    zoom
+            Zoom 
 
         Returns
         ----------
@@ -278,7 +314,11 @@ class sv_dlp:
         # TODO: Short Pano via Latitude/Longitude only
         if pano_id == None:
             pano_id = self.get_pano_id(lat=lat, lng=lng)
-        url = self.service.misc.short_url(pano_id)
+        
+        if -360 <= heading <= 360 or -90 <= pitch <= 90:
+            url = self.service.misc.short_url(pano_id, heading=heading, pitch=pitch, zoom=zoom)
+        else:
+            raise services.ExceededMaxHeadingPitch
         return url
 
     class postdownload:
@@ -286,39 +326,83 @@ class sv_dlp:
         Inner class that is responsible for tinkering
         with given panorama Image obtained from `self.download_panorama`.
         """
-        # def save_tiles(tiles_io, metadata, folder='./'):
-        #     tiles_io = tiles_io[1]
-        #     pano_id = metadata["pano_id"]
-        #     for row in tiles_io:
-        #         for tile in row:
-        #             if metadata['service'] == 'apple':
-        #                 img = pillow_heif.read_heif(tile)
-        #                 img = Image.frombytes(img.mode, img.size, img.data, "raw")
-        #             else:
-        #                 img = Image.open(tile)
-        #             i = f'{tiles_io.index(row)}_{row.index(tile)}'
-        #             img.save(f"./{folder}/{pano_id}_{i}.png", quality=95)
-        # TODO: Rework on save_tiles
+        def save_tiles(tiles_io, metadata, output=None):
+            """
+            Saves tiles individually from 
+            `self.download_panorama.tile_imgs`.
+            
+            If 
+            
+            Parameters
+            ----------
+            Image:                  tiles_io
+                List of Tile Images where each element 
+                is stored in a PIL.Image format
+            MetadataStructure:      metadata
+                Metadata, required for Panorama ID
+                & service for essential requirements
+            str:                    output
+                Folder to be saved onto
+            """   
+            print("[pos-download]: Saving Tiles...")
+            
+            if isinstance(tiles_io[1], list):
+                tiles_io = tiles_io[1]
+            else:
+                raise services.InstanceNotTuple
+            
+            pano_id = metadata.pano_id
+            if output is None: output = './'
+            for row in tiles_io:
+                if metadata.service == 'apple':
+                        import pillow_heif
+                        img = pillow_heif.read_heif(row)
+                        img = Image.frombytes(img.mode, img.size, img.data, "raw")
+                        i = f'{tiles_io.index(row)}'
+                        img.save(f"./{output}/{pano_id['pano_id']}_{pano_id['regional_id']}_{i}.png", quality=95)
+                else:
+                    for tile in row:
+                            img = Image.open(tile)
+                            i = f'{tiles_io.index(row)}_{row.index(tile)}'
+                            img.save(f"./{output}/{pano_id}_{i}.png", quality=95)
 
-        def save_panorama(img, metadata=None, output=None):
+        def save_panorama(img, metadata, edit_exif=True, output=None):
             """
             Saves Panorama ID on local drive with
-            metadata-related information (EXIF tinkering soon)
+            metadata-related information.
+            
+            `pano_id` must be parsed as a `PIL.Image.Image`
+            object. If a list is parsed, `save_panorama` will
+            treat the first element of the list as the
+            panorama.
     
             Parameters
             ----------
-            Image:  pano_id
-                Panorama ID
-            dict:   metadata
-                Metadata
-            str:    output
-                Location (and filename) to be saved with
+            Image:                  img
+                Panorama
+            MetadataStructure:      metadata
+                Metadata, required for Panorama ID
+                & service for essential requirements
+            bool:                   edit_exif
+                Sets if EXIF Data shall be edited. This
+                edits the datetime, coordinates and
+                camera information (last one varying)
+                on the service.
+            str:                    output
+                Location (and filename) to be saved to
     
             """
             print("[pos-download]: Saving Image...")
+            
+            if isinstance(img, tuple):
+                if isinstance(img[0], Image.Image): 
+                    img = img[0]
+                else:
+                    raise services.FirstInstanceNotPanorama
+            
             if output == None and metadata != None:
-                pano = metadata['pano_id']
-                match metadata['service']:
+                pano = metadata.pano_id
+                match metadata.service:
                     case 'yandex':
                         output = f"{pano['pano_id']}.png"
                     case 'apple':
@@ -330,7 +414,12 @@ class sv_dlp:
                         output = f"{pano['pano_id']}.png"
                     case _:
                         output = f"{pano}.png"
-            img.save(f"./{output}", quality=95)
+            
+            if edit_exif:
+                exif_data = download.postdownload.dump_exif(metadata)
+            else:
+                exif_data = {}
+            img.save(f"./{output}", quality=95, exif=exif_data)
             # TODO: Edit EXIF data using /TNThieding/exif/ (GitLab)
     
 def _pano_in_md(pano_id, md) -> bool:
@@ -339,9 +428,9 @@ def _pano_in_md(pano_id, md) -> bool:
     with allocated metadata in class
     Parameters
     ----------
-    str:    pano_id
+    str:                    pano_id
         Panorama ID
-    dict:   md
+    MetadataStructure:      metadata
         Allocated Metadata in class
 
     Returns
@@ -349,7 +438,7 @@ def _pano_in_md(pano_id, md) -> bool:
     bool:    bool
         self-explanatory 
     """
-    if md["pano_id"] == pano_id:
+    if md.pano_id == pano_id:
         return True
     else:
         return False

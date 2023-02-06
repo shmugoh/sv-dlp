@@ -1,3 +1,25 @@
+## 2023.02.06
+## Changelog
+## Added
+- **[NAVAE]** Implemented Navae Support - #29
+- **[SERVICES]** Heading, Pitching and Zooming can now be set for Short URLs
+- **[DOWNLOAD]** Functionality for saving individual tiles has been reinstated
+- **[DOWNLOAD]** Manipulation of EXIF data under certain circumstances is now available, including:
+    - Panorama's date information
+    - Panorama's coordinates
+    - Panorama's camera model information
+- **[DOCS]** Implement versioning for MkDocs documentation
+## Changed
+- **[SERVICES]** Metadata is now class-based. Use `sv_dlp.metadata.dict` for dictionary equivalent
+- **[GOOGLE, BAIDU, YANDEX]** Optimized download times by 45%
+- **[DOCS]** Improved grammar on documentation
+## Security
+- **[BUILD]** Updated various libraries to patch certain vulnerabilities
+    - `future [0.18.3]`: Python Charmers Future denial of service vulnerability
+    - `pillow [9.3.0]`:  Pillow subject to DoS via `SAMPLESPERPIXEL` tag
+    - `protobuf [4.21.6]`: protobuf-cpp and protobuf-python have potential Denial of Service issue
+    - `certifi [2022.12.07]`: Certifi removing TrustCor root certificate
+---
 ## 2023.01.16
 ## Changelog
 The functionality of sv-dlp's back-end can now be utilized as a constructor in other scripts, providing developers to 

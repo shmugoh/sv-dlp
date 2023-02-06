@@ -51,23 +51,21 @@ class metadata:
                 pano_md.location.latitude_offset,
                 raw_md.tile_coordinate.x,
                 raw_md.tile_coordinate.y)
-        md = {
-                "service": "apple",
-                "pano_id": {
+        md = sv_dlp.services.MetadataStructure(
+            service="apple",
+            pano_id={
                     "pano_id": pano_md.panoid, 
                     "regional_id": raw_md.unknown13[pano_md.region_id_idx].region_id},
-                "lat": lat,
-                "lng": lng,
-                "date": metadata._convert_date(pano_md.timestamp),
-                "size": None,
-                "max_zoom": 7,
-                "misc": {
+            lat=lat,
+            lng=lng,
+            date=metadata._convert_date(pano_md.timestamp),
+            max_zoom=7,
+            misc={
                     "is_trekker": raw_md.unknown13[pano_md.region_id_idx].coverage_type,
                     "north_offset": geo.get_north_offset(pano_md.location.north_x, pano_md.location.north_y),
                     "raw_elevation": pano_md.location.elevation,
                 },
-                "timeline": {},
-            }
+        )
         md = metadata._parse_panorama(md, raw_md, output='timeline')
         if get_linked_panos:
             md = metadata._parse_panorama(md, raw_md, output='linked_panos')
@@ -77,7 +75,7 @@ class metadata:
         buff = []
         match output:
             case 'timeline':
-                md['timeline'] = None
+                md.timeline = {}
             case 'linked_panos':
                 panos = raw_md.pano[1:]
                 for pano_md in panos:
@@ -92,7 +90,7 @@ class metadata:
                             "lng": lng,
                             "date": datetime.fromtimestamp(int(pano_md.timestamp) / 1000.0).strftime("%Y-%m-%d %H:%M:%S"),
                     })
-                md['linked_panos'] = buff
+                md.linked_panos = buff
             case _:
                 raise Exception
         return md
@@ -114,8 +112,8 @@ class metadata:
         raise sv_dlp.services.ServiceNotSupported
 
 def _build_tile_arr(md, zoom=0):
-    pano_id = md["pano_id"]
-    max_zoom = md["max_zoom"]
+    pano_id = md.pano_id
+    max_zoom = md.max_zoom
     zoom = max_zoom - int(zoom)
 
     auth = Authenticator()

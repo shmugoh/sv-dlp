@@ -14,13 +14,13 @@ gain a comprehensive understanding of their functioning.
     
     - `_build_tile_url(pano_id, zoom=3, x=0, y=0)`
     - `_build_metadata_url(pano_id=None, lat=None, lng=None, mode="pano/ll")`
-    - `_build_short_url(pano_id)`
+    - `_build_short_url(pano_id, heading=0, pitch=0, zoom=90))`
 
 - `misc`
     Miscellaneous features, mostly for:
 
     - `get_pano_from_url(url)`
-    - `short_url(pano_id)`
+    - `short_url(pano_id, heading=0, pitch=0, zoom=90))`
     
     Although cool to have, some services don't fully support it.
     If that is the case or want to implement it later, 
@@ -46,7 +46,31 @@ sv_dlp's metadata structure is vastly dissimilar than the choosen service's raw_
 designed with compatibility in mind, it allows developers to tinker with the data
 no matter the service picked. 
 
-An example of sv_dlp's metadata is the one below:
+sv_dlp's metadata is returned as a `MetadataStructure` object, providing
+the developer a more struictured and organized way to handle and
+manipualte metadata information by the means of attributes.
+An example of metadata in the form of a `MetadataStructure` object is:
+```python
+metadata = MetadataStructure(
+    service=service, 
+    pano_id=pano_id, 
+    lat=lat, 
+    lng=lng, 
+    date=datetime.datetime(), 
+    size=image_size, 
+    max_zoom=max_zoom, 
+    timeline=[{'pano_id': 'pano_id', 'date': datetime.datetime()}], 
+    linked_panos={{'pano_id': pano_id, 'lat': lat, 'lng': lng, 'date': datetime.datetime()}}, 
+    misc={}
+)
+```
+
+Additionally, the `.dict()` method returns the attributes of 
+each instance of the MetadataStructure class in the form of a 
+dictionary, allowing for easy access and manipulation of the 
+metadata information.
+
+An example of sv_dlp's metadata in the form of a dictionary is the one below:
 ```python
 metadata = {
     "service": service,
@@ -94,7 +118,7 @@ from Panorama ID, while others with coordinates. To avoid any confusion, it is h
 to `raise` `sv_dlp.services.MetadataPanoIDParsed` or `sv_dlp.services.MetadataCoordsParsed`.
 
 If raw_metadata contains data related to `timeline` or `linked_panos`, 
-_parse_panorama can be used in a for in loop to correctly parse each panorama
+`_parse_panorama` can be used in a for in loop to correctly parse each panorama
 within its respective segment (`timeline` or `linked_panos`).
 
 ## Building array of Tiles URLs
