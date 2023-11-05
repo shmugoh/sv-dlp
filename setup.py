@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from dev_scripts.version_utils import read_file, read_version
+from utils.version import read_file, read_version
 
 VERSION = read_version()
 REQUIREMENTS = read_file('requirements.txt').splitlines()
@@ -15,11 +15,11 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
 
-    url='https://github.com/juanpisss/sv-dlp',
-    maintainer="juanpisss",
-    maintainer_email="juanpiss@basedtakes.co",
+    url='https://github.com/shmugoh/sv-dlp',
+    maintainer="shmugo",
+    maintainer_email="juan@shmugo.co",
 
-    packages=find_packages(exclude=('dev_scripts')),
+    packages=find_packages(exclude=('utils')),
     python_requires='>=3.10', # thinking about making it 3.8
     install_requires=REQUIREMENTS,
 )

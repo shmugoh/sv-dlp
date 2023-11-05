@@ -12,7 +12,7 @@ projects.
 This project has been made for educational purposes and all content scraped from
 is owned by their respective authors.
 
-For detailed documentation and usage examples, please refer to the [official documentation](https://juanpisss.github.io/sv-dlp/).
+For detailed documentation and usage examples, please refer to the [official documentation](https://shmugo.co/sv-dlp).
 
 ## **Warning**
 
@@ -36,14 +36,14 @@ smoothly for all supported platforms.
 
 ## **Services**
 
-| Service | Status | Notes                                                                                                                                                      |
-| :------ | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Google  | 100%   | Zoom 5 only obtains a portion of the face.                                                                                                                 |
-| Baidu   | 99%    | Translation between BD09MC and WGS84 is innacurate.                                                                                                        |
-| Navae   | 99%    | Short Link function does not use its appropiate API call.                                                                                                  |
-| Yandex  | 99%    | Short Link function does not use the `shortenPath` API call.                                                                                               |
-| Apple   | 95%    | Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/juanpisss/sv-dlp/blob/master/CREDITS) |
-| Bing    | 95%    | Misc features not implemented; can only obtain metadata by coords - credit to [sk-zk](https://github.com/juanpisss/sv-dlp/blob/master/CREDITS)             |
+| Service | Status | Notes                                                                                                                                                    |
+| :------ | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Google  | 100%   | Zoom 5 only obtains a portion of the face.                                                                                                               |
+| Baidu   | 99%    | Translation between BD09MC and WGS84 is innacurate.                                                                                                      |
+| Navae   | 99%    | Short Link function does not use its appropiate API call.                                                                                                |
+| Yandex  | 99%    | Short Link function does not use the `shortenPath` API call.                                                                                             |
+| Apple   | 95%    | Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/shmugoh/sv-dlp/blob/master/CREDITS) |
+| Bing    | 95%    | Misc features not implemented; can only obtain metadata by coords - credit to [sk-zk](https://github.com/shmugoh/sv-dlp/blob/master/CREDITS)             |
 
 ## **Installation**
 
@@ -56,7 +56,7 @@ $ py -m sv_dlp
 
 ## Manual
 
-If you prefer using a binary instead, check out the binaries [here](https://github.com/juanpisss/sv-dlp/releases/latest)
+If you prefer using a binary instead, check out the binaries [here](https://github.com/shmugoh/sv-dlp/releases/latest)
 and add them to your `PATH` folder. Check out this [guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)
 for more information.
 
@@ -168,4 +168,4 @@ For those who want to add a service, check out [the documentation for it](https:
 
 ## **License**
 
-[MIT](https://raw.githubusercontent.com/juanpisss/sv-dlp/master/LICENSE)
+[MIT](https://raw.githubusercontent.com/shmugoh/sv-dlp/master/LICENSE)
