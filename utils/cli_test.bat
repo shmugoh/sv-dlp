@@ -1,10 +1,10 @@
 @REM genuinely the most rockiest programming i've done
 @echo OFF
 @echo Google Download
-py -Werror -Xdev -m "sv_dlp" 71xi-VgKXBBw5LvUWZMzfQ --service google
+py -Werror -Xdev -m "sv_dlp" YV7i9WYmvPqT5nEtFLq3SA --service google
 py -Werror -Xdev -m "sv_dlp" 37.77499382574212, -122.47185699855395 --service google
 @echo Google Metadata Test
-py -Werror -Xdev -m "sv_dlp" 71xi-VgKXBBw5LvUWZMzfQ --get-m --service google
+py -Werror -Xdev -m "sv_dlp" YV7i9WYmvPqT5nEtFLq3SA --get-m --service google
 py -Werror -Xdev -m "sv_dlp" 37.77499382574212, -122.47185699855395 --get-m --service google
 @echo Apple Download
 py -Werror -Xdev -m "sv_dlp" 37.77499382574212, -122.47185699855395 --service apple
@@ -29,6 +29,6 @@ py -Werror -Xdev -m "sv_dlp" 55.76550473786485, 37.54340745542864 --get-m --serv
 
 @REM Google Short Link Test
 @echo Google Short Link Test
-py -Werror -Xdev -m "sv_dlp" 71xi-VgKXBBw5LvUWZMzfQ -l
+py -Werror -Xdev -m "sv_dlp" YV7i9WYmvPqT5nEtFLq3SA -l
 py -Werror -Xdev -m "sv_dlp" 1.62097345657655 -75.61895756809007 -l
-py -Werror -Xdev -m "sv_dlp" https://goo.gl/maps/ebd71LHjZWF6HC3AA -p
+py -Werror -Xdev -m "sv_dlp" https://goo.gl/maps/hsMg2rZNhY5HALcx8 -p
