@@ -122,16 +122,19 @@ class metadata:
         buff = []
         match output:
             case "timeline":
-                for pano_info in raw_md[1][0][5][0][8]:
-                    if pano_info == None: break
-                    else:
-                        raw_pano_info = linked_panos[pano_info[0]]
-                        buff.append({
-                            "pano_id": raw_pano_info[0][1],
-                            "lat": raw_pano_info[2][0][-2],
-                            "lng": raw_pano_info[2][0][-1],
-                            "date": metadata._convert_date(f"{pano_info[1][0]}/{pano_info[1][1]}")
-                        })
+                try:
+                    for pano_info in raw_md[1][0][5][0][8]:
+                        if pano_info == None: break
+                        else:
+                            raw_pano_info = linked_panos[pano_info[0]]
+                            buff.append({
+                                "pano_id": raw_pano_info[0][1],
+                                "lat": raw_pano_info[2][0][-2],
+                                "lng": raw_pano_info[2][0][-1],
+                                "date": metadata._convert_date(f"{pano_info[1][0]}/{pano_info[1][1]}")
+                            })
+                except IndexError: # no timeline:
+                    buff = []
                 md.timeline = buff
             case "linked_panos":
                 md["linked_panos"] = {}
@@ -197,11 +200,9 @@ def _build_tile_arr(metadata, zoom=2):
         y_axis = metadata.size[0][zoom][0][0] // metadata.size[1][0]
         arr = [[] for _ in range(y_axis)]
         for y in range(y_axis):
-            print(y)
             for x in range(x_axis):
                 url = urls._build_tile_url(pano_id=pano_id, zoom=zoom, x=x, y=y)
                 arr[y].append(url)
-    print(arr)
     return arr
 
 if __name__ == "__main__":
