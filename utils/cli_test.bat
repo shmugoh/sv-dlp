@@ -31,4 +31,4 @@ py -Werror -Xdev -m "sv_dlp" 55.76550473786485, 37.54340745542864 --get-m --serv
 @echo Google Short Link Test
 py -Werror -Xdev -m "sv_dlp" YV7i9WYmvPqT5nEtFLq3SA -l
 py -Werror -Xdev -m "sv_dlp" 1.62097345657655 -75.61895756809007 -l
-py -Werror -Xdev -m "sv_dlp" https://goo.gl/maps/hsMg2rZNhY5HALcx8 -p
+py -Werror -Xdev -m "sv_dlp" https://maps.app.goo.gl/iZVE6N3nTfVfvSTZ6 -p
