@@ -35,13 +35,17 @@ class urls:
                 url = f"https://www.google.com/maps/photometa/ac/v1?pb=!1m1!1smaps_sv.tactile!6m3!1i{x}!2i{y}!3i17!8b1"
         return url
 
-    def _build_short_url(pano_id, heading=0, pitch=0, zoom=90) -> str:
+    def _build_short_url(pano_id, heading=0, pitch=0, zoom=90, mode='new') -> str:
         """
         Build API call URL that shorts an encoded URL.
         Useful for shortening panorama IDs.
         """
         encoded_input = f"https://www.google.com/maps/@?api=1&map_action=pano&pano={pano_id}&heading={heading}&pitch={pitch}&fov={zoom}"
-        url = f"https://www.google.com/maps/rpc/shorturl?pb=!1s{urllib.parse.quote(encoded_input)}"
+        match mode:
+            case 'legacy':
+                url = f"https://www.google.com/maps/rpc/shorturl?pb=!1s{urllib.parse.quote(encoded_input)}"
+            case 'new':
+                url = f"https://www.google.com/maps/rpc/shorturl?pb=!1s{urllib.parse.quote(encoded_input)}{urllib.parse.quote('?entry=tts!2m2!1s!7e81!6b1')}"
         return url
     
 class geo:
@@ -63,7 +67,7 @@ class misc:
         url = requests.get(url).url
         pano_id = re.findall(r"1s(.+)!2e", url)
         if pano_id == []:
-            # https://www.google.com/maps/@?api=1&map_action=pano&pano=p1yAMqbHsH7sgAGIJWwBpw&shorturl=1
+            # https://www.google.com/maps/@?api=1&map_action=pano&pano=[PANO_ID]&shorturl=1
             pano_id = re.findall(r"pano=([^&]+)", url)
         return pano_id[0]
 
@@ -135,6 +139,8 @@ class metadata:
                             })
                 except IndexError: # no timeline:
                     buff = []
+                except TypeError:
+                    buff = []
                 md.timeline = buff
             case "linked_panos":
                 md["linked_panos"] = {}
@@ -204,7 +210,3 @@ def _build_tile_arr(metadata, zoom=2):
                 url = urls._build_tile_url(pano_id=pano_id, zoom=zoom, x=x, y=y)
                 arr[y].append(url)
     return arr
-
-if __name__ == "__main__":
-    pano = "fzJzOcJLZPq-_QPBJzl5Dg"
-    pprint(_build_tile_arr(pano, zoom=3))
