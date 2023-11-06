@@ -4,8 +4,8 @@
     </b>
 </h1>
 
-sv-dlp is a powerful scraper for street view platforms. It simplifies downloading panoramic images,
-fetching metadata, and creating short URLs. This tool offers extensive functionality, including metadata
+sv-dlp is a powerful API Wrapper for street view platforms, as it simplifies downloading panoramic images,
+fetching metadata, and creating short URLs. sv-dlp offers extensive internal functionality, including metadata
 extraction and panorama stitching. It's highly adaptable, allowing developers to integrate it into their
 projects.
 
