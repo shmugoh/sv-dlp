@@ -107,7 +107,6 @@ class metadata:
 
     def _get_raw_metadata(pano_id) -> str:
         url = urls._build_metadata_url(pano_id)
-        print(url)
         data = requests.get(url).json()
         return data
 
