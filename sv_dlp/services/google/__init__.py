@@ -1,20 +1,23 @@
-from datetime import datetime
-from pprint import pprint
-import math
-import sv_dlp.services
-import requests
 import json as j
+import math
 import re
-from random import choice
 import urllib.parse
+from datetime import datetime
+from random import choice
+
+import requests
+
+import sv_dlp.services
+from .url_protobuf import build_find_panorama_request_url  # GeoPhotoService.SingleImageSearch
+from .url_protobuf import build_find_panorama_by_id_request_url # GeoPhotoService.GetMetadata
 
 class urls:
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"
-    def _build_tile_url(pano_id, zoom=3, x=0, y=0):
+    def _build_tile_url(pano_id, zoom=3, x=0, y=0, nbt=True, fover=2):
         """
         Build Google Street View Tile URL
         """
-        url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={pano_id}&x={x}&y={y}&zoom={zoom}&nbt=1&fover=2"
+        url = f"https://streetviewpixels-pa.googleapis.com/v1/tile?cb_client=maps_sv.tactile&panoid={pano_id}&x={x}&y={y}&zoom={zoom}&nbt={1 if nbt == True else 0}&fover={fover}"
         return url
 
     def _build_metadata_url(pano_id=None, lat=None, lng=None, mode="GetMetadata", radius=500):
@@ -24,12 +27,12 @@ class urls:
         such as image size, location, coordinates,
         date and previous panoramas.
         """
-        xdc = "_xdc_._" + "".join([y for x in range(6) if (y := choice(urls.chars)) is not None])
         match mode:
             case "GetMetadata":
-                url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.GetMetadata?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m2!1sen!2sUS!3m3!1m2!1e2!2s{pano_id}!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}"
+                url = build_find_panorama_by_id_request_url(pano_id, download_depth=True, locale="en-US")
             case "SingleImageSearch":
-                url = f"https://maps.googleapis.com/maps/api/js/GeoPhotoService.SingleImageSearch?pb=!1m5!1sapiv3!5sUS!11m2!1m1!1b0!2m4!1m2!3d{lat}!4d{lng}!2d{radius}!3m20!1m1!3b1!2m2!1sen!2sUS!9m1!1e2!11m12!1m3!1e2!2b1!3e2!1m3!1e3!2b1!3e2!1m3!1e10!2b1!3e2!4m6!1e1!1e2!1e3!1e4!1e8!1e6&callback={xdc}"
+                xdc = "_xdc_._" + "".join([y for x in range(6) if (y := choice(urls.chars)) is not None])
+                url = build_find_panorama_request_url(lat=lat, lon=lng, radius=radius, download_depth=True, locale="en-US", search_third_party=True, xdc=xdc)
             case "SatelliteZoom":
                 x, y = geo._coordinate_to_tile(lat, lng)
                 url = f"https://www.google.com/maps/photometa/ac/v1?pb=!1m1!1smaps_sv.tactile!6m3!1i{x}!2i{y}!3i17!8b1"
@@ -165,7 +168,7 @@ class metadata:
         Returns panorama ID metadata.
         """
         url = urls._build_metadata_url(pano_id=pano_id, mode="GetMetadata")
-        data = str(requests.get(url).content)[38:-3].replace("\\", "\\\\")
+        data = requests.get(url).content[5:]
         raw_md = j.loads(data)
         return raw_md
 
