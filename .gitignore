@@ -2,7 +2,7 @@
 *.png
 
 # Allow Logo
-!docs/*logo.png
+!docs/*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
