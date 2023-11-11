@@ -1,11 +1,13 @@
-<table style="margin: auto;">
-<tr>
-<td><img src="docs/logo.png" alt="LOGO" style="width:200px;"/></td>
-<td style="text-align:center;vertical-align:middle;"><h1>sv-dlp</h1></td>
-</tr>
-</table>
+<p align="center">
+    <img src="docs/logo.png" alt="Logo" width="200">
+</p>
+<h1 align="center">
+    <b>
+        sv-dlp 
+    </b>
+</h1>
 
-sv-dlp is a powerful API Wrapper for street view platforms, as it simplifies downloading panoramic images,
+sv-dlp is a powerful API Wrapper for Street View platforms, as it simplifies downloading panoramic images,
 fetching metadata, and creating short URLs. sv-dlp offers extensive internal functionality, including metadata
 extraction and panorama stitching. It's highly adaptable, allowing developers to integrate it into their
 projects.
@@ -52,14 +54,14 @@ To install sv-dlp, download it via PIP, as long as Python >3.10 is installed
 
 ```bash
 $ pip install sv_dlp
-$ py -m sv_dlp
+$ sv-dlp
 ```
 
 ## Manual
 
 If you prefer using a binary instead, check out the binaries [here](https://github.com/shmugoh/sv-dlp/releases/latest)
-and add them to your `PATH` folder. Check out this [guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)
-for more information.
+and add them to your `PATH` folder. Check out this [Windows Guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/)
+for more information if you're not familiar with it.
 
 ## Getting Started
 
