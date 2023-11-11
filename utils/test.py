@@ -4,6 +4,8 @@ sys.path.insert(0, '..')
 
 import sv_dlp
 import unittest
+
+import textwrap
 from random import randrange
 
 class TestSvDlp(unittest.TestCase):
@@ -64,11 +66,13 @@ class TestSvDlp(unittest.TestCase):
         for service, (lat, lng, pano_id) in self.services.items():
             with self.subTest(service=service):
                 print(f"LL Test: {service}")
+                wrapper = textwrap.TextWrapper(initial_indent=f"{service}: ", width=70, subsequent_indent=' '*8)
                 try:
                     self.sv_dlp.set_service(service)
                     md = self.sv_dlp.get_metadata(lat=lat, lng=lng)
                     pano = self.sv_dlp.get_pano_id(lat, lng)
                     assert pano is not None, "Failed to get panorama ID"
+                    print(wrapper.fill(str(md)))
                 except Exception as e:
                     self.fail(f"ERROR: LL Test - {service}")
 
@@ -89,6 +93,7 @@ class TestSvDlp(unittest.TestCase):
                         assert url is not None, "Failed to get short URL"
                         c_url = self.sv_dlp.short_url(lat=lat, lng=lng, heading=-randrange(-360, 360), pitch=randrange(-90, 90), zoom=randrange(10, 100))
                         assert c_url is not None, "Failed to get short URL from coordinates"
+                        print(f"{service}: {url}")
                     except Exception as e:
                         self.fail(f"ERROR: URL Test - {service}")
 
