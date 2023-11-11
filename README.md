@@ -1,9 +1,9 @@
-<table style="margin: auto;">
-<tr>
-<td><img src="docs/logo.png" alt="LOGO" style="width:200px;"/></td>
-<td style="text-align:center;vertical-align:middle;"><h1>sv-dlp</h1></td>
-</tr>
-</table>
+<div style="display: flex; justify-content: center; align-items: center;">
+    <img src="docs/logo.png" alt="Logo" style="width: 200px; height: auto;">
+    <div style="padding-left: 20px;">
+        <h1>sv-dlp</h1>
+    </div>
+</div>
 
 sv-dlp is a powerful API Wrapper for street view platforms, as it simplifies downloading panoramic images,
 fetching metadata, and creating short URLs. sv-dlp offers extensive internal functionality, including metadata
