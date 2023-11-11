@@ -11,7 +11,7 @@ jobs:
       version: ${{ steps.version.outputs.sv-dlp_version }}
 
     steps:
-      - name: Switch Branch
+      - name: Checkout Branch
         uses: actions/checkout@v2
 
       - name: Bump version
@@ -31,10 +31,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.10]
+        python-version: ["3.10.5"]
+        architecture: ["x64"]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Branch
+        uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
