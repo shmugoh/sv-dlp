@@ -2,6 +2,11 @@ name: Dry Build
 
 on:
   push:
+    paths:
+      - "utils/test.py"
+      - "utils/test/TestSvDlp.py"
+      - "utils/test/TestSvDlp/test_ll_md.py"
+      - "sv_dlp/**"
 
 jobs:
   create-release:
@@ -110,4 +115,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Publish to GitHub
-        run: echo pretend this is setting the release to public"
+        run: echo pretend this is setting the release to public
