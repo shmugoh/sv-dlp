@@ -1,3 +1,26 @@
+## 2023.11.12
+## Changelog
+## Added
+- **[GOOGLE]** Added URL-Protobuf Generation Code for improved functionality.
+- **[GOOGLE]** Support for new Short URLs.
+- **[BUILD | DOCS]** Added Logo
+- **[DEV]** Test & Dry Build Workflow for more efficient development.
+## Changed
+- **[DEV]** UnitTest Workflows to ensure code reliability.
+- **[DEV]** Package Versions updated for better performance and security.
+- **[DEV]** Icon & Bin now included in Build Pipelines for a more comprehensive build process.
+- **[DEV]** Renamed `dev_scripts` to `utils` for clearer naminng conventions
+## Fixed
+- **[BAIDU]** Removed Unexpected Print Statement 
+## Updated
+- **[DOCS]** Added Logo Images to enhance documentation visuals.
+- **[DOCS]** Updated Names for consistency and clarity.
+## Security
+- **[BUILD]** Updated libraries to patch certain vulnerabilities
+    - `certifi [2023.7.22]`: Python Charmers Future denial of service vulnerability
+    - `requests [2.31.0]`: Potential Proxy-Authorization Header Leak via HTTPS
+    - `certifi [2023.7.22]`: Potential Proxy-Authorization Header Leak via HTTPS
+
 ## 2023.02.06
 ## Changelog
 ## Added
