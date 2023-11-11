@@ -11,7 +11,7 @@ jobs:
       version: ${{ steps.version.outputs.sv-dlp_version }}
 
     steps:
-      - name: Checkout Branch
+      - name: Switch Branch
         uses: actions/checkout@v2
 
       - name: Bump version
@@ -27,39 +27,86 @@ jobs:
   build-publish-pypi:
     name: "Build & Publish to PyPi"
     needs: create-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Switch Branch
+        uses: actions/checkout@v2
+        with:
+          ref: "master"
+
+      - name: Set up Python 3.10.5
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10.5"
+          architecture: "x64"
+
+      - name: Build Package
+        run: |
+          python -m pip install setuptools wheel
+          python setup.py sdist bdist_wheel
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: ./dist/*
+
+  compile-publish:
+    name: "Compile & Publish"
+    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.10.5"]
-        architecture: ["x64"]
+        asset_path:
+          [
+            "./dist/bin/sv-dlp",
+            "./dist/bin/sv-dlp.exe",
+            "./dist/bin/sv-dlp_macos",
+          ]
+        asset_name: ["sv-dlp", "sv-dlp.exe", "sv-dlp_macos"]
+        asset_content_type:
+          [
+            "application/tar+gzip",
+            "application/tar+gzip",
+            "application/tar+gzip",
+          ]
+        system_libs: [true, false, false]
 
     steps:
-      - name: Checkout Branch
+      - name: Switch Branch
         uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.10.5
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10.5"
+          architecture: "x64"
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install cibuildwheel
+      - name: Install Required Modules
+        run: python -m pip install -r requirements.txt
 
-      - name: Build Binaries
+      - name: Install System Libraries
         run: |
-          python build_cli.py
+          if [ "${{ matrix.system_libs }}" = true ]; then
+            sudo apt-get install libde265-0 liblzma5 libjpeg8 libjpeg9 libxau6 libnghttp2-14 libsqlite3-0 libtiff5 python3-libtiff libcurl4 python3-pycurl
+          fi
 
-      - name: Build wheels
-        run: |
-          python -m cibuildwheel --output-dir wheelhouse
+      - name: Build Binary
+        run: python build_cli.py
 
-      - name: Publish to PyPI
-        run: |
-          ls wheelhouse
-        # uses: pypa/gh-action-pypi-publish@release/v1
-        # with:
-        #   password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Upload Binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: ${{ matrix.asset_path }}
+
+    # steps:
+    #   - name: Publish Release
+    #     id: release
+    #     uses: irongut/EditRelease@v1.2.0
+    #     with:
+    #       token: ${{ secrets.GITHUB_TOKEN }}
+    #       id: ${{ needs.create-release.outputs.id }}
+    #       draft: false
