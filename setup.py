@@ -22,4 +22,5 @@ setup(
     packages=find_packages(exclude=('utils')),
     python_requires='>=3.10', # thinking about making it 3.8
     install_requires=REQUIREMENTS,
+    include_package_data=True,
 )
