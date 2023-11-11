@@ -23,4 +23,10 @@ setup(
     python_requires='>=3.10', # thinking about making it 3.8
     install_requires=REQUIREMENTS,
     include_package_data=True,
+
+    entry_points={
+        'console_scripts': [
+            'sv-dlp=sv_dlp.__main__:main',
+        ],
+    }
 )
