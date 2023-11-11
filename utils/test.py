@@ -52,7 +52,11 @@ class TestSvDlp(unittest.TestCase):
                 print(f"Pano Test: {service}")
                 try:
                     self.sv_dlp.set_service(service)
-                    md = self.sv_dlp.get_metadata(pano_id)
+                    if service == "apple" or service == "bing":
+                        md = self.sv_dlp.get_metadata(lat=lat, lng=lng)
+                        pano_id = md.pano_id
+                    else:
+                        md = self.sv_dlp.get_metadata(pano_id)
                     img = self.sv_dlp.download_panorama(pano_id=pano_id)
                     self.sv_dlp.postdownload.save_panorama(img, md)
                     assert img is not None, "Failed to download panorama"
