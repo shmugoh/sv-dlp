@@ -56,6 +56,8 @@ jobs:
       - name: Build wheels
         run: |
           python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_ARCHS: x86_64
 
       - name: Publish to PyPI
         run: |
