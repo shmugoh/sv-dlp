@@ -1,12 +1,7 @@
-name: Build
+name: Dry Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      pre_release:
-        type: boolean
-        description: Nightly Build
-        required: false
+  push:
 
 jobs:
   create-release:
@@ -18,8 +13,6 @@ jobs:
     steps:
       - name: Switch Branch
         uses: actions/checkout@v2
-        with:
-          ref: "master"
 
       - name: Bump version
         id: version
