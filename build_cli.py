@@ -3,7 +3,7 @@ import platform
 
 SYS_OS = platform.system()
 SYS_ARCH = platform.architecture()[0][:2]
-suffix = f"{'_macos' if SYS_OS == 'Darwin' else ''}{'_x86' if SYS_ARCH == '32' else ''}{'.exe' if SYS_OS == 'Windows' else ''}"
+suffix = f"{'.exe' if SYS_OS == 'Windows' else ''}"
 
 def main():
     opts = [
