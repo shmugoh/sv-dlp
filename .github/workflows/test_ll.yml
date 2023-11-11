@@ -2,8 +2,13 @@ name: Test LL MD
 
 on:
   push:
+    paths:
+      - "utils/test.py"
+      - "utils/test/TestSvDlp.py"
+      - "utils/test/TestSvDlp/test_ll_md.py"
+      - "sv_dlp/**"
   schedule:
-    - cron: "0 0 * * *" # every day at midnight
+    - cron: "0 0 * * *"
 
 jobs:
   test:
