@@ -32,7 +32,8 @@ class urls:
                 url = build_find_panorama_by_id_request_url(pano_id, download_depth=True, locale="en-US")
             case "SingleImageSearch":
                 xdc = "_xdc_._" + "".join([y for x in range(6) if (y := choice(urls.chars)) is not None])
-                url = build_find_panorama_request_url(lat=lat, lon=lng, radius=radius, download_depth=True, locale="en-US", search_third_party=True, xdc=xdc)
+                url = build_find_panorama_request_url(lat=lat, lon=lng, radius=radius, download_depth=True, locale="en-US", search_third_party=False, xdc=xdc)
+                # TODO: Adapt Metadata to search_third_party
             case "SatelliteZoom":
                 x, y = geo._coordinate_to_tile(lat, lng)
                 url = f"https://www.google.com/maps/photometa/ac/v1?pb=!1m1!1smaps_sv.tactile!6m3!1i{x}!2i{y}!3i17!8b1"
@@ -186,8 +187,8 @@ class metadata:
                 data = j.loads(json[4:])
                 pano = data[1][1][0][0][0][1]
             else:
-                data = re.findall(r'\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]', json)
-                pano = data[0][0]
+                data = re.findall(r'\[(\d+),"(.+?)"\].+?,\[\[null,null,(.+?),(.+?)\]', json)
+                pano = data[0][1]
         except TypeError:
             raise sv_dlp.services.NoPanoIDAvailable
         # pans = re.findall(r"\[[0-9],"(.+?)"].+?,\[\[null,null,(.+?),(.+?)\]", json)
