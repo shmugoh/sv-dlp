@@ -3,12 +3,12 @@ repo_name: juanpisss/sv-dlp
 repo_url: https://github.com/juanpisss/sv-dlp
 
 nav:
-  - "Index":                                    index.md
-  - "Module - Basics & Getting Started":        module_basics.md
-  - "Command Line Interface - User Guide":      cli_guide.md
-  - "Supported Services":                       supported_services.md
-  - "Contributing - Basics & Getting Started":  contributing_services.md
-  - "Class Documentation":                      class_documentation.md
+  - "Index": index.md
+  - "Module - Basics & Getting Started": module_basics.md
+  - "Command Line Interface - User Guide": cli_guide.md
+  - "Supported Services": supported_services.md
+  - "Contributing - Basics & Getting Started": contributing_services.md
+  - "Class Documentation": class_documentation.md
 
 theme:
   name: "material"
@@ -20,7 +20,7 @@ theme:
       toggle:
         icon: material/eye
         name: Dark Mode
-        
+
     # Light Mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -30,10 +30,10 @@ theme:
         name: Switch to light mode
 
 plugins:
-- search
-- mkdocstrings
-- include-markdown
-- mike
+  - search
+  - mkdocstrings
+  - include-markdown
+  - mike
 
 extra:
   version:
