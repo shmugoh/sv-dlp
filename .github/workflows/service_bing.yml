@@ -1,4 +1,4 @@
-name: Bing Service Test
+name: Service Test - Bing
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Test Pano Download
+name: Generic Test - Pano Download
 
 on:
   push:

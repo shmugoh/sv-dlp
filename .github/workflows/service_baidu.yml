@@ -1,4 +1,4 @@
-name: Baidu Service Test
+name: Service Test - Baidu
 
 on:
   push:

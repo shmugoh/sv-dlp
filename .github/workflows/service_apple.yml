@@ -1,4 +1,4 @@
-name: Apple Service Test
+name: Service Test - Apple
 
 on:
   push:

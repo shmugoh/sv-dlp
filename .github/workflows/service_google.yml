@@ -1,4 +1,4 @@
-name: Google Service Test
+name: Service Test - Google
 
 on:
   push:

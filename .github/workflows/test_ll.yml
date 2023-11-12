@@ -1,4 +1,4 @@
-name: Test LL MD
+name: Generic Test - LL MD
 
 on:
   push:
