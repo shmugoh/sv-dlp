@@ -101,7 +101,7 @@ class TestSvDlp(unittest.TestCase):
                         
                         c_url = self.sv_dlp.short_url(lat=lat, lng=lng, heading=-randrange(-360, 360), pitch=randrange(-90, 90), zoom=randrange(10, 100))
                         assert c_url is not None, "Failed to get short URL from coordinates"
-                        print(f"Coord URL: {c_url}")
+                        print(f"Coordinates URL: {c_url}")
                     except Exception as e:
                         self.fail(f"ERROR: URL Test - {service}")
 
@@ -154,7 +154,7 @@ class TestSvDlp(unittest.TestCase):
                 
                 c_url = self.sv_dlp.short_url(lat=lat, lng=lng, heading=-randrange(-360, 360), pitch=randrange(-90, 90), zoom=randrange(10, 100))
                 assert c_url is not None, "Failed to get short URL from coordinates"
-                print(f"Coord URL: {c_url}")
+                print(f"Coordinates URL: {c_url}")
 
 if __name__ == '__main__':
     unittest.main()
