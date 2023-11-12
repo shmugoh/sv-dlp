@@ -24,4 +24,4 @@ jobs:
       - name: Run Service Test
         run: python -m unittest utils.test.TestSvDlp.test_service
         env:
-          SERVICE: navae
+          SERVICE: naver
