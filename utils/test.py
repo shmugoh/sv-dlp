@@ -87,9 +87,10 @@ class TestSvDlp(unittest.TestCase):
         for service in self.services:
             if service in self.url_dict:
                 with self.subTest(service=service):
+                    self.sv_dlp.set_service(service)
                     print(f"URL Test: {service}")
                     try:
-                        url, lat, lng = self.url_dict[self.service]
+                        url, lat, lng = self.url_dict[service]
                         pano = self.sv_dlp.get_pano_from_url(url)
                         print(f"Pano from URL: {pano}")
                         assert pano is not None, "Failed to get panorama from URL"
