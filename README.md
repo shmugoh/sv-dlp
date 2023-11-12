@@ -1,6 +1,6 @@
 <div align="center">
 
-[![LOGO](https://raw.githubusercontent.com/shmugoh/sv-dlp/late-2023/docs/banner.png)](#readme)
+[![LOGO](https://raw.githubusercontent.com/shmugoh/sv-dlp/master/docs/banner.png)](#readme)
 
 </div>
 
