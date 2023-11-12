@@ -6,6 +6,7 @@
 - **[BUILD | DOCS]** Added Logo
 - **[DEV]** Test & Dry Build Workflow for more efficient development.
 ## Changed
+- **[CLI]** sv-dlp can now be executed instead of `python -m sv_dlp` when installed with pip
 - **[DEV]** UnitTest Workflows to ensure code reliability.
 - **[DEV]** Package Versions updated for better performance and security.
 - **[DEV]** Icon & Bin now included in Build Pipelines for a more comprehensive build process.
