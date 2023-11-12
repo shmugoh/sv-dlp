@@ -1,6 +1,10 @@
-name: Build & Publish
+name: Build - Compile & Publish
 
 on:
+  workflow_run:
+    workflows: ["test_universal.yml"]
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       pre_release:

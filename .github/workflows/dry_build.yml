@@ -1,6 +1,11 @@
-name: Dry Build
+name: Build - Dry Build
 
 on:
+  workflow_run:
+    workflows: ["test_universal.yml"]
+    types:
+      - completed
+  workflow_dispatch:
   push:
     paths:
       - "utils/test.py"
