@@ -12,6 +12,7 @@
 - **[DEV]** Icon & Bin now included in Build Pipelines for a more comprehensive build process.
 - **[DEV]** Renamed `dev_scripts` to `utils` for clearer naminng conventions
 ## Fixed
+- **[NAVER]** Fixed an issue where Naver was mistakenly referred to as Navae
 - **[BAIDU]** Removed Unexpected Print Statement 
 ## Updated
 - **[DOCS]** Added Logo Images to enhance documentation visuals.

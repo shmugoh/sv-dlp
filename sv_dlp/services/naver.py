@@ -8,7 +8,7 @@ import sv_dlp.download
 class urls:
     def _build_tile_url(pano_id, zoom=0, block="", x=0, y=0):
         """
-        Build Navae Tile URL.
+        Build Naver Tile URL.
         """
         if zoom == 0:
             url = f"https://panorama.pstatic.net/image/{pano_id}/512/P"
@@ -20,7 +20,7 @@ class urls:
 
     def _build_metadata_url(pano_id=None, lat=None, lng=None, mode='coords') -> str:
         """
-        Build Navae URL that returns panorama ID and metadata.
+        Build Naver URL that returns panorama ID and metadata.
         """
         match mode:
             case 'coords':
@@ -75,7 +75,7 @@ class metadata:
         # timeline is in separate page
         
         md = sv_dlp.services.MetadataStructure(
-            service="navae",
+            service="naver",
             pano_id=raw_md["id"],
             lat=raw_md['latitude'],
             lng=raw_md['longitude'],
