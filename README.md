@@ -2,7 +2,17 @@
 
 [![LOGO](https://raw.githubusercontent.com/shmugoh/sv-dlp/master/docs/banner.png)](#readme)
 
+[![DOWNLOAD_PYPI](https://img.shields.io/badge/-PyPi-blue.svg?style=for-the-badge&logo=pypi&label=Download
+)](https://pypi.org/project/sv-dlp/)
+[![DOWNLOAD_BIN](https://img.shields.io/github/v/release/shmugoh/sv-dlp?logo=windowsterminal&color=blue&label=Download&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/releases/tag/latest)
+
+[![TEST_PANO](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/test_pano.yml?branch=master&label=Download%20Service&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/actions)
+[![TEST_LL](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/test_ll.yml?branch=master&label=Metadata%20Service&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/actions)
+[![TEST_URL](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/test_url.yml?branch=master&label=URL%20Short%20Service&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/actions)
+
+
 </div>
+
 
 ---
 
