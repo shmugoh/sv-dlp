@@ -7,7 +7,7 @@ __version__ = version.__version__
 SYS_OS = platform.system()
 SYS_ARCH = platform.architecture()[0][:2]
 SUFFIX = f"sv-dlp{'_macos' if SYS_OS == 'Darwin' else ''}{'_x86' if SYS_ARCH == '32' else ''}{'.exe' if SYS_OS == 'Windows' else ''}"
-data = requests.get('https://api.github.com/repos/juanpisss/sv-dlp/releases').json()
+data = requests.get('https://api.github.com/repos/shmugoh/sv-dlp/releases').json()
 
 def get_lastver():
     return data[0]['tag_name']

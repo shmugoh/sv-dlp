@@ -9,7 +9,9 @@ def main():
     opts = [
         'sv_dlp/__main__.py',
         '--onefile',
-        f'--name=sv-dlp{suffix}'
+        f'--name=sv-dlp{suffix}',
+        '--icon=docs/icon.ico',
+        '--distpath=dist/bin',
     ]
 
     print(f"Building sv-dlp for platform {SYS_OS} with architecture {SYS_ARCH}")
