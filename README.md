@@ -2,17 +2,21 @@
 
 [![LOGO](https://raw.githubusercontent.com/shmugoh/sv-dlp/master/docs/banner.png)](#readme)
 
-[![DOWNLOAD_PYPI](https://img.shields.io/badge/-PyPi-blue.svg?style=for-the-badge&logo=pypi&label=Download
-)](https://pypi.org/project/sv-dlp/)
+[![DOWNLOAD_PYPI](https://img.shields.io/badge/-PyPi-blue.svg?style=for-the-badge&logo=pypi&label=Download)](https://pypi.org/project/sv-dlp/)
 [![DOWNLOAD_BIN](https://img.shields.io/github/v/release/shmugoh/sv-dlp?logo=windowsterminal&color=blue&label=Download&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/releases/tag/latest)
 
 [![TEST_PANO](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/test_pano.yml?branch=master&label=Download%20Service&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/actions)
 [![TEST_LL](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/test_ll.yml?branch=master&label=Metadata%20Service&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/actions)
 [![TEST_URL](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/test_url.yml?branch=master&label=URL%20Short%20Service&style=for-the-badge)](https://github.com/shmugoh/sv-dlp/actions)
 
+![APPLE](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/service_apple.yml?style=flat-square&logo=apple&label=Apple%20Service)
+![GOOGLE](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/service_apple.yml?style=flat-square&logo=googlemaps&label=Google%20Service)
+![YANDEX](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/service_yandex.yml?style=flat-square&logo=yandexcloud&logoColor=ff4a39&label=Yandex%20Service)
+![BAIDU](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/service_baidu.yml?style=flat-square&logo=baidu&label=Baidu%20Service)
+![BING](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/service_bing.yml?style=flat-square&logo=microsoftbing&label=Bing%20Status)
+![NAVER](https://img.shields.io/github/actions/workflow/status/shmugoh/sv-dlp/service_naver.yml?style=flat-square&logo=naver&label=Naver%20Status)
 
 </div>
-
 
 ---
 
@@ -48,14 +52,16 @@ smoothly for all supported platforms.
 
 ## **Services**
 
-| Service | Status | Notes                                                                                                                                                    |
-| :------ | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Google  | 100%   | Zoom 5 only obtains a portion of the face.                                                                                                               |
-| Baidu   | 99%    | Translation between BD09MC and WGS84 is innacurate.                                                                                                      |
-| Navae   | 99%    | Short Link function does not use its appropiate API call.                                                                                                |
-| Yandex  | 99%    | Short Link function does not use the `shortenPath` API call.                                                                                             |
-| Apple   | 95%    | Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/shmugoh/sv-dlp/blob/master/CREDITS) |
-| Bing    | 95%    | Misc features not implemented; can only obtain metadata by coords - credit to [sk-zk](https://github.com/shmugoh/sv-dlp/blob/master/CREDITS)             |
+<!-- TODO: Change Progress Formula -->
+
+| Service | Progress | Notes                                                                                                                                                    |
+| :------ | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Google  | 99%      | Zoom 5 only obtains a portion of the face.                                                                                                               |
+| Baidu   | 99%      | Translation between BD09MC and WGS84 is innacurate.                                                                                                      |
+| Naver   | 99%      | Short Link function does not use its appropiate API call.                                                                                                |
+| Yandex  | 99%      | Short Link function does not use the `shortenPath` API call.                                                                                             |
+| Apple   | 95%      | Misc features not supported; can only obtain metadata by coords - credit to [sk-zk & retroplasma](https://github.com/shmugoh/sv-dlp/blob/master/CREDITS) |
+| Bing    | 95%      | Misc features not implemented; can only obtain metadata by coords - credit to [sk-zk](https://github.com/shmugoh/sv-dlp/blob/master/CREDITS)             |
 
 ## **Installation**
 

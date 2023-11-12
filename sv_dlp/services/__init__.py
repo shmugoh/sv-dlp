@@ -3,7 +3,7 @@ from . import google
 from . import yandex
 from . import apple
 from . import baidu
-from . import navae
+from . import naver
 # i don't know why i picked this. i literally can't call extractor.[service]
 # unless if i import them here, and __all__ causes pyinstaller to act very weirdly. too bad!
 
