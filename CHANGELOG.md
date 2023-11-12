@@ -26,7 +26,7 @@
 - **[BAIDU]** Final metadata coordinates inaccurate - [#36](https://github.com/shmugoh/sv-dlp/issues/36)
 - **[APPLE]** Input coordinate not accurate to output - [#25](https://github.com/shmugoh/sv-dlp/issues/25)
 - **[GOOGLE]** Zoom 5 Stiching Tiles Borked [#8](https://github.com/shmugoh/sv-dlp/issues/8)
-
+---
 ## 2023.02.06
 ## Changelog
 ## Added
