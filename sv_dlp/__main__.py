@@ -128,9 +128,11 @@ def main(args=None):
         parser.exit(1)
 
     try:
+        # Obtain Metadata & Zoom
         sv_dlp.get_metadata(pano_id=pano, lat=lat, lng=lng, get_linked_panos=args.linked_panos)
         if zoom == "max":
             zoom = sv_dlp.metadata.max_zoom
+        zoom = int(zoom)
     except services.NoPanoIDAvailable as e:
         parser.error(e.message)
     # is stored in sv_dlp.metadata
