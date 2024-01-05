@@ -20,7 +20,7 @@ mkdocstrings-python==0.7.1
 packaging==21.3
 protobuf==4.25.0
 pycparser==2.21
-pycryptodome==3.19.0
+pycryptodome==3.19.1
 Pygments==2.13.0
 pymdown-extensions==9.5
 pyparsing==3.0.9
