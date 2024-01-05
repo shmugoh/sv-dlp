@@ -1,3 +1,11 @@
+## 2024.01.05
+## Changelog
+## Fixed
+- **[CLI]** Fixed an issue where CLI was parsing the zoom value as a string instead of an integer, causing the API Wrapper to crash
+## Security
+- **[BUILD]** Updated libraries to patch certain vulnerabilities
+    - `pycryptodome [3.19.1]`: side-channel leakage with OAEP decryption that could be exploited to carry out a Manger attack
+
 ## 2023.11.12
 ## Changelog
 ## Added
